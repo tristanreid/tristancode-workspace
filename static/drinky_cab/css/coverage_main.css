@@ -1,0 +1,28 @@
+body {
+	overflow: hidden;
+	font-family: sans-serif;
+}
+
+#map {
+	top: 0;
+	left: 0;
+	position: absolute;
+	width: 1200px;
+	height: 600px;
+	border: 1px solid #ccc;
+}
+
+.overlay {
+	padding: 7px;
+	color: #333;
+	background-color: #fff;
+	background-color: rgba(255, 255, 255, 0.6);
+	z-index: 10;
+	position: fixed;
+	top: 10px;
+	left: 60px;
+}
+
+.overlay input {
+	padding: 2px;
+}

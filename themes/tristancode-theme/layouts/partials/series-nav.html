@@ -1,0 +1,20 @@
+{{ with .Params.series }}
+{{ $series := . }}
+<nav class="series-nav">
+  <p class="series-label">Part of the <strong>{{ $series }}</strong> series</p>
+  <ol class="series-list">
+    {{ range sort (where $.Site.RegularPages "Params.series" $series) "Weight" }}
+    <li{{ if eq .RelPermalink $.RelPermalink }} class="current"{{ end }}>
+      {{ if eq .RelPermalink $.RelPermalink }}
+        <span class="series-current-title">{{ .Title }}</span>
+        {{ with .Params.series_type }}<span class="series-type">{{ . }}</span>{{ end }}
+        <span class="series-you-are-here">← you are here</span>
+      {{ else }}
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ with .Params.series_type }}<span class="series-type">{{ . }}</span>{{ end }}
+      {{ end }}
+    </li>
+    {{ end }}
+  </ol>
+</nav>
+{{ end }}

@@ -1,0 +1,32 @@
+baseURL = 'https://tristancode.com/'
+languageCode = 'en-us'
+title = 'tristancode'
+theme = 'tristancode-theme'
+
+[params]
+  description = "Tristan Reid — blog posts, tools, visualizations, and other fun things."
+  author = "Tristan Reid"
+
+[markup]
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = false
+    guessSyntax = true
+    noClasses = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[menu]
+  [[menu.main]]
+    name = "Blog"
+    url = "/blog/"
+    weight = 1
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 2
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]

@@ -1,0 +1,29 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>Hi, I'm Tristan.</h1>
+  <p class="hero-sub">I write about data, code, and the things I build. This site is a collection of blog posts, interactive visualizations, and fun side projects.</p>
+</section>
+
+<section class="home-section">
+  <h2>Writing</h2>
+  <ul class="post-list">
+    {{ range (where .Site.RegularPages "Section" "blog") }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{ end }}
+  </ul>
+</section>
+
+{{ with (where .Site.RegularPages "Section" "projects") }}
+<section class="home-section">
+  <h2>Projects</h2>
+  <ul class="post-list">
+    {{ range . }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}

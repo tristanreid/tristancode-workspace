@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Drinky Cab</title>
+    <link rel="stylesheet" href="component.css"/>
+    <link rel="stylesheet" href="drinky.css"/>
+
+    <script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+
+</head>
+<body>
+<article>
+    <div id="i2" class="slide">
+        <div class="transbox">
+            <h2>Project Drinky-Cab</h2>
+
+            <p>
+                My friend <a href="http://www.orchardsa.com/leadership/" target="_blank">Steve</a> is an expert on taxis, and has fair knowledge about drinking, but he asked
+                for my help to find out:
+                <em>'do drunk people tip taxi drivers better?'</em>
+            </p>
+            <p>
+                The main data source is the <a href="http://flowingdata.com/2014/06/23/lessons-from-improperly-anonymized-taxi-logs/">notorious</a>
+                NYC Taxi <a href="http://www.chriswhong.com/open-data/foil_nyc_taxi/">dataset</a>, obtained by Chris
+                Wong via Freedom of Information Law, and also:
+            <ul>
+                <li>
+                    The <a href="https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2">NY State Liquor License Listings</a>
+                </li>
+                <li>
+                    <a href="http://en.wikipedia.org/wiki/Shapefile">Shape files</a> of NYC.
+                </li>
+            </ul>
+            <div class="next">
+                <a class="next" id="3" href="#">NEXT</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="i3" class="slide">
+        <div class="transbox">
+            <p> The fundamental issue of this investigation is there's no exact data that tells us which riders were
+                drinking.</p>
+
+            <p> We will instead attempt to use domain knowledge to assign passengers with high/low probability of
+                drunkiness; specifically we will use the location and the date/time of the ride to assign a 'drinkiness' factor.</p>
+
+            <p> Note that even if you accept that our model is correct, and if our research establishes that there is a difference in tipping trends, we can only state "The data supports our hypothesis that drunk people tip better." </p>
+            <div class="next">
+                <a class="next" id="4" href="#">NEXT</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="i4" class="slide">
+      <div class="transbox">
+        <p>
+            The liquor license data show that there are different types of license.  I assigned each of them a weight, e.g. an on-prem liquor location with is more 'drinky' than hotel wine.
+        </p>
+        <p>
+            In order to look for insights about this data, it's useful to look at it on a map.  I created a series of interactive maps that will help uncover patterns and anomalies in the data.
+        </p>
+        <p>
+            Each of these maps has a different strength, which will reveal a different aspect of the data that is important for analysis.
+        </p>
+            <div class="next">
+                <a class="next" id="5" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i5" class="slide">
+      <div class="transbox">
+        <p>
+            This map shows the coverage of the various bars and other locations, and we can distinguish between the types of liquor licenses by the color of the circle.
+        </p>
+        <p>
+            Click <a href="nyc_bar_coverage.html" target="_blank">here</a> for an interactive version.  You can change the size of the circle, which represents a distance that seems appropriate for someone leaving a location and looking for a cab.
+        </p>
+        <p>
+            The main drawback of this kind of map is that we lose information in the regions of overlap.  A heatmap can give us a better idea of the relative 'drinkiness'.
+        </p>
+            <div class="next">
+                <a class="next" id="6" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i6" class="slide">
+      <div class="transbox">
+        <p>
+            With the heatmap we get a better sense of the liquor license concentration in various areas, weighted by their respective 'strength'.
+        </p>
+        <p>
+            Click <a href="nyc_bar_heatmap.html" target="_blank">here</a> for an interactive version.
+            You'll note that some areas seem to have no heat at all, but if you zoom into them you'll find that they do.
+            This is because the color is relative to everything showing on the map, so stronger locations overwhelm weaker ones.
+        </p>
+        <p>
+            This feature makes it easy to find anomalies.  In particular, note what happens when we look at the JFK area...
+        </p>
+            <div class="next">
+                <a class="next" id="7" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i7" class="slide">
+      <div class="transbox">
+        <p>
+            JFK is like a white-hot sun!  There is a very large concentration of liquor licenses held in one location.
+        </p>
+        <p>
+            While the heatmap gives us the capability of scoring locations according to relative strength, it has no ability to communicate the details of each location.
+        </p>
+        <p>
+            In order to investigate this, we can use yet another type of map, which will allow us to zoom in-and-out to view the specific liquor license locations.
+        </p>
+            <div class="next">
+                <a class="next" id="8" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i8" class="slide">
+      <div class="transbox">
+        <p>
+        With the cluster map (interactive <a href="nyc_bar_clusters.html" target="_blank">here</a>, we can see specific number of licenses at each location.
+        We lose the ability to see the weighting factors, as we had with the heatmap, but we can zoom right into the details of the establishment.
+        </p>
+        <p>
+        If you zoom in on JFK, you'll find that there's a small administrative building that holds 47 liquor licenses, and the names of them show that they're the airlines and some terminal businesses.
+        </p>
+        <p>
+        Armed with this knowledge, we can remove all rides from the airport from the study, as well as rides with pickups at the harbors and train stations.  See updated heatmap <a href="nyc_bar_heatmap_no_airports.html" target="_blank">here</a>.
+        </p>
+            <div class="next">
+                <a class="next" id="9" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i9" class="slide">
+      <div class="transbox">
+        <p>
+        Let's take a look at the taxi trip data, to see which of our cab rides really matter most.
+        </p>
+        <p>
+        Here's how the 174 million records roughly break down...
+        </p>
+        <p>
+          <table width="80%" align="center">
+              <tbody>
+                <tr>
+                    <td>Bad Data</td><td align="right">4.0M</td>
+                </tr>
+                <tr>
+                    <td>Airport Rides</td><td align="right">6.2M</td>
+                </tr>
+                <tr>
+                    <td>All others</td><td align="right">163.6M</td>
+                </tr>
+              </tbody>
+          </table>
+          </p>
+          <p>Excluding the data with issues, let's see how many people leave tips:</p>
+          <p>
+            <table width="80%" align="center">
+                <thead><tr>
+                    <th>Payment</th><th>#</th><th>Non-tipper</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td>Cash</td><td>75.0M</td><td align="right">99.99%</td>
+                </tr>
+                <tr>
+                    <td>Non-Cash</td><td>88.6M</td><td align="right">3.48%</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </p>
+            <div class="next">
+                <a class="next" id="10" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+    <div id="i10" class="slide">
+      <div class="transbox">
+        <p>
+            It's apparent that cash-paying riders don't leave a lot of (reported) tips!
+        </p>
+        <p>
+            Without making any judgements, let's just assume the non-cash data is better quality, and focus purely on that.  We're down to a mere 88.6M records!
+        </p>
+        <p>
+            Note that this is still far more than typical desktop tools can handle, but it's small enough for a data scientist/developer to analyze on a single computer.
+        </p>
+            <div class="next">
+                <a class="next" id="11" href="#">NEXT</a>
+            </div>
+      </div>
+    </div>
+
+    <div id="i11" class="slide">
+            <h2>A Matter of Time</h2>
+        <div class="middle-article">
+            <p>
+                <div class="logo-right">
+                &nbsp;&nbsp;<img src="img/monthly_trips.jpg">&nbsp;&nbsp;
+
+                </div>
+            Now we can take a look at how the data relates to time.  We want to investigate both when cab rides are occuring, and if possible get a proxy to help us determine the relationship between when cab rides occur and the probably drunkiness of the passenger.
+            </p>
+            <p>
+                If we look at the number of cab rides month-over-month, we can see highs in March and October, and a minimum in August.
+                If we looked at weather data, we could probably find a relationship with some 'pleasantness' factor, and perhaps also some relationship
+                with seasonal business and event data. <br><br>
+                <div class="logo-left">
+                &nbsp;&nbsp;<img src="img/weekly_trips.jpg">&nbsp;&nbsp;
+                </div>
+                There aren't any extreme anomalies in this data, and nothing particularly surprising in the weekday averages either.
+                Rides peak on Fridays, and bottom out on Sundays, but before drawing inferences, note the scale on the Y-axis of our graphs.
+                When we include the full range of data (starting at zero), the differences largely disappear.
+            </p>
+            </div>
+            <div class="next">
+                <a class="next" id="12" href="#">NEXT</a>
+            </div>
+    </div>
+
+    <div id="i12" class="slide">
+        <p>&nbsp;</p>
+            <h2>Hour of The Week</h2>
+        <div class="middle-article">
+        <p>
+
+            <div class="logo-right">
+            &nbsp;&nbsp;<img src="img/hour_of_week.jpg">&nbsp;&nbsp;
+
+            </div>
+           While a little noisy, this graph finally gets to the point.
+            The red vertical lines separate the days, and the small dots mark each 6-hour period.
+            Using this, you can see that the number of cab rides peaks each weekday at around 10am,
+            and has a small peak on the weekends at noon.  There is also a larger evening peak that occurs every day, although on Sunday is is muted.
+            The interesting part is that the evening peak occurs later in the evening as you progress through the week, starting at 6pm on Monday,
+            and reaching midnight on Friday nights.
+            <br><br>
+            There's a corresponding trough that happens afterward - the lowest volume of rides for that 24 hour cycle.
+            On most days it occurs at around 2am, but on Friday night and Saturday night, the lowest volume doesn't occur until about 6am.
+        </p>
+            </div>
+            <div class="next">
+                <a class="next" id="13" href="#">NEXT</a>
+            </div>
+    </div>
+
+    <div id="i13" class="slide">
+        <p>&nbsp;</p>
+            <h2>The Drinking Hours</h2>
+        <div class="middle-article">
+        <p>
+
+            <div class="logo-right">
+            &nbsp;&nbsp;<img src="img/tom_hanks.jpg">&nbsp;&nbsp;
+
+            </div>
+           This is the most subjective part of this analysis.  I've had discussions with current and former New Yorker denizens,
+            and I toyed with the idea of using Survey Monkey, but ultimately this is just a subjective weighting.
+            The weight will increase the probability that the model assigns to a cab pickup that occurs at that time.
+            <br><br>
+            <div class="logo-left">
+            &nbsp;&nbsp;<img src="img/week_hour_drinkiness.jpg">&nbsp;&nbsp;
+            </div>
+            The basic assumption is that drinking ramps up toward the end of the week, but even more steeply during each evening.
+            A weekend afternoon has some drinking, a weekday evening has more, and a weekend evening has the most of all.
+        </p>
+            <p>
+                It's straightforward to map a taxi pickup time to this model, but we need to revisit our geographic data for the final part of our model:  how we map our 'drinkiness' to actual stumbling distance.
+            </p>
+            </div>
+            <div class="next">
+                <a class="next" id="14" href="#">NEXT</a>
+            </div>
+    </div>
+    <div id="i14" class="slide">
+        <div class="transbox">
+            <h2>Norms</h2>
+            <p>
+                The heatmap assumes that the influence of a drinking location spreads evenly in all directions.
+                This means a person could walk through buildings or over geographic features.
+                The function that translates a vector between two points into a distance is called a 'norm'.
+                Instead of the more common L2 norm, it's tempting to use L1, which is also known (coincidentally) as the taxicab or Manhattan norm.
+            </p>
+            <p>
+                In fact a more realistic choice is to create our own norm: 'stumbling distance norm', defined as: "distance along streets, ignoring traffic restrictions like one-way streets".
+            2,500 directions requests per 24 hour period
+            </p>
+            <div class="next">
+                <a class="next" id="15" href="#">NEXT</a>
+            </div>
+        </div>
+    </div>
+    <div id="i15" class="slide">
+        <div class="transbox">
+        <p>
+            The goal of this measurement is to determine the drinking locations within stumbling distance of each cab ride.
+            Google Maps has a convenient API for routing requests:  We can route from a taxi pickup to each of the bars around it.
+        </p>
+            <p>
+              11K bars X 88.6M rides = 974,600,000,000
+            </p>
+            <p>
+              Google Maps API allows 2,500 directions requests per 24 hour period
+            </p>
+            <p>
+              We can get this done in 1,068,054.79 years.
+            </p>
+            <div class="next">
+                <a class="next" id="16" href="#">NEXT</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div id="i16" class="slide">
+        <div class="transbox">
+        <p>
+            There are certainly great products out there for manipulating GIS data, but the whole point of this excursion is to use all free stuff and be able to run on a laptop.
+        </p>
+        <p>
+            With <a href="https://mapzen.com/metro-extracts/">freely available shapefiles</a>
+            and <a href="http://matplotlib.org/basemap/"> mapping APIs</a>,
+            we can make a map in a few minutes.
+        </p>
+            <p>
+              Graph algorithms are broadly useful tools, if you can identify how to map your problem to a graph.
+                In this case the mapping is straightforward and kind of common-knowledge:  we can treat each intersection as a graph, and then use a shortest path algorithm.
+            </p>
+            <p>
+              The shapefile unfortunately doesn't have enough info:  It defines streets as lines, it doesn't contain every intersection.
+                We can solve this by finding the intersections ourselves geometrically - the green dots in this image.
+            </p>
+            <div class="next">
+                <a class="next" id="17" href="#">NEXT</a>
+            </div>
+        </div>
+    </div>
+    <div id="i17" class="slide">
+        <div class="transbox">
+        <p>
+            By doing our own routing we no longer have to worry about a maximum number of requests per day, but it's still a huge number of calculations.
+            A k-d tree (and a similar structure called a 'ball tree') are a way of pre-calculating where the bars occur, so that we can quickly look up which ones are closest using an arbitrary coordinate.
+            These data structures are used 'under the hood' in many APIs for nearest neighbor searches, they're especially great when you have to find nearest neighbors over and over.
+        </p>
+        <p>
+            You can specify a point and a radius, the k-d tree will return all the points within that radius.  This means we only have to do our routing between each cab ride and a small handful of points.
+        </p>
+            <p>
+              Note that we aren't using routing distance as a norm for the k-d tree.  The maximum stumbling distance is in fact the euclidean norm, so we can use that as a simplification, then use our routing on the smaller number of points to leverage our stumbling distance norm.
+            </p>
+            <p>
+                To make this run even faster, we can round each cab ride pickup coordinate, and cache the results of the lookup.  This simplification together with the k-d tree brings the run time down to a few minutes.
+            </p>
+            <div class="next">
+                <a class="next" id="18" href="#">NEXT</a>
+            </div>
+        </div>
+    </div>
+    <div id="i18" class="slide">
+        <h2>The End</h2>
+        <div class="middle-article">
+        <p>
+            At last!  We now have a 'drinkiness' factor for both the time and location of relevant cab rides.  To find if there's a relationship with drinkiness and tip percentage, we could simply use regression.  In some cases linear regression is not enough to tell a full story.
+            <div class="logo-right">
+            &nbsp;&nbsp;<img src="img/tip_distribution.png">&nbsp;&nbsp;
+
+            </div>
+        </p>
+            <p>
+              If we look for a linear trend, the r-squared comes back as .02...no relationship.
+                If we segment the population into the top and bottom quartiles, we can compare averages.  Doing this, we find that the LEAST drunk people actually tip more, by about 0.06%.
+                Only if we investigate the full distribution do we see some real differences.
+            </p>
+            <p>
+                3.10% of drunk people leave no tip at all, compared to 2.61% of sober people.
+            </p>
+            <p>
+                3.50% of drunk people leave an exorbitant tip (>30%), compared to 3.37% of sober people.
+            </p>
+            <p>
+                After all this, we are awarded with the insight that drunk people may have more extreme views than sober people.
+            </p>
+            <p>
+                I asked Steve if he would hail a cab over to have drinks with me, so we could discuss next steps, but he didn't believe that you can get a cab in Los Angeles.
+            </p>
+            <p>
+                Data Science.
+            </p>
+            </div>
+    </div>
+</article>
+
+<script>
+    $("a.next").click(function (event) {
+        event.preventDefault();
+        var targetId = "i" + event.target.id;
+        $('html,body').animate({
+                    scrollTop: $("#" + targetId).offset().top
+                },
+                'slow');
+    });
+</script>
+
+</body>
+</html>

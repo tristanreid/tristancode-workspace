@@ -1,0 +1,6 @@
+name = "tristancode-theme"
+license = "MIT"
+description = "Custom theme for tristancode.com"
+
+[author]
+  name = "Tristan Reid"

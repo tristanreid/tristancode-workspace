@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if not .IsHome }}{{ .Title }} · {{ end }}{{ .Site.Title }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" id="theme-stylesheet" href="{{ "css/style-generative.css" | relURL }}">
+  {{ with .OutputFormats.Get "RSS" }}
+    <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" href="{{ .Permalink }}">
+  {{ end }}
+  <script>
+    // Per-page skin (set by Hugo from front matter) takes priority
+    var pageSkin = {{ with .Params.skin }}'{{ . }}'{{ else }}''{{ end }};
+
+    (function() {
+      var map = {
+        'graph': 'css/style-graph.css',
+        'generative': 'css/style-generative.css',
+        'hulu': 'css/style-hulu.css'
+      };
+      var base = '{{ "" | relURL }}';
+
+      // If page specifies a skin, use it; otherwise fall back to saved preference
+      var skin;
+      if (pageSkin && map[pageSkin]) {
+        skin = pageSkin;
+      } else {
+        skin = localStorage.getItem('site-skin') || 'generative';
+        if (!map[skin]) skin = 'generative';
+      }
+      document.getElementById('theme-stylesheet').href = base + map[skin];
+
+      window.__pageSkin = pageSkin;
+      window.__activeSkin = skin;
+    })();
+  </script>
+</head>
+<body>
+  <div class="site-wrapper">
+    {{ partial "header.html" . }}
+    <main class="main-content">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "footer.html" . }}
+  </div>
+
+  <!-- Generative background canvas (only visible in generative skin) -->
+  <svg id="generative-bg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <!-- Floating Theme Picker (hidden when page has a fixed skin) -->
+  <div id="skin-picker" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;gap:6px;background:rgba(128,128,128,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px 8px;border-radius:10px;border:1px solid rgba(128,128,128,0.2);">
+    <button data-skin="graph" title="Graph Paper" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#d94040 50%,#fdfdfd 50%);"></button>
+    <button data-skin="generative" title="Generative" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#6c5ce7 50%,#fafafc 50%);"></button>
+    <button data-skin="hulu" title="Pipeline" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#1db954 50%,#f2faf5 50%);"></button>
+  </div>
+
+  <script>
+    (function() {
+      var map = {
+        'graph': 'css/style-graph.css',
+        'generative': 'css/style-generative.css',
+        'hulu': 'css/style-hulu.css'
+      };
+      var base = '{{ "" | relURL }}';
+      var currentSkin = window.__activeSkin || 'generative';
+      var pageSkin = window.__pageSkin || '';
+
+      // If page has a fixed skin, hide the picker
+      if (pageSkin && map[pageSkin]) {
+        document.getElementById('skin-picker').style.display = 'none';
+      }
+
+      function setSkin(name) {
+        if (!map[name]) return;
+        document.getElementById('theme-stylesheet').href = base + map[name];
+        localStorage.setItem('site-skin', name);
+        currentSkin = name;
+        updatePicker();
+        updateGenerative();
+      }
+
+      function updatePicker() {
+        document.querySelectorAll('#skin-picker button').forEach(function(btn) {
+          btn.style.borderColor = btn.dataset.skin === currentSkin ? '#fff' : '#888';
+          btn.style.transform = btn.dataset.skin === currentSkin ? 'scale(1.2)' : 'scale(1)';
+        });
+      }
+
+      document.querySelectorAll('#skin-picker button').forEach(function(btn) {
+        btn.addEventListener('click', function() { setSkin(btn.dataset.skin); });
+      });
+
+      // Generative background — dense, visible version
+      function updateGenerative() {
+        var svg = document.getElementById('generative-bg');
+        if (currentSkin !== 'generative') {
+          svg.innerHTML = '';
+          svg.style.display = 'none';
+          return;
+        }
+        svg.style.display = 'block';
+        var w = window.innerWidth, h = window.innerHeight;
+        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+        svg.setAttribute('width', w);
+        svg.setAttribute('height', h);
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var c1 = isDark ? 'rgba(162,155,254,' : 'rgba(108,92,231,';
+        var c2 = isDark ? 'rgba(130,170,255,' : 'rgba(60,100,220,';
+        var html = '';
+
+        // Dense scatter of dots
+        for (var i = 0; i < 250; i++) {
+          var cx = Math.random() * w;
+          var cy = Math.random() * h;
+          var r = 1 + Math.random() * 5;
+          var op = 0.08 + Math.random() * 0.18;
+          var col = Math.random() > 0.5 ? c1 : c2;
+          html += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + col + op + ')"/>';
+        }
+
+        // Rings
+        for (var ri = 0; ri < 12; ri++) {
+          var rcx = Math.random() * w;
+          var rcy = Math.random() * h;
+          var rr = 15 + Math.random() * 50;
+          var rop = 0.06 + Math.random() * 0.12;
+          html += '<circle cx="' + rcx + '" cy="' + rcy + '" r="' + rr + '" fill="none" stroke="' + c1 + rop + ')" stroke-width="' + (0.8 + Math.random()*1.5) + '"/>';
+        }
+
+        // Flowing curves
+        for (var j = 0; j < 18; j++) {
+          var y0 = Math.random() * h;
+          var cp1x = w * 0.2 + (Math.random() - 0.5) * w * 0.3;
+          var cp1y = y0 + (Math.random() - 0.5) * 300;
+          var cp2x = w * 0.8 + (Math.random() - 0.5) * w * 0.3;
+          var cp2y = y0 + (Math.random() - 0.5) * 300;
+          var op2 = 0.06 + Math.random() * 0.12;
+          var sw = 0.8 + Math.random() * 2.5;
+          var col2 = Math.random() > 0.4 ? c1 : c2;
+          html += '<path d="M0 ' + y0 + ' C ' + cp1x + ' ' + cp1y + ', ' + cp2x + ' ' + cp2y + ', ' + w + ' ' + (y0 + (Math.random()-0.5)*150) + '" fill="none" stroke="' + col2 + op2 + ')" stroke-width="' + sw + '"/>';
+        }
+
+        // Connecting node network
+        var nodes = [];
+        for (var n = 0; n < 40; n++) {
+          nodes.push({ x: Math.random() * w, y: Math.random() * h });
+        }
+        for (var a = 0; a < nodes.length; a++) {
+          for (var b = a + 1; b < nodes.length; b++) {
+            var dx = nodes[a].x - nodes[b].x;
+            var dy = nodes[a].y - nodes[b].y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 200) {
+              var lop = 0.04 + (1 - dist/200) * 0.14;
+              html += '<line x1="' + nodes[a].x + '" y1="' + nodes[a].y + '" x2="' + nodes[b].x + '" y2="' + nodes[b].y + '" stroke="' + c1 + lop + ')" stroke-width="0.7"/>';
+            }
+          }
+          html += '<circle cx="' + nodes[a].x + '" cy="' + nodes[a].y + '" r="2.5" fill="' + c1 + '0.2)"/>';
+        }
+
+        svg.innerHTML = html;
+      }
+
+      updatePicker();
+      updateGenerative();
+
+      var resizeTimeout;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateGenerative, 300);
+      });
+
+      var observer = new MutationObserver(function() { updateGenerative(); });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+  </script>
+</body>
+</html>
