@@ -1,12 +1,11 @@
 [build]
-  # Two-stage build: compile interactive TypeScript components, then build Hugo site
-  command = "cd interactive && npm install && npm run build && cd .. && hugo --minify"
+  # Interactive JS is pre-built and committed; just build Hugo
+  command = "hugo --minify"
   publish = "public"
 
 [build.environment]
   # Pin Hugo version to match local development
   HUGO_VERSION = "0.155.2"
-  NODE_VERSION = "20"
 
 # Redirect HTTP to HTTPS
 [[redirects]]

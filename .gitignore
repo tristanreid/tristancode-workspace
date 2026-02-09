@@ -1,8 +1,9 @@
 # Hugo build output
 public/
 
-# Interactive component build artifacts (built from interactive/src/)
-static/js/hll/
+# Interactive component build artifacts — committed for Netlify deployment
+# Rebuild locally with: cd interactive && npm run build
+# static/js/hll/
 
 # Node modules
 interactive/node_modules/
