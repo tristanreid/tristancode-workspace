@@ -150,6 +150,43 @@ Current series:
 
 If you ever add a new template, always use `.RelPermalink` for internal links.
 
+## Deployment
+
+The site is hosted on **Netlify** with automatic deploys from the `main` branch on GitHub.
+
+- **Repo**: `tristanreid/tristancode-workspace` on GitHub
+- **Build command**: `hugo --minify`
+- **Publish directory**: `public/`
+- **Hugo version**: Pinned in `netlify.toml` (currently 0.155.2)
+- **Custom domain**: `tristancode.com` (DNS managed by Netlify)
+- **HTTPS**: Automatic via Netlify's Let's Encrypt integration
+
+### Deploy workflow
+
+1. Push to `main` — Netlify auto-builds and deploys
+2. Preview deploys are generated for pull requests
+
+### Interactive components
+
+The TypeScript interactive components (`interactive/src/`) are **pre-built and committed** to `static/js/hll/`. This avoids npm install issues on Netlify's build environment.
+
+When editing interactive components locally:
+
+```bash
+cd interactive && npm run build
+```
+
+Then commit the updated JS files along with your source changes.
+
+### Configuration files
+
+- `netlify.toml` — Build settings, Hugo version, caching headers
+- `hugo.toml` — Hugo configuration, base URL, menu, markup settings
+
+### Previous hosting
+
+Previously hosted on Network Solutions shared hosting, deployed via SFTP. Migrated to Netlify in February 2026 for free HTTPS, automatic deploys, and global CDN.
+
 ## Legacy Migration Notes
 
 The original site at `repos/tristancode-ftp` (read-only) used:
@@ -249,20 +286,20 @@ Posts covering what I've learned working with Elasticsearch, including problem a
 - [ ] Animate the generative SVG background subtly (slow drift, breathing opacity)
 - [ ] Add theme-specific favicon / meta-theme-color
 - [ ] Consider a print stylesheet for blog posts
-- [ ] Experiment with code block copy-to-clipboard buttons
+- [x] Experiment with code block copy-to-clipboard buttons
 - [ ] Add a "reading progress" bar on long posts (optional, minimalist)
 - [ ] Experiment with translucent content backdrop over background patterns (attempted, CSS stacking made it difficult — may revisit with a different approach)
 
 ### Technical
-- [ ] Set up deployment pipeline (FTP sync to Network Solutions, or migrate to Netlify/Vercel/Cloudflare Pages)
-- [ ] Add `robots.txt` and sitemap
-- [ ] Add Open Graph / Twitter Card meta tags for social sharing
+- [x] Set up deployment pipeline — migrated to Netlify with auto-deploy from GitHub
+- [x] Add `robots.txt` and sitemap
+- [x] Add Open Graph / Twitter Card meta tags for social sharing
 - [ ] Consider Hugo Modules for future dependency management
-- [ ] Add a 404 page
-- [ ] Image optimization (WebP conversion, lazy loading)
+- [x] Add a 404 page
+- [x] Image optimization (lazy loading via render hook)
 - [ ] Evaluate moving from Hugo syntax highlighting to a client-side highlighter for more language support
 
 ### Code Quality
-- [ ] Extract shared CSS (reset, layout, typography) into a base file imported by each theme
+- [x] Extract shared CSS (reset, layout, typography) into a base file imported by each theme (`css/shared.css`)
 - [ ] Move generative JS into a standalone file instead of inline in baseof.html
 - [ ] Add CSS custom property documentation / design tokens reference

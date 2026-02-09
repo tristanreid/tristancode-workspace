@@ -1,0 +1,11 @@
+{{ define "main" }}
+<section class="error-page">
+  <h1>404</h1>
+  <p class="error-message">This page doesn't exist — but there's plenty to explore.</p>
+  <nav class="error-nav">
+    <a href="{{ "/" | relURL }}">Home</a>
+    <a href="{{ "/blog/" | relURL }}">Blog</a>
+    <a href="{{ "/projects/" | relURL }}">Projects</a>
+  </nav>
+</section>
+{{ end }}

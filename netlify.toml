@@ -7,12 +7,7 @@
   # Pin Hugo version to match local development
   HUGO_VERSION = "0.155.2"
 
-# Redirect HTTP to HTTPS
-[[redirects]]
-  from = "http://tristancode.com/*"
-  to = "https://tristancode.com/:splat"
-  status = 301
-  force = true
+# Note: HTTP→HTTPS redirect is handled automatically by Netlify
 
 # Custom headers for caching and security
 [[headers]]
