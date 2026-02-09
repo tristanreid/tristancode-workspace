@@ -1,6 +1,6 @@
 [build]
   # Two-stage build: compile interactive TypeScript components, then build Hugo site
-  command = "cd interactive && npm ci && npm run build && cd .. && hugo --minify"
+  command = "cd interactive && npm install && npm run build && cd .. && hugo --minify"
   publish = "public"
 
 [build.environment]
