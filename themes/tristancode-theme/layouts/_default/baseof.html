@@ -22,7 +22,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" id="theme-stylesheet" href="{{ "css/style-generative.css" | relURL }}">
+  <!-- Hide page until correct theme CSS loads (prevents flash of unstyled content) -->
+  <style>html:not(.theme-ready) { visibility: hidden; }</style>
+  <link rel="stylesheet" id="theme-stylesheet">
   <link rel="stylesheet" href="{{ "css/shared.css" | relURL }}">
   {{ with .OutputFormats.Get "RSS" }}
     <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" href="{{ .Permalink }}">
@@ -51,7 +53,18 @@
         skin = localStorage.getItem('site-skin') || 'generative';
         if (!map[skin]) skin = 'generative';
       }
-      document.getElementById('theme-stylesheet').href = base + map[skin];
+
+      // Set the correct href and reveal page once it loads
+      var link = document.getElementById('theme-stylesheet');
+      link.onload = function() {
+        document.documentElement.classList.add('theme-ready');
+      };
+      link.href = base + map[skin];
+
+      // Safety fallback: reveal after 1s even if CSS somehow fails to load
+      setTimeout(function() {
+        document.documentElement.classList.add('theme-ready');
+      }, 1000);
 
       window.__pageSkin = pageSkin;
       window.__activeSkin = skin;
