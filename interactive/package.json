@@ -1,0 +1,22 @@
+{
+  "name": "tristancode-interactive",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive components for tristancode.com blog posts",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/entries/*.ts --bundle --outdir=../static/js/hll --format=esm --splitting --minify --target=es2020",
+    "dev": "esbuild src/entries/*.ts --bundle --outdir=../static/js/hll --format=esm --splitting --target=es2020 --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "esbuild": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "dependencies": {
+    "d3": "^7.9.0"
+  }
+}

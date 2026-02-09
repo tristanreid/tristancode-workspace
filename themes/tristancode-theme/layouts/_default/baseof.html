@@ -7,7 +7,7 @@
   <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" id="theme-stylesheet" href="{{ "css/style-generative.css" | relURL }}">
   {{ with .OutputFormats.Get "RSS" }}
     <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" href="{{ .Permalink }}">
@@ -20,7 +20,11 @@
       var map = {
         'graph': 'css/style-graph.css',
         'generative': 'css/style-generative.css',
-        'hulu': 'css/style-hulu.css'
+        'hulu': 'css/style-hulu.css',
+        'chalkboard': 'css/style-chalkboard.css',
+        'theorem': 'css/style-theorem.css',
+        'stochastic': 'css/style-stochastic.css',
+        'taxicab': 'css/style-taxicab.css'
       };
       var base = '{{ "" | relURL }}';
 
@@ -48,7 +52,7 @@
     {{ partial "footer.html" . }}
   </div>
 
-  <!-- Generative background canvas (only visible in generative skin) -->
+  <!-- SVG background canvas (used by generative, stochastic, and taxicab skins) -->
   <svg id="generative-bg" xmlns="http://www.w3.org/2000/svg"></svg>
 
   <!-- Floating Theme Picker (hidden when page has a fixed skin) -->
@@ -56,6 +60,10 @@
     <button data-skin="graph" title="Graph Paper" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#d94040 50%,#fdfdfd 50%);"></button>
     <button data-skin="generative" title="Generative" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#6c5ce7 50%,#fafafc 50%);"></button>
     <button data-skin="hulu" title="Pipeline" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#1db954 50%,#f2faf5 50%);"></button>
+    <button data-skin="chalkboard" title="Chalkboard" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#f5dd70 50%,#1a2818 50%);"></button>
+    <button data-skin="theorem" title="Theorem" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#8b3a3a 50%,#faf8f0 50%);"></button>
+    <button data-skin="stochastic" title="Stochastic" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#0d9488 50%,#f8fafc 50%);"></button>
+    <button data-skin="taxicab" title="Taxicab" style="width:26px;height:26px;border-radius:50%;border:2px solid #888;cursor:pointer;background:linear-gradient(135deg,#f7c948 50%,#1a1a20 50%);"></button>
   </div>
 
   <script>
@@ -63,7 +71,11 @@
       var map = {
         'graph': 'css/style-graph.css',
         'generative': 'css/style-generative.css',
-        'hulu': 'css/style-hulu.css'
+        'hulu': 'css/style-hulu.css',
+        'chalkboard': 'css/style-chalkboard.css',
+        'theorem': 'css/style-theorem.css',
+        'stochastic': 'css/style-stochastic.css',
+        'taxicab': 'css/style-taxicab.css'
       };
       var base = '{{ "" | relURL }}';
       var currentSkin = window.__activeSkin || 'generative';
@@ -81,6 +93,8 @@
         currentSkin = name;
         updatePicker();
         updateGenerative();
+        updateStochastic();
+        updateTaxicab();
       }
 
       function updatePicker() {
@@ -166,16 +180,188 @@
         svg.innerHTML = html;
       }
 
+      // Stochastic background — scatter plots, bell curves, histograms
+      function updateStochastic() {
+        var svg = document.getElementById('generative-bg');
+        if (currentSkin !== 'stochastic') return;
+        svg.style.display = 'block';
+        var w = window.innerWidth, h = window.innerHeight;
+        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+        svg.setAttribute('width', w);
+        svg.setAttribute('height', h);
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var cTeal   = isDark ? 'rgba(45,212,191,'  : 'rgba(13,148,136,';
+        var cOrange = isDark ? 'rgba(251,146,60,'  : 'rgba(249,115,22,';
+        var cSlate  = isDark ? 'rgba(148,163,184,' : 'rgba(100,116,139,';
+        var html = '';
+
+        // Scatter of random dots (point cloud)
+        for (var i = 0; i < 180; i++) {
+          var cx = Math.random() * w;
+          var cy = Math.random() * h;
+          var r = 1 + Math.random() * 3.5;
+          var op = 0.06 + Math.random() * 0.14;
+          var col = Math.random() > 0.35 ? cTeal : (Math.random() > 0.5 ? cOrange : cSlate);
+          html += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + col + op + ')"/>';
+        }
+
+        // Bell curves (normal distributions) at random positions
+        for (var b = 0; b < 6; b++) {
+          var bCx = Math.random() * w;
+          var bCy = 100 + Math.random() * (h - 200);
+          var bW = 80 + Math.random() * 200;
+          var bH = 40 + Math.random() * 100;
+          var bOp = 0.04 + Math.random() * 0.08;
+          var bCol = Math.random() > 0.5 ? cTeal : cOrange;
+          var pts = [];
+          for (var s = 0; s <= 60; s++) {
+            var t = (s / 60) * 6 - 3;
+            var px = bCx + (t / 3) * bW;
+            var py = bCy - Math.exp(-t * t / 2) * bH;
+            pts.push(px + ',' + py);
+          }
+          html += '<path d="M ' + (bCx - bW) + ',' + bCy + ' L ' + pts.join(' ') + ' L ' + (bCx + bW) + ',' + bCy + ' Z" fill="' + bCol + bOp + ')" stroke="' + bCol + (bOp + 0.04) + ')" stroke-width="1"/>';
+        }
+
+        // Faint axis lines with tick marks
+        for (var ax = 0; ax < 4; ax++) {
+          var axY = 80 + Math.random() * (h - 160);
+          var axX1 = Math.random() * w * 0.3;
+          var axX2 = axX1 + 200 + Math.random() * 300;
+          var axOp = 0.05 + Math.random() * 0.06;
+          html += '<line x1="' + axX1 + '" y1="' + axY + '" x2="' + axX2 + '" y2="' + axY + '" stroke="' + cSlate + axOp + ')" stroke-width="1"/>';
+          for (var tick = axX1; tick <= axX2; tick += 20 + Math.random() * 20) {
+            html += '<line x1="' + tick + '" y1="' + (axY - 3) + '" x2="' + tick + '" y2="' + (axY + 3) + '" stroke="' + cSlate + axOp + ')" stroke-width="0.8"/>';
+          }
+        }
+
+        // Small histogram groups
+        for (var hg = 0; hg < 3; hg++) {
+          var hgX = Math.random() * (w - 200);
+          var hgY = 100 + Math.random() * (h - 200);
+          var barW = 8 + Math.random() * 12;
+          var hgOp = 0.04 + Math.random() * 0.06;
+          var hgCol = Math.random() > 0.5 ? cTeal : cOrange;
+          var nBars = 5 + Math.floor(Math.random() * 8);
+          for (var br = 0; br < nBars; br++) {
+            var barH = 10 + Math.random() * 60;
+            html += '<rect x="' + (hgX + br * (barW + 2)) + '" y="' + (hgY - barH) + '" width="' + barW + '" height="' + barH + '" fill="' + hgCol + hgOp + ')" rx="1"/>';
+          }
+        }
+
+        // CDF-style S-curves
+        for (var sc = 0; sc < 3; sc++) {
+          var scX1 = Math.random() * w * 0.4;
+          var scX2 = scX1 + 150 + Math.random() * 250;
+          var scY = 80 + Math.random() * (h - 160);
+          var scH = 30 + Math.random() * 80;
+          var scOp = 0.05 + Math.random() * 0.07;
+          var scCol = Math.random() > 0.6 ? cTeal : cSlate;
+          var scPts = [];
+          for (var sp = 0; sp <= 40; sp++) {
+            var st = (sp / 40) * 10 - 5;
+            var sx = scX1 + (sp / 40) * (scX2 - scX1);
+            var sy = scY - (1 / (1 + Math.exp(-st))) * scH;
+            scPts.push(sx + ',' + sy);
+          }
+          html += '<path d="M ' + scPts.join(' L ') + '" fill="none" stroke="' + scCol + scOp + ')" stroke-width="1.5"/>';
+        }
+
+        svg.innerHTML = html;
+      }
+
+      // Taxicab background — cute little scattered NYC taxis
+      function updateTaxicab() {
+        var svg = document.getElementById('generative-bg');
+        if (currentSkin !== 'taxicab') return;
+        svg.style.display = 'block';
+        var w = window.innerWidth, h = window.innerHeight;
+        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+        svg.setAttribute('width', w);
+        svg.setAttribute('height', h);
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var bodyYellow = '#f7c948';
+        var windowColor = isDark ? 'rgba(100,200,255,0.5)' : 'rgba(80,160,220,0.6)';
+        var wheelColor = isDark ? '#555' : '#333';
+        var hubColor = isDark ? '#888' : '#999';
+        var bumperColor = isDark ? '#777' : '#aaa';
+        var headlight = isDark ? '#ffe066' : '#ffd633';
+        var taillight = '#ff5555';
+        var roofLight = isDark ? '#ff8888' : '#ee4444';
+        var checker1 = isDark ? '#222' : '#111';
+        var checker2 = bodyYellow;
+        var groupOp = isDark ? 0.22 : 0.18;
+
+        function drawTaxi(x, y, scale, angle, flip) {
+          var f = flip ? -1 : 1;
+          var g = '<g transform="translate(' + x + ',' + y + ') rotate(' + angle + ') scale(' + (scale * f) + ',' + scale + ')" opacity="' + (groupOp + Math.random() * 0.08) + '">';
+          // Shadow
+          g += '<ellipse cx="0" cy="10" rx="22" ry="3" fill="rgba(0,0,0,0.08)"/>';
+          // Body
+          g += '<rect x="-22" y="-6" width="44" height="14" rx="4" fill="' + bodyYellow + '"/>';
+          // Cabin
+          g += '<rect x="-10" y="-16" width="22" height="12" rx="3" fill="' + bodyYellow + '"/>';
+          // Cabin roof edge
+          g += '<rect x="-10" y="-6" width="22" height="2" fill="' + bodyYellow + '"/>';
+          // Windows
+          g += '<rect x="-8" y="-14" width="8" height="7" rx="1.5" fill="' + windowColor + '"/>';
+          g += '<rect x="2" y="-14" width="8" height="7" rx="1.5" fill="' + windowColor + '"/>';
+          // Window divider
+          g += '<rect x="-0.5" y="-14" width="1" height="7" fill="' + bodyYellow + '"/>';
+          // Wheels
+          g += '<circle cx="-13" cy="9" r="4.5" fill="' + wheelColor + '"/>';
+          g += '<circle cx="13" cy="9" r="4.5" fill="' + wheelColor + '"/>';
+          // Hubcaps
+          g += '<circle cx="-13" cy="9" r="2" fill="' + hubColor + '"/>';
+          g += '<circle cx="13" cy="9" r="2" fill="' + hubColor + '"/>';
+          // Bumpers
+          g += '<rect x="-25" y="-1" width="4" height="6" rx="2" fill="' + bumperColor + '"/>';
+          g += '<rect x="21" y="-1" width="4" height="6" rx="2" fill="' + bumperColor + '"/>';
+          // Headlights
+          g += '<circle cx="24" cy="1" r="2" fill="' + headlight + '"/>';
+          // Taillights
+          g += '<circle cx="-24" cy="1" r="1.8" fill="' + taillight + '"/>';
+          // Roof light (TAXI sign)
+          g += '<rect x="0" y="-20" width="10" height="4" rx="2" fill="' + roofLight + '"/>';
+          g += '<rect x="1" y="-19.5" width="8" height="3" rx="1.5" fill="#fff" opacity="0.7"/>';
+          // Checker stripe (3 little squares on the door)
+          for (var ci = 0; ci < 3; ci++) {
+            g += '<rect x="' + (-6 + ci * 4) + '" y="0" width="2" height="2" fill="' + checker1 + '" opacity="0.3"/>';
+            g += '<rect x="' + (-4 + ci * 4) + '" y="0" width="2" height="2" fill="' + checker2 + '" opacity="0.3"/>';
+          }
+          g += '</g>';
+          return g;
+        }
+
+        var html = '';
+        // Scatter taxis across the viewport
+        var numTaxis = Math.max(12, Math.floor((w * h) / 60000));
+        for (var i = 0; i < numTaxis; i++) {
+          var tx = Math.random() * w;
+          var ty = Math.random() * h;
+          var ts = 0.7 + Math.random() * 1.6;
+          var ta = (Math.random() - 0.5) * 24;
+          var flip = Math.random() > 0.5;
+          html += drawTaxi(tx, ty, ts, ta, flip);
+        }
+
+        svg.innerHTML = html;
+      }
+
       updatePicker();
       updateGenerative();
+      updateStochastic();
+      updateTaxicab();
 
       var resizeTimeout;
       window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(updateGenerative, 300);
+        resizeTimeout = setTimeout(function() { updateGenerative(); updateStochastic(); updateTaxicab(); }, 300);
       });
 
-      var observer = new MutationObserver(function() { updateGenerative(); });
+      var observer = new MutationObserver(function() { updateGenerative(); updateStochastic(); updateTaxicab(); });
       observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     })();
   </script>

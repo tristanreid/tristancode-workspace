@@ -4,12 +4,36 @@
   {{ with .Content }}<div class="page-description">{{ . }}</div>{{ end }}
 </section>
 
+{{ $withSeries := where .Pages "Params.series" "!=" "" }}
+
+{{/* Series sections first */}}
+{{ range $withSeries.GroupByParam "series" }}
+<section class="series-section">
+  <h2 class="series-heading">{{ .Key }}</h2>
+  <ol class="post-list series-posts">
+    {{ range sort .Pages "Weight" }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
+    </li>
+    {{ end }}
+  </ol>
+</section>
+{{ end }}
+
+{{/* Then standalone posts (those without a series) */}}
+{{ $hasSingles := false }}
+{{ range .Pages }}{{ if not .Params.series }}{{ $hasSingles = true }}{{ end }}{{ end }}
+{{ if $hasSingles }}
 <ul class="post-list">
   {{ range .Pages }}
+  {{ if not .Params.series }}
   <li>
     <a href="{{ .RelPermalink }}">{{ .Title }}</a>
     {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
   </li>
   {{ end }}
+  {{ end }}
 </ul>
+{{ end }}
 {{ end }}

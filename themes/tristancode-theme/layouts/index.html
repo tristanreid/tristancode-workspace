@@ -6,9 +6,23 @@
 
 <section class="home-section">
   <h2>Writing</h2>
+  {{ $blogPages := where .Site.RegularPages "Section" "blog" }}
+  {{ $withSeries := where $blogPages "Params.series" "!=" "" }}
   <ul class="post-list">
-    {{ range (where .Site.RegularPages "Section" "blog") }}
-    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{/* Series entries first */}}
+    {{ range $withSeries.GroupByParam "series" }}
+      {{ $sorted := sort .Pages "Weight" }}
+      {{ $first := index $sorted 0 }}
+      <li>
+        <a href="{{ $first.RelPermalink }}">{{ .Key }}</a>
+        <span class="post-desc"> — {{ len .Pages }}-part series</span>
+      </li>
+    {{ end }}
+    {{/* Then standalone posts */}}
+    {{ range $blogPages }}
+      {{ if not .Params.series }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
     {{ end }}
   </ul>
 </section>

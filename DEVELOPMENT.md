@@ -5,16 +5,18 @@ Developer documentation for the tristancode.com Hugo site. This captures archite
 ## Quick Start
 
 ```bash
+# Install Hugo if you haven't already
+brew install hugo
+
 # From the repo root
-cd tristancode-workspace
-../hugo server --port 1313
+hugo server --port 1313
 ```
 
 Open `http://localhost:1313` in a browser. Hugo live-reloads on file changes.
 
 ## Architecture
 
-- **Static site generator**: Hugo (binary at repo root: `./hugo`)
+- **Static site generator**: Hugo (install via `brew install hugo`)
 - **Theme**: Custom theme at `themes/tristancode-theme/`
 - **Content**: Markdown files in `content/blog/` and `content/projects/`
 - **Static assets**: `static/images/charts/` (blog chart PNGs), `static/drinky_cab/` (legacy interactive project)
@@ -27,15 +29,13 @@ tristancode-workspace/
 ├── content/
 │   ├── blog/
 │   │   ├── _index.md          # Blog section page
-│   │   ├── fixed-income-risk-part1-*.md
-│   │   ├── fixed-income-risk-part2-*.md
-│   │   ├── fixed-income-risk-part3-*.md
-│   │   ├── fixed-income-risk-part4-*.md
+│   │   ├── drinky-cab-*.md    # Drinky Cab series (5 parts, draft)
+│   │   ├── fixed-income-risk-*.md  # Fixed-income risk series (5 parts)
 │   │   ├── writing-dsls-python-scala.md
 │   │   └── beaconspec-hulu-dsl-data-pipeline.md
 │   └── projects/
 │       ├── _index.md           # Projects section page
-│       └── drinky-cab.md
+│       └── drinky-cab.md       # Now points to the blog series
 ├── static/
 │   ├── images/charts/          # 15 PNG charts for the finance series
 │   └── drinky_cab/             # Full legacy Drinky Cab interactive project
@@ -49,7 +49,11 @@ tristancode-workspace/
     └── static/css/
         ├── style-graph.css        # Graph Paper theme
         ├── style-generative.css   # Generative / Data Art theme
-        └── style-hulu.css         # Hulu / Pipeline theme
+        ├── style-hulu.css         # Hulu / Pipeline theme
+        ├── style-chalkboard.css   # Chalkboard / Whiteboard theme
+        ├── style-theorem.css      # Theorem / LaTeX Paper theme
+        ├── style-stochastic.css   # Stochastic / Data-Viz theme
+        └── style-taxicab.css      # Taxicab / NYC theme
 ```
 
 ## Theme System
@@ -63,6 +67,10 @@ The site supports multiple visual themes. Each theme is a standalone CSS file th
 | `graph` | `style-graph.css` | Notebook / technical | CSS grid-paper background, monospace headings, dashed borders |
 | `generative` | `style-generative.css` | Data art / modern | JS-generated SVG (dots, curves, node network), purple accent, glow hover |
 | `hulu` | `style-hulu.css` | Bold / streaming | Diagonal data-stream lines in green, terminal-style code blocks, green accents |
+| `chalkboard` | `style-chalkboard.css` | Lecture hall / chalk | Handwritten headings (Caveat font), ruled lines; dark = slate-green chalkboard + chalk pastels, light = whiteboard + marker colors |
+| `theorem` | `style-theorem.css` | Published paper / LaTeX | STIX Two Text serif typography, warm ivory paper, QED squares on blockquotes, asterism section breaks |
+| `stochastic` | `style-stochastic.css` | Probability / data-viz | JS-generated SVG (scatter dots, bell curves, histograms, CDF S-curves), teal + orange palette |
+| `taxicab` | `style-taxicab.css` | NYC taxi / Drinky Cab | JS-generated SVG cute taxicabs scattered at random positions, sizes, and angles; yellow + black palette |
 
 ### Per-Post Theme Assignment
 
@@ -84,7 +92,8 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 | Fixed-income risk series (Parts 1–4) | `graph` | Finance / quantitative feel; graph paper suits charts and formulas |
 | Writing DSLs in Python & Scala | `hulu` | Hulu connection — DSL work was done at Hulu |
 | BeaconSpec / Hulu DSL post | `hulu` | Directly about Hulu's data pipeline |
-| Drinky Cab project | `generative` | Data science / creative analysis project |
+| Drinky Cab series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
+| Drinky Cab project page | `taxicab` | Matches the series skin |
 | Homepage | `generative` (default) | Picker available; user can switch freely |
 | Blog list | `generative` (default) | Picker available |
 
@@ -94,6 +103,8 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 2. **Before render**: A blocking `<script>` in `<head>` sets the correct stylesheet link immediately (prevents flash of wrong theme)
 3. **Client-side**: The theme picker (bottom-right circles) lets users switch between themes on pages without a fixed skin. Choice persists in `localStorage` under `site-skin`
 4. **Generative JS**: Only runs when `currentSkin === 'generative'`; generates SVG dots, curves, rings, and a node-network graph
+5. **Stochastic JS**: Only runs when `currentSkin === 'stochastic'`; generates SVG scatter dots, bell curves, histograms, CDF S-curves, and axis tick marks
+6. **Taxicab JS**: Only runs when `currentSkin === 'taxicab'`; generates cute SVG taxicabs with body, cabin, windows, wheels, roof light, checker stripe, headlights/taillights
 
 ### Dark / Light Mode
 
@@ -103,16 +114,33 @@ All themes support both modes. The toggle in the header sets `data-theme="dark"`
 
 ### Blog Posts
 
-- **No dates, tags, or series navigation** — the site is intentionally minimalist and "timeless"
-- `series` field is kept in front matter for potential future use but not rendered
+- **No dates or tags** — the site is intentionally minimalist and "timeless"
+- `series` field groups posts into multi-part series (rendered in both list and single templates)
 - `weight` field controls ordering within a series
+- `draft: true` marks posts that are in progress (build with `hugo server --buildDrafts` to preview)
 - Image paths use `/images/charts/filename.png` (Hugo absolute path from static root)
 - Inter-post links use Hugo permalinks: `/blog/post-slug/`
 
+### Series
+
+Blog posts with a `series` front matter field are automatically grouped:
+
+- **Blog list page** (`list.html`): Series are shown as headed sections with ordered post lists, followed by standalone posts
+- **Homepage** (`index.html`): Series appear as single entries linking to the first post, with a "N-part series" label
+- **Within posts** (`series-nav.html`): The existing series navigation partial shows all posts in the series with "← you are here"
+
+Current series:
+
+| Series | Posts | Skin | Status |
+|---|---|---|---|
+| Python for Fixed-Income Risk Analysis | 5 | `graph` | Published |
+| Drinky Cab | 5 | `taxicab` | Published |
+| Hulu Pipeline | 9 (2 existing + 7 new) | `hulu` | In progress |
+
 ### Projects
 
-- The Drinky Cab project lives as static HTML/JS/CSS in `static/drinky_cab/`
-- Its Markdown page (`content/projects/drinky-cab.md`) provides a description and links into the interactive components
+- The Drinky Cab project has been converted to a blog series; the project page now links to the series
+- Static assets (HTML/JS/CSS/images) remain in `static/drinky_cab/` and are referenced directly from the blog posts
 - Interactive maps use Leaflet 0.7.7 via unpkg CDN
 - Map tiles use OpenStreetMap (migrated from defunct OpenCycleMap)
 
@@ -144,10 +172,28 @@ During migration, these changes were required:
 ## Future Ideas
 
 ### Content
-- [ ] Break the Drinky Cab project into a blog post series (data acquisition, geographic analysis, statistical modeling, visualization)
+- [x] Break the Drinky Cab project into a blog post series (5 parts: intro, mapping, taxi data, stumbling distance, results)
 - [ ] Write a "making of this site" post covering the theme system and Hugo migration
 - [ ] Add more interactive projects / tools / visualizations / games
 - [ ] Consider adding a lightweight comment system (e.g. giscus, utterances) for blog posts
+
+### Blog Series: Hulu Pipeline — Monitoring the Data Pipeline
+
+A 9-part series expanding on the [Monitoring the Data Pipeline at Hulu](https://www.youtube.com/watch?v=VjXwoHUCvOQ) talk from Hadoop Summit 2014 ([slides](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit)). The two existing DSL posts become parts 2 and 3 of this series. Posts 1–6 form the main narrative arc; 7–9 are supplementary deep-dives.
+
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | 12,000 Events Per Second: Inside Hulu's Beacon Data Pipeline | `hulu-pipeline-12000-events-per-second.md` | Written |
+| 2 | Why Hulu Built a DSL for Its Data Pipeline | `beaconspec-hulu-dsl-data-pipeline.md` | Existing (updated) |
+| 3 | Building Your First DSL: Python & Scala | `writing-dsls-python-scala.md` | Existing (updated) |
+| 4 | The Email Explosion: Why Monitoring Is Harder Than You Think | `hulu-pipeline-email-explosion-monitoring.md` | Written |
+| 5 | Pattern Matching in Graphs: Introduction to Neo4j and Cypher | `hulu-pipeline-neo4j-cypher-graph-queries.md` | Written |
+| 6 | Think Like a User: Graph-Based Troubleshooting | `hulu-pipeline-graph-troubleshooting.md` | Written |
+| 7 | MVEL and User-Defined Jobs | `hulu-pipeline-mvel-user-jobs.md` | Written |
+| 8 | The Reporting Layer: Self-Service Analytics | `hulu-pipeline-reporting-layer.md` | Written |
+| 9 | From Batch to Stream: What 2014's Lessons Mean Today | `hulu-pipeline-batch-to-stream.md` | Written |
+
+Skin: `hulu`. Full plan in `notes/hulu-pipeline-series-plan.md`.
 
 ### Blog Series: Neural Nets from Scratch
 
@@ -186,6 +232,18 @@ A multi-part series on neural networks, starting from personal history and build
 - Are there frameworks where the AI is somehow aware of its own computational costs and can weigh them against the cost of using a tool?
 - Original idea to explore: a "dream" state with an adversarial process that tries to find cases where tool outputs differ from what the model would predict on its own. If the adversary can't find divergences, the model is discouraged from using the tool (since it already "knows" the answer). This naturally routes tool calls to cases where they actually add value, and favors whichever path (internal computation vs. tool) is cheaper for a given query.
 - This connects back to the MoE/thinking work: tool use is essentially another form of routing — sending a sub-problem to an external expert
+
+### Blog Series: Tries — Data Structure, Spark Integration & GitHub Release
+
+One or more posts explaining what a Trie is and walking through my implementation. Cover why Tries are extremely efficient to broadcast in Spark (compact, serializable, shared across executors without duplication) and demonstrate practical usage patterns. Publish the implementation as an open-source project on GitHub.
+
+### Blog Series: Entity Resolution
+
+Posts on entity resolution — how it works, why it's generally useful, and how the Trie data structure can be applied to make entity matching fast and memory-efficient at scale.
+
+### Blog Series: Elasticsearch — Lessons Learned & Open-Source Loader
+
+Posts covering what I've learned working with Elasticsearch, including problem areas and operational pitfalls. Open-source the loader with alias support as a companion project.
 
 ### Design & Theming
 - [ ] Animate the generative SVG background subtly (slow drift, breathing opacity)

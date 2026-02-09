@@ -1,6 +1,12 @@
 # Hugo build output
 public/
 
+# Interactive component build artifacts (built from interactive/src/)
+static/js/hll/
+
+# Node modules
+interactive/node_modules/
+
 # Hugo build lock
 .hugo_build.lock
 
@@ -14,3 +20,5 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+
+repos

@@ -1,0 +1,17 @@
+{{- $component := .Get "component" -}}
+{{- $id := .Get "id" | default (printf "interactive-%s-%d" $component .Ordinal) -}}
+{{- $jsPath := (printf "/js/hll/%s.js" $component) | relURL -}}
+{{- $cacheBust := "" -}}
+{{- if hugo.IsServer -}}
+  {{- $jsFile := path.Join "static" "js" "hll" (printf "%s.js" $component) -}}
+  {{- if $stat := os.Stat $jsFile -}}
+    {{- $cacheBust = printf "?v=%d" $stat.ModTime.Unix -}}
+  {{- else -}}
+    {{- $cacheBust = printf "?v=%d" now.UnixMilli -}}
+  {{- end -}}
+{{- end -}}
+<div id="{{ $id }}" class="interactive-component" data-component="{{ $component }}"></div>
+<script type="module">
+  import { mount } from '{{ $jsPath }}{{ $cacheBust }}';
+  mount(document.getElementById('{{ $id }}'));
+</script>

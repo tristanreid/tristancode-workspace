@@ -1,10 +1,14 @@
 ---
 title: "Building Your First Domain-Specific Language: A Practical Guide in Python and Scala"
 description: "How a small, focused language can eliminate boilerplate, reduce bugs, and make your team faster — with working examples."
+series: "Hulu Pipeline"
+weight: 3
 skin: hulu
 ---
 
 *How a small, focused language can eliminate boilerplate, reduce bugs, and make your team faster — with working examples you can build this afternoon.*
+
+*This is a hands-on companion to the [previous post](/blog/beaconspec-hulu-dsl-data-pipeline/) about Hulu's BeaconSpec DSL. There, we explored why Hulu built a domain-specific language for their data pipeline. Here, we'll build something similar ourselves — in both Python and Scala — and explore what each language brings to DSL design.*
 
 ---
 
@@ -584,4 +588,4 @@ Start small. Pick one repetitive pattern in your codebase. Write out what you wi
 
 ---
 
-*This post was inspired by the [BeaconSpec DSL](https://medium.com/lai-blog/beaconspec-8fb6d480470c) built at Hulu and the lessons from [Monitoring the Data Pipeline at Hulu](https://www.slideshare.net/slideshow/t-435phall1reidv2/35985404), presented at Hadoop Summit 2014. [Video](https://www.youtube.com/watch?v=VjXwoHUCvOQ)*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See also: [BeaconSpec on Medium](https://medium.com/lai-blog/beaconspec-8fb6d480470c) · [Slides on SlideShare](https://www.slideshare.net/slideshow/t-435phall1reidv2/35985404)*

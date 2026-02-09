@@ -1,8 +1,12 @@
 ---
 title: "Why Hulu Built a DSL for Its Data Pipeline (and Why You Should Care)"
 description: "How BeaconSpec — a domain-specific language for metric definitions — improved monitoring, maintainability, and consistency across 175 MapReduce jobs per hour."
+series: "Hulu Pipeline"
+weight: 2
 skin: hulu
 ---
+
+*In the [previous post](/blog/hulu-pipeline-12000-events-per-second/), we saw how Hulu's data pipeline processed 12,000 events per second through a chain of collection, storage, and MapReduce transformation. But with 150–175 MapReduce jobs running every hour, how did engineers define what each job should compute? The answer was a domain-specific language called BeaconSpec.*
 
 ---
 
@@ -116,4 +120,4 @@ At Hulu, the BeaconSpec DSL didn't just reduce code volume — it became a **fou
 
 ---
 
-*References: [BeaconSpec on Medium](https://medium.com/lai-blog/beaconspec-8fb6d480470c) · [Monitoring the Data Pipeline at Hulu (SlideShare)](https://www.slideshare.net/slideshow/t-435phall1reidv2/35985404) · [Hadoop Summit 2014 Talk (Video)](https://www.youtube.com/watch?v=VjXwoHUCvOQ)*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See also: [BeaconSpec on Medium](https://medium.com/lai-blog/beaconspec-8fb6d480470c) · [Slides on SlideShare](https://www.slideshare.net/slideshow/t-435phall1reidv2/35985404)*
