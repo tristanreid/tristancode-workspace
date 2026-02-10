@@ -4,6 +4,13 @@
     <h1>{{ .Title }}</h1>
   </header>
 
+  {{ with .Params.hero }}
+  <div class="post-hero">
+    <img class="post-hero-light" src="{{ . }}-light.svg" alt="" loading="eager">
+    <img class="post-hero-dark" src="{{ . }}-dark.svg" alt="" loading="eager">
+  </div>
+  {{ end }}
+
   {{ partial "series-nav.html" . }}
 
   <div class="post-content">

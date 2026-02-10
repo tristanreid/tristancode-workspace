@@ -4,6 +4,7 @@ description: "How a prefix tree stores thousands of strings using shared structu
 weight: 30
 series: "Tries: Searching Text the Clever Way"
 skin: graph
+hero: /images/trie-series/trie-what-is-a-trie
 ---
 
 Imagine you have a list of 100,000 names — every show in a streaming catalog, say — and a pile of 10 million documents. For each document, you need to find which names appear in it. Every name, every document.
@@ -157,12 +158,15 @@ A quick note on pronunciation. Edward Fredkin coined the name in 1960 from "re**
 
 We've seen the core data structure: a tree that shares prefixes, enabling multi-pattern search in a single pass. But there are subtleties we've glossed over — what happens with case sensitivity? How do you handle word boundaries so you don't match "art" inside "cart"? What if two patterns share the same surface form?
 
-The next posts in this series will dig into:
+## The Series So Far
 
-- **Visualizing Tries with D3** — how the interactive explorer above was built, and how to generate trie artwork for the web
-- **Scanning Text with a Trie** — word boundaries, case sensitivity, overlapping matches, and the dual-trie pattern
-- **Broadcasting a Trie in Spark** — using tries at scale in distributed computation, where their compact structure really shines
+1. **What Is a Trie?** — You are here
+2. [Building an Interactive Trie Visualizer with D3](/blog/trie-visualizing-with-d3/) — How the animated visualization works
+3. [Scanning Text with a Trie](/blog/trie-scanning-text/) — Multi-pattern matching, word boundaries, overlap resolution
+4. [Broadcasting a Trie in Spark](/blog/trie-broadcasting-in-spark/) — The distributed computation pattern
+5. [Building a Trie-Powered Autocomplete with React](/blog/trie-autocomplete-react/) — The React component
+6. [Shrinking the Trie for the Wire](/blog/trie-shrinking-for-the-wire/) — Can a custom format beat gzip? We measured.
 
 ---
 
-*Next: Visualizing Tries with D3*
+*Next: [Building an Interactive Trie Visualizer with D3](/blog/trie-visualizing-with-d3/)*

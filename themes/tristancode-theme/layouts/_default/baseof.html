@@ -71,7 +71,7 @@
     })();
   </script>
 </head>
-<body>
+<body{{ with .Params.hero }} class="trie-bg"{{ end }}>
   <div class="site-wrapper">
     {{ partial "header.html" . }}
     <main class="main-content">

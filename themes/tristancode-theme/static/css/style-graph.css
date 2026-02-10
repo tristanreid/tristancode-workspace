@@ -58,6 +58,16 @@ body::before {
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
 }
+/* Replace grid with trie tiles on series posts */
+body.trie-bg::before {
+  background-image: url('/images/trie-series/trie-bg-light.svg');
+  background-repeat: repeat;
+  background-size: auto;
+}
+[data-theme="dark"] body.trie-bg::before,
+body.trie-bg[data-theme="dark"]::before {
+  background-image: url('/images/trie-series/trie-bg-dark.svg');
+}
 
 /* --- Reset & Base --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -205,6 +215,21 @@ img { max-width: 100%; height: auto; }
 .post-content th, .post-content td { padding: 0.6rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); }
 .post-content th { font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; }
 .post-content tr:nth-child(even) td { background: var(--table-stripe); }
+
+/* --- Post Hero (trie series artwork) --- */
+.post-hero {
+  margin: -0.5rem 0 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+.post-hero img {
+  max-height: 320px;
+  width: auto;
+  max-width: 100%;
+}
+.post-hero-dark { display: none; }
+[data-theme="dark"] .post-hero-light { display: none; }
+[data-theme="dark"] .post-hero-dark { display: block; }
 
 .post-content img { display: block; margin: 1.5rem auto; border: 2px solid var(--border); }
 

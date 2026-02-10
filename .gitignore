@@ -22,4 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Cloned repos (separate git repositories)
 repos
+packages/

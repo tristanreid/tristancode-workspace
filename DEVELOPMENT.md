@@ -156,7 +156,7 @@ Current series:
 | Drinky Cab | 5 | `taxicab` | Published |
 | HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
 | Hulu Pipeline | 9 | `hulu` | Published |
-| Tries: Searching Text the Clever Way | 4 (planned) | `graph` | In progress |
+| Tries: Searching Text the Clever Way | 5 (4 written) | `graph` | In progress |
 
 ### Projects
 
@@ -293,16 +293,24 @@ A multi-part series on neural networks, starting from personal history and build
 
 ### Blog Series: Tries — Searching Text the Clever Way
 
-A 4-part series on the trie data structure, from intuition through production-scale usage. Features a reusable D3 interactive trie visualizer component.
+A 6-part series on the trie data structure, from intuition through production-scale usage. Features reusable D3 interactive trie visualizer and open-source packages.
 
 | # | Post | File | Status |
 |---|------|------|--------|
 | 1 | What Is a Trie? The Data Structure That Shares Its Homework | `trie-what-is-a-trie.md` | Written |
-| 2 | Visualizing Tries with D3 | `trie-visualizing-with-d3.md` | Planned |
-| 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Planned |
-| 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Planned |
+| 2 | Building an Interactive Trie Visualizer with D3 | `trie-visualizing-with-d3.md` | Written |
+| 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Written |
+| 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Written |
+| 5 | Building a Trie-Powered Autocomplete with React | `trie-autocomplete-react.md` | Written |
+| 6 | Shrinking the Trie for the Wire | `trie-shrinking-for-the-wire.md` | Written |
 
 Skin: `graph`. Full plan in `notes/trie-series-plan.md`. Research in `notes/trie-data-structure-research.md`.
+
+**Open-source packages** (in `packages/`):
+- `trie-match-python` → [github.com/tristanreid/trie-match-python](https://github.com/tristanreid/trie-match-python) — pip-installable, Spark-broadcast-friendly
+- `trie-match-scala` → [github.com/tristanreid/trie-match-scala](https://github.com/tristanreid/trie-match-scala) — sbt/Maven, Spark broadcast + UDF
+- `trie-viz` → [github.com/tristanreid/trie-viz](https://github.com/tristanreid/trie-viz) — D3 trie visualizer npm package
+- `react-trie-autocomplete` → [github.com/tristanreid/react-trie-autocomplete](https://github.com/tristanreid/react-trie-autocomplete) — React autocomplete + packed radix trie (v0.2.0: `RadixTrie`, `packTrie`/`unpackTrie`, `src`/`packed` props, `triepack` CLI, server utilities)
 
 ### Blog Series: Entity Resolution
 

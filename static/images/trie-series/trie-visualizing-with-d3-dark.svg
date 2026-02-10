@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 420" width="360" height="420">
+  <defs>
+    <pattern id="grid-sm-dark" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(88,136,204,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-dark" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-dark)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(88,136,204,0.12)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="360" height="420" fill="#141a24"/>
+  <rect width="360" height="420" fill="url(#grid-lg-dark)"/>
+  <g transform="translate(50,50)">
+    <path d="M169,0 C169,32 169,32 169,64" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M169,64 C169,96 169,96 169,128" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M169,128 C169,160 78,160 78,192" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78,192 C78,224 0,224 0,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M0,256 C0,288 0,288 0,320" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78,192 C78,224 52,224 52,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78,192 C78,224 104,224 104,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M104,256 C104,288 104,288 104,320" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M78,192 C78,224 156,224 156,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M156,256 C156,288 156,288 156,320" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M169,128 C169,160 208,160 208,192" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M208,192 C208,224 208,224 208,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M208,256 C208,288 208,288 208,320" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M169,128 C169,160 260,160 260,192" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M260,192 C260,224 260,224 260,256" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M260,256 C260,288 260,288 260,320" fill="none" stroke="#2a3648" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="169" cy="0" r="8" fill="#5a6a80" stroke="#5a6a80" stroke-width="2"/>
+    <circle cx="169" cy="64" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="169" y="64" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">d</text>
+    <circle cx="169" cy="128" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="169" y="128" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">r</text>
+    <circle cx="78" cy="192" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="78" y="192" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">a</text>
+    <circle cx="0" cy="256" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="0" y="256" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">f</text>
+    <circle cx="0" cy="320" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="0" cy="320" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="0" y="320" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">t</text>
+    <circle cx="52" cy="256" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="52" cy="256" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="52" y="256" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">g</text>
+    <circle cx="104" cy="256" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="104" y="256" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">p</text>
+    <circle cx="104" cy="320" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="104" cy="320" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="104" y="320" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">e</text>
+    <circle cx="156" cy="256" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="156" cy="256" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="156" y="256" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">w</text>
+    <circle cx="156" cy="320" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="156" cy="320" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="156" y="320" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">n</text>
+    <circle cx="208" cy="192" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="208" y="192" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">e</text>
+    <circle cx="208" cy="256" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="208" y="256" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">a</text>
+    <circle cx="208" cy="320" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="208" cy="320" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="208" y="320" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">m</text>
+    <circle cx="260" cy="192" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="260" y="192" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">i</text>
+    <circle cx="260" cy="256" r="18" fill="#141a24" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="260" y="256" text-anchor="middle" dy="0.35em" fill="#d8e0ec" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">f</text>
+    <circle cx="260" cy="320" r="23" fill="none" stroke="#ef6060" stroke-width="2" opacity="0.3"/>
+    <circle cx="260" cy="320" r="18" fill="#ef6060" stroke="#ef6060" stroke-width="2.5"/>
+    <text x="260" y="320" text-anchor="middle" dy="0.35em" fill="#ffffff" font-family="'JetBrains Mono','SF Mono','Fira Code',monospace" font-size="15" font-weight="700">t</text>
+  </g>
+</svg>

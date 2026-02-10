@@ -9,6 +9,19 @@
  * exports a tree structure that d3.hierarchy() can consume directly.
  */
 
+// ─── Match result (for text scanning) ────────────────────────────────
+
+export interface TrieMatch {
+  /** The matched text as it appeared in the input */
+  match: string;
+  /** Start index in the input text (inclusive) */
+  start: number;
+  /** End index in the input text (exclusive) */
+  end: number;
+  /** The trie path (normalized form) that matched */
+  pattern: string;
+}
+
 // ─── Hierarchy export (for D3) ──────────────────────────────────────
 
 export interface TrieHierarchyNode {
@@ -135,9 +148,96 @@ export class TrieEngine {
     return convert(this.root, '', '');
   }
 
+  /**
+   * Find all trie matches in the given text.
+   *
+   * For each starting position in the text, walks the trie as far as
+   * possible. Every terminal node encountered emits a match. When
+   * `wordBoundaries` is true (default), matches are only emitted when
+   * flanked by non-alpha characters (or string start/end).
+   *
+   * Returns matches sorted by position, then by length descending.
+   */
+  findAllMatches(
+    text: string,
+    options?: { wordBoundaries?: boolean; caseSensitive?: boolean },
+  ): TrieMatch[] {
+    const wordBoundaries = options?.wordBoundaries ?? true;
+    const caseSensitive = options?.caseSensitive ?? true;
+    const normalized = caseSensitive ? text : text.toLowerCase();
+    const matches: TrieMatch[] = [];
+
+    for (let i = 0; i < normalized.length; i++) {
+      let node = this.root;
+      let j = i;
+
+      while (j < normalized.length && node.children.has(normalized[j])) {
+        node = node.children.get(normalized[j])!;
+
+        if (node.isTerminal) {
+          if (wordBoundaries) {
+            const atStart = i === 0 || !isAlpha(text[i - 1]);
+            const atEnd = j + 1 === text.length || !isAlpha(text[j + 1]);
+            if (atStart && atEnd) {
+              matches.push({
+                match: text.slice(i, j + 1),
+                start: i,
+                end: j + 1,
+                pattern: normalized.slice(i, j + 1),
+              });
+            }
+          } else {
+            matches.push({
+              match: text.slice(i, j + 1),
+              start: i,
+              end: j + 1,
+              pattern: normalized.slice(i, j + 1),
+            });
+          }
+        }
+        j++;
+      }
+    }
+
+    return matches;
+  }
+
+  /**
+   * Resolve overlapping matches by keeping the longest match at each
+   * position, and removing matches that are fully contained within a
+   * longer match.
+   */
+  static resolveOverlaps(matches: TrieMatch[]): TrieMatch[] {
+    if (matches.length === 0) return [];
+
+    // Sort by start ascending, then length descending
+    const sorted = [...matches].sort((a, b) => {
+      if (a.start !== b.start) return a.start - b.start;
+      return (b.end - b.start) - (a.end - a.start);
+    });
+
+    const result: TrieMatch[] = [sorted[0]];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = result[result.length - 1];
+      const curr = sorted[i];
+      // Skip if fully contained in previous match
+      if (curr.start >= prev.start && curr.end <= prev.end) continue;
+      // Skip if overlapping (keep the earlier/longer one)
+      if (curr.start < prev.end) continue;
+      result.push(curr);
+    }
+    return result;
+  }
+
   /** Remove all words and reset to empty. */
   clear(): void {
     this.root = createNode();
     this._words = [];
   }
+}
+
+// ─── Utilities ──────────────────────────────────────────────────────
+
+function isAlpha(ch: string): boolean {
+  return /[a-zA-Z]/.test(ch);
 }
