@@ -5,8 +5,8 @@
   "description": "Interactive components for tristancode.com blog posts",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/entries/*.ts --bundle --outdir=../static/js/hll --format=esm --splitting --minify --target=es2020",
-    "dev": "esbuild src/entries/*.ts --bundle --outdir=../static/js/hll --format=esm --splitting --target=es2020 --watch",
+    "build": "esbuild src/entries/*.ts --bundle --outdir=../static/js/interactive --format=esm --splitting --minify --target=es2020",
+    "dev": "esbuild src/entries/*.ts --bundle --outdir=../static/js/interactive --format=esm --splitting --target=es2020 --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },

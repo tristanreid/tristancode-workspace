@@ -1,9 +1,9 @@
 {{- $component := .Get "component" -}}
 {{- $id := .Get "id" | default (printf "interactive-%s-%d" $component .Ordinal) -}}
-{{- $jsPath := (printf "/js/hll/%s.js" $component) | relURL -}}
+{{- $jsPath := (printf "/js/interactive/%s.js" $component) | relURL -}}
 {{- $cacheBust := "" -}}
 {{- if hugo.IsServer -}}
-  {{- $jsFile := path.Join "static" "js" "hll" (printf "%s.js" $component) -}}
+  {{- $jsFile := path.Join "static" "js" "interactive" (printf "%s.js" $component) -}}
   {{- if $stat := os.Stat $jsFile -}}
     {{- $cacheBust = printf "?v=%d" $stat.ModTime.Unix -}}
   {{- else -}}

@@ -110,6 +110,7 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 | Fixed-income risk series (Parts 1–5) | `graph` | Finance / quantitative feel; graph paper suits charts and formulas |
 | HyperLogLog series (Parts 1–4) | `stochastic` | Probability / data-viz theme matches the statistical content |
 | Hulu Pipeline series (Parts 1–9) | `hulu` | Directly about Hulu's data pipeline |
+| Tries series | `graph` | Data structure / technical content suits the graph-paper theme |
 | Drinky Cab series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
 | Drinky Cab project page | `taxicab` | Matches the series skin |
 | Homepage | `generative` (default) | Picker available; user can switch freely |
@@ -155,6 +156,7 @@ Current series:
 | Drinky Cab | 5 | `taxicab` | Published |
 | HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
 | Hulu Pipeline | 9 | `hulu` | Published |
+| Tries: Searching Text the Clever Way | 4 (planned) | `graph` | In progress |
 
 ### Projects
 
@@ -289,9 +291,18 @@ A multi-part series on neural networks, starting from personal history and build
 - Original idea to explore: a "dream" state with an adversarial process that tries to find cases where tool outputs differ from what the model would predict on its own. If the adversary can't find divergences, the model is discouraged from using the tool (since it already "knows" the answer). This naturally routes tool calls to cases where they actually add value, and favors whichever path (internal computation vs. tool) is cheaper for a given query.
 - This connects back to the MoE/thinking work: tool use is essentially another form of routing — sending a sub-problem to an external expert
 
-### Blog Series: Tries — Data Structure, Spark Integration & GitHub Release
+### Blog Series: Tries — Searching Text the Clever Way
 
-One or more posts explaining what a Trie is and walking through my implementation. Cover why Tries are extremely efficient to broadcast in Spark (compact, serializable, shared across executors without duplication) and demonstrate practical usage patterns. Publish the implementation as an open-source project on GitHub.
+A 4-part series on the trie data structure, from intuition through production-scale usage. Features a reusable D3 interactive trie visualizer component.
+
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | What Is a Trie? The Data Structure That Shares Its Homework | `trie-what-is-a-trie.md` | Written |
+| 2 | Visualizing Tries with D3 | `trie-visualizing-with-d3.md` | Planned |
+| 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Planned |
+| 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Planned |
+
+Skin: `graph`. Full plan in `notes/trie-series-plan.md`. Research in `notes/trie-data-structure-research.md`.
 
 ### Blog Series: Entity Resolution
 
