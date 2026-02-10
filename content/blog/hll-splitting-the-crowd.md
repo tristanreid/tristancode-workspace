@@ -155,6 +155,10 @@ Beyond basic counting, HLL has some remarkable properties:
 
 **Merging crowds**: If you counted visitors on Monday and Tuesday separately (two HLL sketches), you can combine them by taking the element-wise max of each register. It's as if you counted both days together — no need to re-process the raw data.
 
+Try it — set up two crowds with some overlap, merge their sketches, and see how the merged estimate nails the true union while the naive sum overcounts:
+
+{{< interactive component="merge-demo" >}}
+
 **No double-counting**: The same person always hashes to the same register with the same streak. Showing up twice doesn't inflate the count. This is built into the algorithm for free.
 
 **Adjustable precision**: Choose your memory/accuracy trade-off at setup time. Need more accuracy? Use more registers. Memory tight? Use fewer. The trade-off is smooth and predictable.

@@ -1,4 +1,4 @@
-import{c as $,d as E,e as H}from"./chunk-6M5WAKT7.js";import{l as w,n as L,p as S,q as T}from"./chunk-JSVLZHI4.js";var B=`
+import{c as $,e as E,h as H}from"./chunk-X4JR5YQH.js";import{l as w,n as L,p as S,q as T}from"./chunk-JSVLZHI4.js";var B=`
 .max-streak-dist {
   font-family: var(--font-sans, system-ui, sans-serif);
   border: 1px solid var(--border, #cbd5e1);

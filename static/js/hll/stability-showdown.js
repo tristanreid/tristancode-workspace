@@ -1,4 +1,4 @@
-import{a as z,b as q,c as L,d as C,e as M}from"./chunk-6M5WAKT7.js";import{l as k,m as T,n as E,q as H,s as $}from"./chunk-JSVLZHI4.js";var B=`
+import{a as z,b as q,c as L,e as C,h as M}from"./chunk-X4JR5YQH.js";import{l as k,m as T,n as E,q as H,s as $}from"./chunk-JSVLZHI4.js";var B=`
 .stability-showdown {
   font-family: var(--font-sans, system-ui, sans-serif);
   border: 1px solid var(--border, #cbd5e1);

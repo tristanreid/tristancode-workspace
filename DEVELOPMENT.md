@@ -19,34 +19,52 @@ Open `http://localhost:1313` in a browser. Hugo live-reloads on file changes.
 - **Static site generator**: Hugo (install via `brew install hugo`)
 - **Theme**: Custom theme at `themes/tristancode-theme/`
 - **Content**: Markdown files in `content/blog/` and `content/projects/`
-- **Static assets**: `static/images/charts/` (blog chart PNGs), `static/drinky_cab/` (legacy interactive project)
+- **Static assets**: `static/images/charts/` (blog chart PNGs), `static/drinky_cab/` (legacy interactive project), `static/js/` (built interactive components)
+- **Interactive components**: TypeScript + D3 sources in `interactive/src/`, built to `static/js/`
+- **Working notes**: Research and planning documents in `notes/`
 
 ### Directory Layout
 
 ```
 tristancode-workspace/
 ├── hugo.toml                  # Site config
+├── netlify.toml               # Netlify build settings
 ├── content/
 │   ├── blog/
 │   │   ├── _index.md          # Blog section page
-│   │   ├── drinky-cab-*.md    # Drinky Cab series (5 parts, draft)
 │   │   ├── fixed-income-risk-*.md  # Fixed-income risk series (5 parts)
-│   │   ├── writing-dsls-python-scala.md
-│   │   └── beaconspec-hulu-dsl-data-pipeline.md
+│   │   ├── drinky-cab-*.md    # Drinky Cab series (5 parts)
+│   │   ├── hll-*.md           # HyperLogLog series (4 parts)
+│   │   ├── hulu-pipeline-*.md # Hulu Pipeline series (7 new parts)
+│   │   ├── writing-dsls-python-scala.md       # Hulu Pipeline part 3
+│   │   └── beaconspec-hulu-dsl-data-pipeline.md  # Hulu Pipeline part 2
 │   └── projects/
 │       ├── _index.md           # Projects section page
 │       └── drinky-cab.md       # Now points to the blog series
+├── interactive/               # TypeScript interactive components
+│   └── src/
+│       ├── components/        # Component implementations (D3, vanilla TS)
+│       ├── entries/           # Entry points (one per component)
+│       └── hll-sim.ts         # HLL simulation engine (shared by components)
 ├── static/
-│   ├── images/charts/          # 15 PNG charts for the finance series
-│   └── drinky_cab/             # Full legacy Drinky Cab interactive project
+│   ├── js/hll/                # Built interactive component bundles
+│   ├── images/charts/         # 15 PNG charts for the finance series
+│   └── drinky_cab/            # Full legacy Drinky Cab interactive project
+├── notes/                     # Working notes and research for upcoming posts
+│   ├── archive/               # Completed planning docs
+│   ├── entity-detection-research.md
+│   ├── mergeable-operations-research.md
+│   └── trie-data-structure-research.md
 └── themes/tristancode-theme/
     ├── layouts/
     │   ├── _default/baseof.html   # Base template (theme switcher, generative JS)
     │   ├── _default/list.html     # Section list pages
     │   ├── _default/single.html   # Individual post/project pages
     │   ├── index.html             # Homepage
-    │   └── partials/              # header.html, footer.html
+    │   ├── shortcodes/interactive.html  # {{</* interactive component="name" */>}}
+    │   └── partials/              # header.html, footer.html, series-nav.html
     └── static/css/
+        ├── shared.css             # Shared reset, layout, typography
         ├── style-graph.css        # Graph Paper theme
         ├── style-generative.css   # Generative / Data Art theme
         ├── style-hulu.css         # Hulu / Pipeline theme
@@ -89,9 +107,9 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 
 | Content | Skin | Rationale |
 |---|---|---|
-| Fixed-income risk series (Parts 1–4) | `graph` | Finance / quantitative feel; graph paper suits charts and formulas |
-| Writing DSLs in Python & Scala | `hulu` | Hulu connection — DSL work was done at Hulu |
-| BeaconSpec / Hulu DSL post | `hulu` | Directly about Hulu's data pipeline |
+| Fixed-income risk series (Parts 1–5) | `graph` | Finance / quantitative feel; graph paper suits charts and formulas |
+| HyperLogLog series (Parts 1–4) | `stochastic` | Probability / data-viz theme matches the statistical content |
+| Hulu Pipeline series (Parts 1–9) | `hulu` | Directly about Hulu's data pipeline |
 | Drinky Cab series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
 | Drinky Cab project page | `taxicab` | Matches the series skin |
 | Homepage | `generative` (default) | Picker available; user can switch freely |
@@ -135,7 +153,8 @@ Current series:
 |---|---|---|---|
 | Python for Fixed-Income Risk Analysis | 5 | `graph` | Published |
 | Drinky Cab | 5 | `taxicab` | Published |
-| Hulu Pipeline | 9 (2 existing + 7 new) | `hulu` | In progress |
+| HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
+| Hulu Pipeline | 9 | `hulu` | Published |
 
 ### Projects
 
@@ -230,7 +249,7 @@ A 9-part series expanding on the [Monitoring the Data Pipeline at Hulu](https://
 | 8 | The Reporting Layer: Self-Service Analytics | `hulu-pipeline-reporting-layer.md` | Written |
 | 9 | From Batch to Stream: What 2014's Lessons Mean Today | `hulu-pipeline-batch-to-stream.md` | Written |
 
-Skin: `hulu`. Full plan in `notes/hulu-pipeline-series-plan.md`.
+Skin: `hulu`. Full plan in `notes/archive/hulu-pipeline-series-plan.md`.
 
 ### Blog Series: Neural Nets from Scratch
 
@@ -281,6 +300,24 @@ Posts on entity resolution — how it works, why it's generally useful, and how 
 ### Blog Series: Elasticsearch — Lessons Learned & Open-Source Loader
 
 Posts covering what I've learned working with Elasticsearch, including problem areas and operational pitfalls. Open-source the loader with alias support as a companion project.
+
+### Blog Post/Series: Mergeable Operations in Distributed Computation
+
+An explainer (possibly multi-part) on **mergeable data structures** and why they matter for distributed systems. The core idea: some operations can be split across machines, computed independently, and combined — and understanding which ones is the key to scalable computation.
+
+#### Key themes:
+- **Map/Reduce intuition**: why "split, process, combine" is the fundamental pattern of distributed computation
+- **What makes an operation mergeable**: associativity and commutativity — but explained through intuition, not abstract algebra. The goal is to make readers *feel* why `max(a, b)` is mergeable but `median(a, b)` isn't, without reaching for group theory
+- **HyperLogLog as a case study**: the merge operation (element-wise max of registers) is trivially parallelizable — you can count unique visitors across 1,000 servers and combine the results with no coordination. Connect back to the HLL series
+- **Tries as a case study**: another mergeable data structure — compact, serializable, and efficient to broadcast in Spark. Connect to the Trie series
+- **Algebird and the Twitter/Scalding ecosystem**: Oscar Boykin's work on [Algebird](https://github.com/twitter/algebird) — a Scala library that provides abstract algebraic structures (monoids, groups, etc.) for aggregation in distributed systems. Used heavily with Scalding for MapReduce pipelines. Personal experience: worked with Algebird + Scalding and found it genuinely fascinating — the library makes the algebra *practical* rather than theoretical
+- **Sketches and approximate data structures**: Count-Min Sketch, Bloom filters, HLL — all mergeable, all trading exactness for massive scalability
+- **The broader lesson**: the most powerful data structures for big data aren't the ones that are most precise — they're the ones whose operations compose cleanly across machine boundaries
+
+#### Tone:
+- Accessible and intuitive, not academic. The reader should come away understanding *why* mergeability matters without needing an algebra textbook
+- Use concrete examples: "imagine you have 100 servers each counting visitors..."
+- Reference Algebird and abstract algebra as fascinating further reading, not as prerequisites
 
 ### Design & Theming
 - [ ] Animate the generative SVG background subtly (slow drift, breathing opacity)

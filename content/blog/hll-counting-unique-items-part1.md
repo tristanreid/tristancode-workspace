@@ -65,6 +65,10 @@ If someone reports a streak of 7, that's a 1-in-128 long shot — so there were 
 
 </div>
 
+Try it yourself — press Play to let a crowd flip coins. The ★ marks the record holder:
+
+{{< interactive component="coin-flip-crowd" >}}
+
 ---
 
 ## Why This Matters for Real Data
