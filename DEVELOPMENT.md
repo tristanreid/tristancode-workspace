@@ -158,6 +158,7 @@ Current series:
 | Hulu Pipeline | 9 | `hulu` | Published |
 | Tries: Searching Text the Clever Way | 6 | `graph` | Published |
 | Entity Detection: Finding What Matters in Text | 4 | `graph` | Published |
+| Mergeable Operations in Distributed Computation | 3 | `graph` | Published |
 
 ### Projects
 
@@ -375,23 +376,34 @@ Skin: `graph`. Research in `notes/entity-detection-research.md`.
 
 Posts covering what I've learned working with Elasticsearch, including problem areas and operational pitfalls. Open-source the loader with alias support as a companion project.
 
-### Blog Post/Series: Mergeable Operations in Distributed Computation
+### Blog Series: Mergeable Operations in Distributed Computation
 
-An explainer (possibly multi-part) on **mergeable data structures** and why they matter for distributed systems. The core idea: some operations can be split across machines, computed independently, and combined — and understanding which ones is the key to scalable computation.
+A three-part "capstone" series tying together HLL, Tries, and Entity Detection through the lens of mergeable operations. The core idea: some operations can be split across machines, computed independently, and combined — and understanding which ones is the key to scalable computation.
 
-#### Key themes:
-- **Map/Reduce intuition**: why "split, process, combine" is the fundamental pattern of distributed computation
-- **What makes an operation mergeable**: associativity and commutativity — but explained through intuition, not abstract algebra. The goal is to make readers *feel* why `max(a, b)` is mergeable but `median(a, b)` isn't, without reaching for group theory
-- **HyperLogLog as a case study**: the merge operation (element-wise max of registers) is trivially parallelizable — you can count unique visitors across 1,000 servers and combine the results with no coordination. Connect back to the HLL series
-- **Tries as a case study**: another mergeable data structure — compact, serializable, and efficient to broadcast in Spark. Connect to the Trie series
-- **Algebird and the Twitter/Scalding ecosystem**: Oscar Boykin's work on [Algebird](https://github.com/twitter/algebird) — a Scala library that provides abstract algebraic structures (monoids, groups, etc.) for aggregation in distributed systems. Used heavily with Scalding for MapReduce pipelines. Personal experience: worked with Algebird + Scalding and found it genuinely fascinating — the library makes the algebra *practical* rather than theoretical
-- **Sketches and approximate data structures**: Count-Min Sketch, Bloom filters, HLL — all mergeable, all trading exactness for massive scalability
-- **The broader lesson**: the most powerful data structures for big data aren't the ones that are most precise — they're the ones whose operations compose cleanly across machine boundaries
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | Split, Process, Combine | `mergeable-operations-split-process-combine.md` | Written |
+| 2 | Sketches: Trading Precision for Scalability | `mergeable-operations-sketches.md` | Written |
+| 3 | When Abstract Algebra Becomes Practical | `mergeable-operations-algebird.md` | Written |
 
-#### Tone:
-- Accessible and intuitive, not academic. The reader should come away understanding *why* mergeability matters without needing an algebra textbook
-- Use concrete examples: "imagine you have 100 servers each counting visitors..."
-- Reference Algebird and abstract algebra as fascinating further reading, not as prerequisites
+Skin: `graph`. Research in `notes/mergeable-operations-research.md`. Narrative plan in `notes/mergeable-operations-narrative-plan.md`.
+
+#### Part 1: Split, Process, Combine
+- Which operations survive distribution (sum, max) and which break (mean, median)
+- The mean trick: carrying (sum, count) pairs to make non-mergeable operations mergeable
+- Case studies: HLL merge, trie broadcast pattern, entity score aggregation
+- The two rules: associativity and commutativity
+
+#### Part 2: Sketches: Trading Precision for Scalability
+- HLL, Count-Min Sketch, Bloom filters, T-Digest — four sketches, four merge operations
+- The shared contract: fixed memory, bounded error, associative commutative merge
+- T-Digest as the "carry more state" pattern taken to its logical extreme
+
+#### Part 3: When Abstract Algebra Becomes Practical
+- The reveal: everything in Parts 1-2 is a monoid
+- Algebird and Scalding: define the merge, get distributed computation for free
+- Personal experience with Algebird at scale — composability as an engineering tool
+- The broader lesson: "is this a monoid?" is the most important question in distributed system design
 
 ### Design & Theming
 - [ ] Animate the generative SVG background subtly (slow drift, breathing opacity)
