@@ -54,7 +54,7 @@ tristancode-workspace/
 │   ├── archive/               # Completed planning docs
 │   ├── entity-detection-research.md
 │   ├── mergeable-operations-research.md
-│   └── trie-data-structure-research.md
+│   └── neural-nets-research.md
 └── themes/tristancode-theme/
     ├── layouts/
     │   ├── _default/baseof.html   # Base template (theme switcher, generative JS)
@@ -156,7 +156,8 @@ Current series:
 | Drinky Cab | 5 | `taxicab` | Published |
 | HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
 | Hulu Pipeline | 9 | `hulu` | Published |
-| Tries: Searching Text the Clever Way | 5 (4 written) | `graph` | In progress |
+| Tries: Searching Text the Clever Way | 6 | `graph` | Published |
+| Entity Detection: Finding What Matters in Text | 4 | `graph` | Published |
 
 ### Projects
 
@@ -227,6 +228,41 @@ During migration, these changes were required:
 - Map tiles changed from defunct `tile2.opencyclemap.org` to `tile.openstreetmap.org`
 - Google Fonts import changed from `http://` to `https://`
 
+## Roadmap
+
+Two parallel streams of work:
+
+### Stream 1: Entity Resolution → Mergeable Operations
+
+**Entity Resolution** (next up) — A series on dictionary-based entity detection: how it works, scoring and disambiguation, scaling with Tries in Spark, and moving from batch to real-time. Builds directly on the Trie series. Research in `notes/entity-detection-research.md`.
+
+**Mergeable Operations** (follows Entity Resolution) — A "capstone" series tying together HLL, Tries, and Entity Resolution through the lens of mergeable/composable operations in distributed computation. Covers monoids, approximate data structures, and Algebird. Research in `notes/mergeable-operations-research.md`.
+
+### Stream 2: Neural Nets from Scratch (drafting phase — Parts 1–2 drafted)
+
+A multi-part series from personal history through original experiments with small language models. Starts with the "Minds, Brains and Computers" seminar at Duke, builds simple nets from scratch, tours Karpathy's tutorials, then experiments with Mixture-of-Experts, chain-of-thought, and Toolformer-style tool use. Research in `notes/neural-nets-research.md`.
+
+**Current status:**
+- Part 1 (`neural-nets-origin-story.md`) — Draft complete
+- Part 2 (`neural-nets-simpler-than-you-think.md`) — Draft complete, interactive `nn-playground` component built
+- Parts 3–6 — Research complete, drafting not started
+
+**Interactive components built:**
+- `nn-engine.ts` — Reusable neural net engine (forward pass, backpropagation, configurable architecture)
+- `nn-viz.ts` — Reusable D3 network visualizer (nodes, edges colored by weight, activation fill)
+- `nn-playground` — Interactive widget: task selector (AND/OR/XOR), architecture selector (single neuron / hidden layer), live training with loss curve and truth table
+
+**Completed:**
+- Part 2 Python code verified — fixed addition example (switched from batch GD to stochastic SGD)
+- Unit tests for `nn-engine.ts` — 16 tests (vitest), all passing
+- Narrative plan written — `notes/neural-nets-narrative-plan.md`
+- Skin decided — `chalkboard` (compared with `theorem`, chalkboard fits the personal/exploratory tone)
+
+**Next step:**
+- Draft Part 3 — "A Tour of Karpathy's Tutorials" (separate focused session; handoff in `notes/neural-nets-part3-handoff.md`)
+
+---
+
 ## Future Ideas
 
 ### Content
@@ -257,21 +293,31 @@ Skin: `hulu`. Full plan in `notes/archive/hulu-pipeline-series-plan.md`.
 
 A multi-part series on neural networks, starting from personal history and building toward original experiments with small language models.
 
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | Minds, Brains and Computers | `neural-nets-origin-story.md` | Draft |
+| 2 | Neural Nets Are Simpler Than You Think | `neural-nets-simpler-than-you-think.md` | Draft |
+| 3 | A Tour of Karpathy's Tutorials | — | Research complete |
+| 4 | Building a Mixture-of-Experts Model | — | Research complete |
+| 5 | Adding "Thinking" — Chain-of-Thought from Architecture | — | Research complete |
+| 6+ | Toolformer and the Economics of Tool Use | — | Research complete |
+
+Skin: `chalkboard`. Research in `notes/neural-nets-research.md`. Narrative plan in `notes/neural-nets-narrative-plan.md`.
+
 #### Part 1: Origin Story — "Minds, Brains and Computers"
-- Personal significance: took the seminar "Minds, Brains and Computers" at Duke as an undergrad
-- Wrote neural nets in BASIC — this was the experience that inspired switching major from Cognitive Psychology to Computer Science
-- Set the stage: neural nets have been personally meaningful for decades, long before the current wave
+- Personal memoir: took the seminar "Minds, Brains and Computers" at Duke as an undergrad
+- Wrote neural nets in BASIC — the formative experience that inspired switching major from Cognitive Psychology to Computer Science
+- Covers AI winters, connectionism, the disappointment of finding neural nets "unfashionable" in the CS curriculum
 
 #### Part 2: Neural Nets Are Simpler Than You Think
-- Incredibly simple implementations from scratch
-- Play around with teaching simple things, like basic arithmetic
-- Key point for readers: when people say LLMs are "bad at math," it's not necessarily because of their underlying architecture — demonstrate that even small nets can learn arithmetic patterns
-- Demystify the gap between "a neural net" and "an LLM"
+- Builds a single neuron (AND gate), breaks it on XOR, fixes it with a hidden layer, teaches it arithmetic
+- Interactive `nn-playground` component lets readers train live networks in the browser
+- Demystifies the gap between "a neural net" and "an LLM"
 
 #### Part 3: A Tour of Karpathy's Tutorials
-- Walk through Andrej Karpathy's tutorials and his simple LLM implementations
-- Establish these as the foundation for the experiments that follow
-- Reproduce key results, annotate with personal observations
+- Reference and annotate Karpathy's code (not reproduce it) — focus on education, not reproduction
+- Walk through the conceptual leaps: bigram → MLP → transformer
+- Build enough fluency to extend the codebase in Parts 4-6
 
 #### Part 4: Building a Mixture-of-Experts Model
 - Starting from Karpathy's simple LLM, add a routing mechanism that dispatches to specialized "expert" sub-networks
@@ -293,18 +339,18 @@ A multi-part series on neural networks, starting from personal history and build
 
 ### Blog Series: Tries — Searching Text the Clever Way
 
-A 6-part series on the trie data structure, from intuition through production-scale usage. Features reusable D3 interactive trie visualizer and open-source packages.
+A 6-part series on the trie data structure, from intuition through production-scale usage. Features reusable D3 interactive trie visualizer and open-source packages. **Published.**
 
 | # | Post | File | Status |
 |---|------|------|--------|
-| 1 | What Is a Trie? The Data Structure That Shares Its Homework | `trie-what-is-a-trie.md` | Written |
-| 2 | Building an Interactive Trie Visualizer with D3 | `trie-visualizing-with-d3.md` | Written |
-| 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Written |
-| 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Written |
-| 5 | Building a Trie-Powered Autocomplete with React | `trie-autocomplete-react.md` | Written |
-| 6 | Shrinking the Trie for the Wire | `trie-shrinking-for-the-wire.md` | Written |
+| 1 | What Is a Trie? The Data Structure That Shares Its Homework | `trie-what-is-a-trie.md` | Published |
+| 2 | Building an Interactive Trie Visualizer with D3 | `trie-visualizing-with-d3.md` | Published |
+| 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Published |
+| 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Published |
+| 5 | Building a Trie-Powered Autocomplete with React | `trie-autocomplete-react.md` | Published |
+| 6 | Shrinking the Trie for the Wire | `trie-shrinking-for-the-wire.md` | Published |
 
-Skin: `graph`. Full plan in `notes/trie-series-plan.md`. Research in `notes/trie-data-structure-research.md`.
+Skin: `graph`. Planning docs archived to `notes/archive/`.
 
 **Open-source packages** (in `packages/`):
 - `trie-match-python` → [github.com/tristanreid/trie-match-python](https://github.com/tristanreid/trie-match-python) — pip-installable, Spark-broadcast-friendly
@@ -312,9 +358,18 @@ Skin: `graph`. Full plan in `notes/trie-series-plan.md`. Research in `notes/trie
 - `trie-viz` → [github.com/tristanreid/trie-viz](https://github.com/tristanreid/trie-viz) — D3 trie visualizer npm package
 - `react-trie-autocomplete` → [github.com/tristanreid/react-trie-autocomplete](https://github.com/tristanreid/react-trie-autocomplete) — React autocomplete + packed radix trie (v0.2.0: `RadixTrie`, `packTrie`/`unpackTrie`, `src`/`packed` props, `triepack` CLI, server utilities)
 
-### Blog Series: Entity Resolution
+### Blog Series: Entity Detection — Finding What Matters in Text
 
-Posts on entity resolution — how it works, why it's generally useful, and how the Trie data structure can be applied to make entity matching fast and memory-efficient at scale.
+A 4-part series on dictionary-based entity detection: finding known entities in unstructured text, scoring matches for confidence, scaling with tries in Spark, and evolving from batch to real-time. Builds directly on the Trie series.
+
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | The "You" Problem — Why Entity Detection Is Harder Than Ctrl+F | `entity-detection-the-you-problem.md` | Written |
+| 2 | Scoring Entity Matches — When Finding Isn't Enough | `entity-detection-scoring-matches.md` | Written |
+| 3 | Entity Detection at Scale — The Broadcast Pattern | `entity-detection-at-scale.md` | Written |
+| 4 | From Batch to Real-Time — Entity Detection in a Web App | `entity-detection-batch-to-realtime.md` | Written |
+
+Skin: `graph`. Research in `notes/entity-detection-research.md`.
 
 ### Blog Series: Elasticsearch — Lessons Learned & Open-Source Loader
 
