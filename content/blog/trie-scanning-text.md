@@ -158,7 +158,7 @@ A trie is essentially a hand-built DFA that exploits the structure of your speci
 
 ## Performance: Tries at Scale
 
-In a production entity detection system scanning millions of documents against hundreds of thousands of entity names:
+In a production entity detection system scanning millions of documents against hundreds of thousands of entity names (I presented on this system at a [Netflix Data Engineering Tech Talk](https://www.youtube.com/watch?v=F4N8AmScZ-w) — [slides](https://docs.google.com/presentation/d/1ulPiI7bV1lq_d3Dj07j2qQDKst7AgUmoIFHSoQYv1FA/)):
 
 - **Dictionary size**: ~100,000 entity search terms
 - **Trie nodes**: ~400,000 (shared prefixes reduce this from the ~2M total characters)

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trie Format Comparison — 50,000 Words</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #58a6ff; }
+    .subtitle { color: #8b949e; margin-bottom: 2rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      max-width: 800px;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+    .card h2 {
+      font-size: 0.85rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .card .filename {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: #58a6ff;
+      margin-bottom: 0.75rem;
+    }
+    .card .size {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e6edf3;
+    }
+    .card .size .unit { font-size: 1rem; color: #8b949e; font-weight: 400; }
+    .card .status {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+    .card .status.done { color: #3fb950; }
+    .card .status.loading { color: #d29922; }
+    .card .status.error { color: #f85149; }
+    .card.best { border-color: #3fb950; }
+    .card.best h2 { color: #3fb950; }
+    .bar {
+      margin-top: 0.75rem;
+      height: 8px;
+      background: #21262d;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: #58a6ff;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .card.best .bar-fill { background: #3fb950; }
+    .summary {
+      margin-top: 2rem;
+      max-width: 800px;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    .summary strong { color: #e6edf3; }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #238636;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #2ea043; }
+    button:disabled { background: #21262d; color: #484f58; cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>Trie Format Comparison</h1>
+  <p class="subtitle">50,000 dictionary words with frequency scores &mdash; fetched as 4 separate files</p>
+
+  <button id="fetchBtn" onclick="fetchAll()">Fetch All 4 Files</button>
+
+  <div class="grid" style="margin-top: 1.5rem;">
+    <div class="card" id="card-json">
+      <h2>Raw JSON</h2>
+      <div class="filename">words.json</div>
+      <div class="size" id="size-json">&mdash;</div>
+      <div class="status" id="status-json">Waiting...</div>
+      <div class="bar"><div class="bar-fill" id="bar-json" style="width: 0%"></div></div>
+    </div>
+
+    <div class="card" id="card-gzjson">
+      <h2>Gzipped JSON</h2>
+      <div class="filename">words.json.gz</div>
+      <div class="size" id="size-gzjson">&mdash;</div>
+      <div class="status" id="status-gzjson">Waiting...</div>
+      <div class="bar"><div class="bar-fill" id="bar-gzjson" style="width: 0%"></div></div>
+    </div>
+
+    <div class="card" id="card-trie">
+      <h2>Packed Trie</h2>
+      <div class="filename">words.trie</div>
+      <div class="size" id="size-trie">&mdash;</div>
+      <div class="status" id="status-trie">Waiting...</div>
+      <div class="bar"><div class="bar-fill" id="bar-trie" style="width: 0%"></div></div>
+    </div>
+
+    <div class="card best" id="card-gztrie">
+      <h2>Gzipped Trie</h2>
+      <div class="filename">words.trie.gz</div>
+      <div class="size" id="size-gztrie">&mdash;</div>
+      <div class="status" id="status-gztrie">Waiting...</div>
+      <div class="bar"><div class="bar-fill" id="bar-gztrie" style="width: 0%"></div></div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary" style="display:none">
+    <p>
+      <strong>Raw JSON</strong> includes per-entry overhead: <code>{"text":"...","score":...}</code> for each of 50,000 entries.
+      <strong>Packed trie</strong> eliminates that overhead by sharing prefixes in a radix tree structure.
+      <strong>Gzip</strong> further compresses both formats, but the trie's structural compression stacks with gzip.
+    </p>
+    <p style="margin-top: 0.5rem">
+      Open <strong>DevTools &rarr; Network</strong> to see all 4 transfers side by side.
+    </p>
+  </div>
+
+  <script>
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
+
+    async function fetchFile(url, cardId) {
+      const sizeEl = document.getElementById('size-' + cardId);
+      const statusEl = document.getElementById('status-' + cardId);
+      const barEl = document.getElementById('bar-' + cardId);
+
+      statusEl.textContent = 'Loading...';
+      statusEl.className = 'status loading';
+
+      try {
+        const start = performance.now();
+        const res = await fetch(url + '?t=' + Date.now()); // cache-bust
+        const blob = await res.blob();
+        const elapsed = performance.now() - start;
+
+        const bytes = blob.size;
+        sizeEl.innerHTML = formatSize(bytes).replace(/([\d.]+)/, '<span>$1</span>') + '';
+        statusEl.textContent = `${elapsed.toFixed(0)}ms`;
+        statusEl.className = 'status done';
+
+        return bytes;
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+        statusEl.className = 'status error';
+        return 0;
+      }
+    }
+
+    async function fetchAll() {
+      const btn = document.getElementById('fetchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Fetching...';
+
+      // Fetch all 4 in parallel
+      const [jsonSize, gzJsonSize, trieSize, gzTrieSize] = await Promise.all([
+        fetchFile('words.json', 'json'),
+        fetchFile('words.json.gz', 'gzjson'),
+        fetchFile('words.trie', 'trie'),
+        fetchFile('words.trie.gz', 'gztrie'),
+      ]);
+
+      // Update bars relative to the largest
+      const maxSize = Math.max(jsonSize, gzJsonSize, trieSize, gzTrieSize);
+      document.getElementById('bar-json').style.width = (jsonSize / maxSize * 100) + '%';
+      document.getElementById('bar-gzjson').style.width = (gzJsonSize / maxSize * 100) + '%';
+      document.getElementById('bar-trie').style.width = (trieSize / maxSize * 100) + '%';
+      document.getElementById('bar-gztrie').style.width = (gzTrieSize / maxSize * 100) + '%';
+
+      document.getElementById('summary').style.display = 'block';
+      btn.textContent = 'Fetch Again';
+      btn.disabled = false;
+    }
+  </script>
+</body>
+</html>

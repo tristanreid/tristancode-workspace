@@ -1,4 +1,4 @@
-import{e as B}from"./chunk-MO3EAYAC.js";import{h as y,i as g,k}from"./chunk-JSVLZHI4.js";var U=`
+import{e as B}from"./chunk-37DNFNR4.js";import{h as y,i as g,k}from"./chunk-JSVLZHI4.js";var U=`
 .merge-demo {
   font-family: var(--font-sans, system-ui, sans-serif);
   border: 1px solid var(--border, #cbd5e1);

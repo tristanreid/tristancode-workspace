@@ -144,7 +144,7 @@ Tries are everywhere once you know to look for them:
 - **Autocomplete**: As you type, the app walks the trie to your current prefix, then enumerates all completions. This is why suggestions appear instantly even when the dictionary has millions of entries.
 - **Spell-checking**: Walk the trie for the typed word. If you don't land on a terminal node, the word isn't in the dictionary. The nearby branches suggest corrections.
 - **IP routing**: Routers use a variant called a Patricia trie to find the longest matching prefix for an IP address, determining where to forward each packet.
-- **Entity detection**: In production systems, tries are used to scan documents for mentions of known entities — show titles, people, places — across millions of documents. This is the use case that motivated my own trie implementations, and we'll explore it in depth in a later post.
+- **Entity detection**: In production systems, tries are used to scan documents for mentions of known entities — show titles, people, places — across millions of documents. This is the use case that motivated my own trie implementations — I presented on it at a [Netflix Data Engineering Tech Talk](https://www.youtube.com/watch?v=F4N8AmScZ-w) ([slides](https://docs.google.com/presentation/d/1ulPiI7bV1lq_d3Dj07j2qQDKst7AgUmoIFHSoQYv1FA/)), and we explore it in depth in the [Entity Detection series](/blog/entity-detection-the-you-problem/).
 
 ---
 

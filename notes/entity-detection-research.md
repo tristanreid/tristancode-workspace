@@ -170,40 +170,54 @@ This is complementary to the Trie-based detection: the Trie finds entities *in* 
 
 ---
 
-## Blog Series Ideas
+## Blog Series: "Entity Detection: Finding What Matters in Text"
 
-### Post 1: "What Is Entity Resolution?"
+Skin: `graph`. 4 posts.
+
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | The "You" Problem — Why Entity Detection Is Harder Than Ctrl+F | `entity-detection-the-you-problem.md` | Written |
+| 2 | Scoring Entity Matches — When Finding Isn't Enough | `entity-detection-scoring-matches.md` | Written |
+| 3 | Entity Detection at Scale — The Broadcast Pattern | `entity-detection-at-scale.md` | Written |
+| 4 | From Batch to Real-Time — Entity Detection in a Web App | `entity-detection-batch-to-realtime.md` | Written |
+
+### Post 1: "The 'You' Problem — Why Entity Detection Is Harder Than Ctrl+F"
 
 - The problem: you have a catalog of known entities and a pile of unstructured text — find the matches
 - Why it's harder than `ctrl+F`: ambiguity ("You", "The Crown"), case sensitivity, partial matches, multiple surface forms for the same entity
 - Approaches: dictionary-based (Trie), ML-based (NER), hybrid
 - When dictionary-based wins: known, curated catalogs; high precision required; distributed systems where determinism matters
+- The three hard problems: ambiguity, surface form variation, overlapping matches
+- Preview of the scoring model as the solution
 
-### Post 2: "Scoring Entity Matches"
+### Post 2: "Scoring Entity Matches — When Finding Isn't Enough"
 
 - Why finding a match isn't enough — you need to know how confident you are
 - The IDF-like likelihood model: common words get low scores, distinctive names get high scores
 - Field weighting: title vs. body as context signal
-- Case sensitivity as signal
-- Overlap resolution: when matches compete for the same text span
-- Walk through the `EntityScoreNetflixShow` scoring pipeline
+- Case sensitivity as signal (dual-trie pattern, 2× confidence for case-sensitive matches)
+- Talent/cross-entity corroboration boosting
+- Frequency-based filtering (pre-compute term frequency, filter overly common terms)
+- Overlap resolution: when matches compete for the same text span, highest-confidence wins
+- Walk through the complete scoring pipeline
 
-### Post 3: "Entity Detection at Scale with Tries"
+### Post 3: "Entity Detection at Scale — The Broadcast Pattern"
 
 - The Spark broadcast pattern: build once, scan everywhere
-- Why Tries are better than regex or hash lookups for this problem
-- The dual-trie pattern: case-sensitive + case-insensitive
-- The tie-breaker pattern: merging entity data at insert time
+- The complete entity detection DAG: multiple entity types processed in parallel
+- The dual-trie pattern at scale: case-sensitive + case-insensitive tries broadcast together
+- The tie-breaker pattern: merging entity data at insert time when multiple entities share a surface form
 - Performance: scaling to millions of documents with hundreds of thousands of entity terms
 - Cross-reference with the Trie series for the data structure deep-dive
 
-### Post 4: "From Batch to Real-Time: Entity Detection in a Web App"
+### Post 4: "From Batch to Real-Time — Entity Detection in a Web App"
 
 - The evolution: from Spark batch jobs to async Python with in-memory caching
 - The same algorithm, different infrastructure: `EntityTrie` wrapping `Trie[T]`
 - Caching strategies: in-memory for long-lived servers, filesystem for scripts
-- Entity catalogs: S3 → Lilyhammer (authenticated proxy) → local cache → Trie
+- Entity catalog lifecycle: remote storage → authenticated proxy → local cache → Trie
 - Running all entity types in parallel with `asyncio.gather`
+- The complementary approach: trie-based detection for documents, search-based lookup for queries
 
 ---
 

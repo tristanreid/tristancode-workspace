@@ -7,15 +7,15 @@ skin: graph
 hero: /images/trie-series/trie-shrinking-for-the-wire
 ---
 
-In [Part 5](/blog/trie-autocomplete-react/), we built a trie-powered autocomplete component that searches entirely in the browser. No debouncing, no server round-trips — just a trie and instant results.
+[Part 5](/blog/trie-autocomplete-react/) demonstrates a trie-powered autocomplete component that searches entirely in the browser. No debouncing, no server round-trips — just a trie and instant results.
 
-But we glossed over an important question: **how does the trie data get to the browser?**
+But I glossed over an important question: **how does the trie data get to the browser?**
 
 If your dataset is 50,000 entries with popularity scores, someone has to download that data. JSON is the obvious format — but it's not particularly compact. Every entry repeats `{"text":"` and `","score":` — that's 19 bytes of structural overhead per entry.
 
 What if we could send the *trie itself* instead? Serialize the radix tree into a compact format, eliminate the redundant JSON syntax, and ship a smaller payload.
 
-That was the hypothesis. We built it. Then we measured it. The answer was surprising.
+That was the hypothesis. Then I measured it. The answer was surprising - it's not better!
 
 ---
 
@@ -23,7 +23,7 @@ That was the hypothesis. We built it. Then we measured it. The answer was surpri
 
 A radix trie already compresses prefixes. "San Francisco", "San Diego", and "San Jose" share a "San " edge — stored once, not three times. Serializing this structure should yield something smaller than a flat JSON array where every entry is independent.
 
-We designed a text-based packed format:
+I created a text-based packed format:
 
 ```
 PTRIE:2:CI:S
@@ -46,7 +46,7 @@ On paper, this should win.
 
 ## The Experiment
 
-We took 50,000 words from the macOS system dictionary, assigned sequential frequency scores, and created every reasonable encoding we could think of. Then we compressed each one with gzip *and* Brotli to simulate what an actual web server would deliver.
+I took the ~200K words from the macOS system dictionary, assigned sequential frequency scores, and created a few sample reasonable encodings. Then I compressed each one with gzip *and* Brotli to simulate what an actual web server would deliver.
 
 Here are the results:
 
@@ -65,13 +65,13 @@ Here are the results:
 
 The packed trie is 48% smaller than JSON in raw form. But after compression, **every trie format is larger than every flat format**. The 1,672 KB JSON that looks so wasteful? Gzip cuts it to 195 KB. The 866 KB packed trie? Gzip only gets it to 273 KB. Brotli widens the gap further.
 
-We tried binary encoding. We tried stripping scores. We tried every combination. The trie formats consistently compressed *worse* than flat text.
+I tried binary encoding. I tried stripping scores. The trie formats consistently compressed *worse* than flat text.
 
 ---
 
 ## Why Gzip Wins
 
-This result confused us until we thought about what gzip actually does.
+So why is the trie format worse than the flat text format?
 
 Gzip (and Brotli, and zstd) use [LZ77](https://en.wikipedia.org/wiki/LZ77_and_LZ78) — a sliding-window algorithm that finds repeated byte sequences and replaces them with back-references. It doesn't understand data structures. It sees bytes.
 
@@ -93,7 +93,7 @@ Look at the "Text + score line" format: just words separated by newlines, then a
 
 But here's the kicker: the plain word list (506 KB raw, 158 KB gzipped) is almost the same compressed size as the text-with-scores format (750 KB raw, 159 KB gzipped). The scores added 244 KB of raw data but only 1 KB after gzip. Sequential scores are massively compressible because they follow a predictable pattern.
 
-What about random scores? We tested that too:
+What about random scores? I tested that too, on the hypothesis that random scores would be harder to compress:
 
 | Format | Gzip (sequential scores) | Gzip (random scores) |
 |--------|-------------------------:|---------------------:|
@@ -146,7 +146,7 @@ The trie construction happens once. After that, every keystroke is O(L) prefix s
 
 Our experiment used English dictionary words — short, with moderate prefix sharing. Are there datasets where a packed trie would beat gzipped JSON?
 
-We think the answer is: **rarely, for transfer.** The fundamental issue — random pointers defeating compression — applies regardless of the data. But a custom format could win in a different dimension:
+I think the answer is: **rarely, for transfer.** The fundamental issue — random pointers defeating compression — applies regardless of the data. But a custom format could win in a different dimension:
 
 **Parse time.** `JSON.parse()` on a 1.7 MB string creates 50,000 JavaScript objects on the heap. A packed trie format could be parsed into a more memory-efficient structure directly, avoiding the intermediate array. For very large datasets (100K+ entries), this could reduce memory pressure and GC pauses.
 
@@ -156,15 +156,15 @@ For most autocomplete use cases, though, JSON is the right answer. The dataset i
 
 ---
 
-## What We Learned
+## What I Learned
 
-We built three different trie serialization formats: a text-based packed format, a binary encoding, and a radix tree variant with no separate text section. All three lost to gzipped JSON for wire transfer.
+I built three different trie serialization formats: a text-based packed format, a binary encoding, and a radix tree variant with no separate text section. All three lost to gzipped JSON for wire transfer.
 
 The lesson is about **understanding your compression stack**:
 
 1. **Don't compete with gzip.** If your custom format is eliminating the same redundancy that gzip eliminates, you're adding complexity for no gain.
 2. **Separate structure from transfer.** The trie's value is in-memory search performance, not wire efficiency. These are different problems.
-3. **Measure everything.** Our hypothesis was plausible. Our format was clever. And it was wrong. We only discovered this because we measured.
+3. **Measure everything.** The hypothesis was plausible. The format was reasonable. And it was wrong.
 
 The trie started this series as a simple tree for storing strings. We visualized it, scanned text with it, broadcast it across a Spark cluster, and built a React autocomplete with it. Here, we tried to make it a wire format — and learned that some problems are already solved.
 

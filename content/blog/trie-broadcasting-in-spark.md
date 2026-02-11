@@ -9,7 +9,7 @@ hero: /images/trie-series/trie-broadcasting-in-spark
 
 In [Part 3](/blog/trie-scanning-text/), we scanned text for patterns using a trie. One trie, one document, one machine. The algorithm is fast — O(N x L) per document — but what happens when you have **10 million documents**?
 
-This is the entity detection problem at production scale. You have a dictionary of 100,000 entity names (companies, people, cities, products) and a corpus of millions of documents. Find every entity mention in every document. Report what matched, where, and in which document.
+This is the entity detection problem at production scale — I presented on it at a [Netflix Data Engineering Tech Talk](https://www.youtube.com/watch?v=F4N8AmScZ-w) ([slides](https://docs.google.com/presentation/d/1ulPiI7bV1lq_d3Dj07j2qQDKst7AgUmoIFHSoQYv1FA/)). You have a dictionary of 100,000 entity names (companies, people, cities, products) and a corpus of millions of documents. Find every entity mention in every document. Report what matched, where, and in which document.
 
 A single machine can scan maybe 1,000 documents per second. At 10 million documents, that's three hours. With a Spark cluster, it's minutes.
 

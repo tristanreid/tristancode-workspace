@@ -1,4 +1,4 @@
-import{b as q,c as R,d as $,e as L,f as z,i as A,j as B,k as T}from"./chunk-MO3EAYAC.js";import{a as C,c as E,f as H}from"./chunk-JSVLZHI4.js";var P=`
+import{b as q,c as R,d as $,e as L,f as z,i as A,j as B,k as T}from"./chunk-37DNFNR4.js";import{a as C,c as E,f as H}from"./chunk-JSVLZHI4.js";var P=`
 .coin-crowd {
   font-family: var(--font-sans, system-ui, sans-serif);
   border: 1px solid var(--border, #cbd5e1);
