@@ -1,0 +1,7 @@
+{{- $path := .Get 0 -}}
+{{- $alt := .Get 1 | default "" -}}
+<figure class="themed-svg">
+  <img class="themed-svg-light" src="{{ $path }}-light.svg" alt="{{ $alt }}" loading="lazy">
+  <img class="themed-svg-dark" src="{{ $path }}-dark.svg" alt="{{ $alt }}" loading="lazy">
+  {{- with $alt }}<figcaption>{{ . }}</figcaption>{{ end -}}
+</figure>

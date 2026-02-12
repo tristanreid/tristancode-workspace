@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 480" width="620" height="480">
+  <defs>
+    <pattern id="grid-sm-moe-d" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(200,210,180,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-moe-d" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-moe-d)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(200,210,180,0.08)" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#b8b0a0" stroke-width="1.2"/>
+    </marker>
+    <marker id="arrow-active-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#f5dd70" stroke-width="1.2"/>
+    </marker>
+    <marker id="arrow-dim-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#4a5a48" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="620" height="480" fill="#1a2818"/>
+  <rect width="620" height="480" fill="url(#grid-lg-moe-d)"/>
+
+  <!-- Title -->
+  <text x="310" y="32" text-anchor="middle" fill="#e8e0d0" font-family="'Inter',-apple-system,sans-serif" font-size="14" font-weight="600" letter-spacing="0.5">MoE Routing: Top-1 Selection</text>
+
+  <!-- ============ LEFT: Standard Transformer ============ -->
+  <text x="155" y="62" text-anchor="middle" fill="#7a7468" font-family="'Inter',-apple-system,sans-serif" font-size="11" font-weight="500" letter-spacing="1">STANDARD</text>
+
+  <!-- Input token -->
+  <rect x="110" y="80" width="90" height="34" rx="6" fill="#223420" stroke="#3a4a38" stroke-width="1.5"/>
+  <text x="155" y="101" text-anchor="middle" fill="#e8e0d0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="12">token</text>
+
+  <line x1="155" y1="114" x2="155" y2="142" stroke="#b8b0a0" stroke-width="1.5" marker-end="url(#arrow-d)"/>
+
+  <!-- Attention -->
+  <rect x="95" y="144" width="120" height="34" rx="6" fill="#223420" stroke="#5a8a5a" stroke-width="1.5"/>
+  <text x="155" y="165" text-anchor="middle" fill="#d0e0c0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="11">Attention</text>
+
+  <line x1="155" y1="178" x2="155" y2="206" stroke="#b8b0a0" stroke-width="1.5" marker-end="url(#arrow-d)"/>
+
+  <!-- Single FFN -->
+  <rect x="95" y="208" width="120" height="34" rx="6" fill="#223420" stroke="#5a8a5a" stroke-width="1.5"/>
+  <text x="155" y="229" text-anchor="middle" fill="#d0e0c0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="11">FFN</text>
+
+  <line x1="155" y1="242" x2="155" y2="270" stroke="#b8b0a0" stroke-width="1.5" marker-end="url(#arrow-d)"/>
+
+  <!-- Output -->
+  <rect x="110" y="272" width="90" height="34" rx="6" fill="#223420" stroke="#3a4a38" stroke-width="1.5"/>
+  <text x="155" y="293" text-anchor="middle" fill="#e8e0d0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="12">output</text>
+
+  <!-- Same params label -->
+  <text x="155" y="328" text-anchor="middle" fill="#7a7468" font-family="'Inter',-apple-system,sans-serif" font-size="10" font-style="italic">Every token &#x2192; same FFN</text>
+
+  <!-- ============ RIGHT: MoE Transformer ============ -->
+  <text x="440" y="62" text-anchor="middle" fill="#f5dd70" font-family="'Inter',-apple-system,sans-serif" font-size="11" font-weight="500" letter-spacing="1">MIXTURE OF EXPERTS</text>
+
+  <!-- Input token -->
+  <rect x="395" y="80" width="90" height="34" rx="6" fill="#223420" stroke="#3a4a38" stroke-width="1.5"/>
+  <text x="440" y="101" text-anchor="middle" fill="#e8e0d0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="12">token</text>
+
+  <line x1="440" y1="114" x2="440" y2="142" stroke="#b8b0a0" stroke-width="1.5" marker-end="url(#arrow-d)"/>
+
+  <!-- Attention -->
+  <rect x="380" y="144" width="120" height="34" rx="6" fill="#223420" stroke="#5a8a5a" stroke-width="1.5"/>
+  <text x="440" y="165" text-anchor="middle" fill="#d0e0c0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="11">Attention</text>
+
+  <line x1="440" y1="178" x2="440" y2="206" stroke="#b8b0a0" stroke-width="1.5" marker-end="url(#arrow-d)"/>
+
+  <!-- Router -->
+  <rect x="390" y="208" width="100" height="34" rx="6" fill="#2a3a1e" stroke="#f5dd70" stroke-width="2"/>
+  <text x="440" y="229" text-anchor="middle" fill="#f5dd70" font-family="'JetBrains Mono','Fira Code',monospace" font-size="11" font-weight="600">Router</text>
+
+  <!-- Router probability label -->
+  <text x="440" y="256" text-anchor="middle" fill="#7a7468" font-family="'JetBrains Mono','Fira Code',monospace" font-size="9">softmax &#x2192; top-k</text>
+
+  <!-- Expert boxes -->
+  <rect x="310" y="280" width="56" height="34" rx="5" fill="#1a2818" stroke="#4a5a48" stroke-width="1" opacity="0.5"/>
+  <text x="338" y="301" text-anchor="middle" fill="#4a5a48" font-family="'JetBrains Mono','Fira Code',monospace" font-size="10">E0</text>
+
+  <rect x="378" y="280" width="56" height="34" rx="5" fill="#2a3a1e" stroke="#f5dd70" stroke-width="2"/>
+  <text x="406" y="301" text-anchor="middle" fill="#f5dd70" font-family="'JetBrains Mono','Fira Code',monospace" font-size="10" font-weight="600">E1 &#x2713;</text>
+
+  <rect x="446" y="280" width="56" height="34" rx="5" fill="#1a2818" stroke="#4a5a48" stroke-width="1" opacity="0.5"/>
+  <text x="474" y="301" text-anchor="middle" fill="#4a5a48" font-family="'JetBrains Mono','Fira Code',monospace" font-size="10">E2</text>
+
+  <rect x="514" y="280" width="56" height="34" rx="5" fill="#1a2818" stroke="#4a5a48" stroke-width="1" opacity="0.5"/>
+  <text x="542" y="301" text-anchor="middle" fill="#4a5a48" font-family="'JetBrains Mono','Fira Code',monospace" font-size="10">E3</text>
+
+  <!-- Router to expert arrows -->
+  <line x1="420" y1="242" x2="338" y2="278" stroke="#4a5a48" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow-dim-d)"/>
+  <line x1="430" y1="242" x2="406" y2="278" stroke="#f5dd70" stroke-width="2" marker-end="url(#arrow-active-d)"/>
+  <line x1="450" y1="242" x2="474" y2="278" stroke="#4a5a48" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow-dim-d)"/>
+  <line x1="460" y1="242" x2="542" y2="278" stroke="#4a5a48" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow-dim-d)"/>
+
+  <!-- Gate weight label -->
+  <text x="398" y="264" text-anchor="end" fill="#f5dd70" font-family="'JetBrains Mono','Fira Code',monospace" font-size="9" font-weight="600">w=0.42</text>
+
+  <!-- Arrow from active expert to output -->
+  <line x1="406" y1="314" x2="440" y2="348" stroke="#f5dd70" stroke-width="2" marker-end="url(#arrow-active-d)"/>
+
+  <!-- Output -->
+  <rect x="395" y="350" width="90" height="34" rx="6" fill="#223420" stroke="#3a4a38" stroke-width="1.5"/>
+  <text x="440" y="371" text-anchor="middle" fill="#e8e0d0" font-family="'JetBrains Mono','Fira Code',monospace" font-size="12">output</text>
+
+  <!-- Label under experts -->
+  <text x="440" y="410" text-anchor="middle" fill="#7a7468" font-family="'Inter',-apple-system,sans-serif" font-size="10" font-style="italic">Only selected expert computes</text>
+
+  <!-- Divider -->
+  <line x1="280" y1="65" x2="280" y2="420" stroke="#3a4a38" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Bottom annotation -->
+  <text x="310" y="452" text-anchor="middle" fill="#b8b0a0" font-family="'Inter',-apple-system,sans-serif" font-size="11">Same FFN compute per token &#x2014; but from a larger pool of parameters</text>
+</svg>

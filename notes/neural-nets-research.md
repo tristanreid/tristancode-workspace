@@ -486,6 +486,18 @@ Alternative: `theorem` (LaTeX paper feel) would also work given the mathematical
 - Wang et al. (2024) — "LLMs in the Imaginarium: Tool Learning through Simulated Trial and Error" (ACL)
 - AdaTIR (2024) — difficulty-aware tool invocation with efficiency rewards
 
+### Neuro-Symbolic / Program Synthesis
+- Ellis et al. (2021) — "DreamCoder: Bootstrapping Inductive Program Synthesis with Wake-Sleep Library Learning" (PLDI)
+- Hinton et al. (1995) — "The 'wake-sleep' algorithm for unsupervised neural networks"
+- Lake et al. (2017) — "Building machines that learn and think like people" (Behavioral and Brain Sciences)
+- Nye et al. (2020) — "Learning Compositional Rules via Neural Program Synthesis"
+- Balog et al. (2017) — "DeepCoder: Learning to Write Programs" (ICLR)
+
+### Adaptive Computation
+- Graves (2016) — "Adaptive Computation Time for Recurrent Neural Networks"
+- Dehghani et al. (2019) — "Universal Transformers" (recurrent transformer with ACT)
+- Schuster et al. (2022) — "Confident Adaptive Language Modeling" (early exit for transformers)
+
 ### Historical / Conceptual
 - Minsky & Papert (1969) — "Perceptrons" (limitations of single-layer networks)
 - Rumelhart & McClelland (1986) — "Parallel Distributed Processing" (2 volumes, connectionism bible)
@@ -493,29 +505,112 @@ Alternative: `theorem` (LaTeX paper feel) would also work given the mathematical
 
 ---
 
-## Open Questions for the Series
+## Part 7: Neuro-Symbolic Computing — Programs That Write Programs
 
-1. **What tasks can our tiny MoE model specialize on?** Arithmetic vs text generation is the obvious split — but can we find more interesting specialization?
-2. **Do pause tokens help at small scale?** The published results are on 1B parameter models. Does the mechanism work at 1M or 10M parameters?
-3. **Can we visualize expert specialization?** What tools/visualizations make the routing patterns interpretable?
-4. **Is the "dream state" idea implementable?** Can we build a simple adversarial training loop that learns when tools add value?
-5. **What's the right level of depth for each post?** The series spans memoir → tutorial → original research. Each post needs a different calibration.
-6. **Skin choice**: `chalkboard` vs `theorem` — need to see both rendered with math-heavy content before deciding.
+### What is DreamCoder?
+
+DreamCoder (Ellis et al., 2021, PLDI) combines neural networks with program synthesis in a wake-sleep cycle that discovers reusable abstractions:
+
+1. **Wake phase**: A neural recognition model proposes candidate programs to solve tasks. Given input/output examples for a task, the model predicts which program structures (from the current library) are likely to produce a correct solution.
+
+2. **Sleep phase (Abstraction)**: The system analyzes all programs that successfully solved tasks and applies compression — common sub-expressions are extracted into named library functions. This is essentially anti-unification / refactoring over the space of discovered programs.
+
+3. **Sleep phase (Dreaming)**: The system uses the recognition model to generate synthetic training data — imagined tasks and their solutions — to improve the neural guide's accuracy for the next wake phase.
+
+4. **Iteration**: The library grows over wake-sleep cycles. Tasks that were intractable become solvable because the system can compose library functions rather than building solutions from scratch.
+
+### Why DreamCoder fits the series
+
+The series explores routing as the unifying concept:
+- Part 4: Route to internal experts (MoE)
+- Part 5: Route through variable depth (ACT)
+- Part 6: Route to external tools
+- **Part 7: Route between neural and symbolic computation**
+
+DreamCoder represents a fundamentally different kind of routing: the system decides when to use pattern-matching (neural recognition model) vs. exact search (program synthesis). The neural guide makes symbolic search tractable; the symbolic search produces interpretable, composable programs that the neural model alone couldn't produce.
+
+### Key technical details
+
+**The library**: Starts with domain-specific primitives (e.g., for list processing: `cons`, `car`, `cdr`, `+`, `*`, `map`, `fold`, `lambda`). Over wake-sleep cycles, the system discovers higher-level primitives by compressing successful programs. For example, after seeing many programs that map a function over a list, the system might extract `map` itself as a library primitive (if it wasn't already a given primitive — the point is it can discover abstractions at any level).
+
+**Compression as the objective**: The library learning phase uses a Minimum Description Length (MDL) principle — the best library is the one that most compresses the total description of all solved tasks. This is a principled way to discover "the right abstractions."
+
+**Domains tested in the original paper**:
+- List processing (map, filter, fold patterns)
+- Text editing (regular-expression-like transformations)
+- Logo-style graphics (drawing programs)
+- Tower building (block stacking)
+- Regression (symbolic function discovery)
+
+### CPU feasibility assessment
+
+DreamCoder is inherently more CPU-friendly than the other experiments in this series:
+
+- **Program synthesis** is search-based (enumeration over programs), not gradient-based — no GPU needed
+- **The neural recognition model** is small (maps task embeddings to library function probabilities) — trainable on CPU
+- **The library learning phase** is combinatorial (compression / anti-unification) — pure CPU computation
+- **The bottleneck** is search time, which is controlled by: library size (larger library = more to search, but shorter programs) and timeout per task
+
+**For our implementation**: Use a simple list-processing DSL with ~10-15 base primitives. Keep task difficulty modest (programs of depth 3-5). The full DreamCoder paper runs experiments on a single machine.
+
+### Connection to the Bitter Lesson (revisited)
+
+Part 6 reframes the Bitter Lesson: tool use is scaling a different resource (external compute). Part 7 pushes further: program synthesis is scaling the *hypothesis space itself*. Instead of learning one monolithic function, the system learns a *language* for expressing functions — and that language grows.
+
+This is potentially the strongest counter-argument to pure neural scaling: composable symbolic programs give you compositional generalization. But the Bitter Lesson still applies — DreamCoder's neural guide is what makes program search tractable in the first place. Neither approach works alone.
+
+### Historical connection
+
+The wake-sleep algorithm (Hinton et al., 1995) connects back to the series' historical thread. It was developed in the same intellectual tradition as the connectionism discussed in Part 1. DreamCoder extends wake-sleep from learning generative models to learning program libraries — a natural evolution of the "intelligence from simple operations" idea.
+
+### Open research questions for the post
+
+1. **Can we see meaningful library growth in a toy domain?** The original paper shows impressive results on list processing — can we reproduce the qualitative pattern (library grows → programs get shorter → new tasks become solvable) at a smaller scale?
+
+2. **How does the neural guide compare to pure enumeration?** On a toy domain, we can measure: search time with vs. without neural guidance. This quantifies the value of the neural component.
+
+3. **What abstractions does it discover?** The most compelling result would be showing the system independently discovering concepts like "map" or "increment" — concepts we recognize as fundamental but didn't explicitly program.
 
 ---
 
-## Development Status & Next Steps
+## Open Questions for the Series (Updated)
 
-### Current status (Feb 2026)
+1. **What tasks can our tiny MoE model specialize on?** The manufactured domain approach (names + arithmetic + code) should give clearer signal than a single corpus. Can we get confusion-matrix-style evidence of routing-domain correlation?
+2. **Does adaptive computation help at small scale?** ACT's original results include small-scale tasks (parity, addition). Can we reproduce the "more compute on harder inputs" pattern with our tiny transformer?
+3. **Can we visualize routing patterns meaningfully?** Expert utilization heatmaps, routing entropy over training, per-domain confusion matrices — which visualizations tell the clearest story?
+4. **Is the simplified "dream state" implementable?** The CPU-reduced version (compare no-tool vs. tool output, upweight divergences) is dramatically simpler than full Toolformer. Can it learn to route tool calls to cases where they add value?
+5. **Is DreamCoder implementable for a blog post?** The system has multiple components (neural guide, program search, library compression). Can we build a simplified version that demonstrates the core loop?
+6. **What's the right level of depth for each post?** The series spans memoir → tutorial → original research → neuro-symbolic. Each post needs a different calibration.
+
+---
+
+## Development Status & Next Steps (Updated Feb 2026)
+
+### Current status
 
 | Part | File | Status | Notes |
 |------|------|--------|-------|
 | 1 — Minds, Brains and Computers | `neural-nets-origin-story.md` | Draft complete | Personal memoir, AI winters, connectionism |
 | 2 — Neural Nets Are Simpler Than You Think | `neural-nets-simpler-than-you-think.md` | Draft complete | AND/XOR/arithmetic from scratch in Python; interactive `nn-playground` component |
-| 3 — A Tour of Karpathy's Tutorials | — | Research complete | Requires working through makemore/nanoGPT |
-| 4 — Building a Mixture-of-Experts Model | — | Research complete | Requires GPU infrastructure |
-| 5 — Adding "Thinking" | — | Research complete | Requires GPU infrastructure |
-| 6+ — Toolformer and Tool Use | — | Research complete | Requires GPU infrastructure |
+| 3 — A Tour of Karpathy's Tutorials | — | Research complete | Revised: "three deltas" structure, makemore as spine |
+| 4 — Building a Mixture-of-Experts Model | — | Research complete | Revised: CPU-first, manufactured domains, MoE-FFN |
+| 5 — Adaptive Computation | — | Research complete | Revised: ACT framing, algorithmic task suite |
+| 6 — The Economics of Tool Use | — | Research complete | Revised: updated premises, toy calculator experiment |
+| 7 — Neuro-Symbolic Computing | — | **NEW** — needs research | DreamCoder, wake-sleep, library learning |
+
+### Key revisions from researcher feedback (Feb 2026)
+
+- **Series spine**: "Conditional computation under a budget" unifies Parts 3–7
+- **CPU-first contract**: Explicit baseline spec (character-level, ≤5MB data, minutes on CPU)
+- **makemore as spine codebase**: nanoGPT acknowledged as deprecated, nanochat as modern reference
+- **Part 3**: "Three conceptual deltas" structure replaces "cover everything"
+- **Part 4**: Manufactured domains (names + arithmetic + code) for testable specialization
+- **Part 5**: Renamed from "Adding Thinking" to "Adaptive Computation"; ACT framing replaces anthropomorphic "chain-of-thought" framing
+- **Part 6**: Updated premises — tool use is not niche; reframed Bitter Lesson
+- **Part 7**: New addition — neuro-symbolic computing via DreamCoder
+- **Editorial**: Diffs over reimplementation, quantitative metrics per post, "conceptual laboratories" framing
+
+See `neural-nets-revised-series-plan.md` for the complete revised plan.
 
 ### Interactive components built
 
@@ -524,30 +619,42 @@ Alternative: `theorem` (LaTeX paper feel) would also work given the mathematical
 - `interactive/src/components/nn-playground.ts` — Interactive widget with task selector (AND/OR/XOR), architecture selector (single neuron / 4 hidden neurons), Step/Train/Reset controls, loss curve, truth table with clickable rows
 - Entry: `interactive/src/entries/nn-playground.ts`
 
+### Completed steps
+
+1. ~~Verify Part 2 Python output~~ — Done (fixed addition example: batch GD → stochastic SGD)
+2. ~~Add unit tests for `nn-engine.ts`~~ — Done (16 vitest tests, all passing)
+3. ~~Create narrative plan~~ — Done (`notes/neural-nets-narrative-plan.md`)
+4. ~~Decide on skin~~ — Done (`chalkboard`)
+5. ~~Incorporate researcher feedback~~ — Done (this update + `neural-nets-revised-series-plan.md`)
+
 ### Next steps (in order)
 
-1. **Verify Part 2 Python output** — Run all code snippets from the blog post and confirm printed output numbers are correct. Fix any discrepancies.
+1. **Draft Part 3** — "A Tour of Karpathy's Tutorials." Use the "three deltas" structure. Requires:
+   - Get makemore running locally on CPU
+   - Work through the conceptual ladder: bigram → MLP → transformer
+   - Reproduce key results (name generation at each stage)
+   - Annotate with observations, connections to Part 2
+   - Establish the makemore transformer as the baseline for Parts 4–7
 
-2. **Add unit tests for `nn-engine.ts`** — Follow the `hll-sim.test.ts` pattern (vitest). Test cases:
-   - Single neuron learns AND gate (loss < 0.01 after training)
-   - Single neuron fails on XOR (loss stays > 0.2)
-   - Two-layer network solves XOR (loss < 0.01 after training)
-   - Forward pass returns correct number of activation layers
-   - Snapshot returns correct layer sizes
+2. **Build the toy benchmark pack** — Before starting Parts 4–7, create:
+   - Domain mixture dataset (names + arithmetic + code snippets)
+   - Algorithmic task suite (parity, addition-with-carry, parenthesis matching)
+   - Tool suite (deterministic calculator + tiny lookup table)
+   - Program synthesis suite (list processing tasks for DreamCoder)
 
-3. **Create narrative plan** — Write `notes/neural-nets-narrative-plan.md` (following the pattern of `notes/archive/hll-series-narrative-plan.md`). Map the full series arc: tone, pacing, what each post assumes the reader knows, how the interactive components thread through, and where the series pivots from "following others' work" to "original experiments."
+3. **Draft Part 4** — MoE as diffs against makemore. Domain mixture experiment.
 
-4. **Decide on skin** — Render Part 2 in both `chalkboard` and `theorem` and compare. The math content (sigmoid formula, backprop chain rule) and code-heavy layout need to work well. Take screenshots of both for comparison.
+4. **Draft Part 5** — Adaptive computation. Algorithmic task suite. MoE+depth interaction.
 
-5. **Draft Part 3** — "A Tour of Karpathy's Tutorials." The biggest remaining lift before Parts 4-6. Requires:
-   - Working through Karpathy's `makemore` series (bigram → MLP → WaveNet)
-   - Reproducing character-level language model results
-   - Annotating with personal observations and connections back to Part 2's concepts
-   - Potentially building new interactive components (character-level text generation demo?)
+5. **Draft Part 6** — Tool use economics. Toy calculator. Dream state simplification.
 
-### Deferred (Parts 4-6)
+6. **Research Part 7** — Deep-dive on DreamCoder implementation. Build or adapt toy version.
 
-Parts 4-6 require GPU infrastructure and original experimentation. They should not be attempted until Part 3 is complete and the Karpathy-based foundation is solid. Key dependencies:
-- MoE (Part 4): needs a working character-level LM as the base model
-- Chain-of-thought (Part 5): builds on the MoE model from Part 4
-- Tool use (Part 6+): builds on everything prior; the "dream state" idea needs careful experimental design
+7. **Draft Part 7** — Neuro-symbolic computing. Library growth visualization.
+
+### Deferred decisions
+
+- **Part 7 scope**: DreamCoder alone vs. broader neuro-symbolic survey? Likely DreamCoder-focused for depth.
+- **Part 5 exact title**: "Adaptive Computation: Learning When to Think Harder" vs. "Deliberation Under a Budget"
+- **Interactive components for Parts 4–7**: Prioritize based on implementation cost once content is drafted
+- **Series naming**: Does Part 7 require updating "Neural Nets from Scratch"? Probably fine if framed as "neural nets + program synthesis = neuro-symbolic"

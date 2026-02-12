@@ -13,7 +13,7 @@ I've always felt a deep affinity for neural networks. It was my first exposure t
 
 ## The Seminar
 
-As an undergraduate at Duke, I enrolled in a seminar called "Minds, Brains and Computers." I was a Cognitive Psychology major at the time, fascinated by the question of how human minds actually work — not the mechanical or biological aspects of human brains, specifically. I just wondered: what does it mean for a brain to *learn*? Our textbook was Michael Arbib's "Brains, Machines, and Mathematics" (2nd ed.), a wonderfully accessible introduction.
+As an undergraduate at Duke, I enrolled in a seminar called "Minds, Brains and Computers." I was a Cognitive Psychology major at the time, fascinated by the question of how human minds actually work — not the mechanical or biological aspects of human brains, specifically. I just wondered: what does it mean for a brain to *learn*? Our textbook was [Michael Arbib's "Brains, Machines, and Mathematics" (2nd ed.)](https://www.amazon.com/Brains-Machines-Mathematics-Michael-Arbib/dp/0387965394), a wonderfully accessible introduction.
 
 The seminar sat at the intersection of three fields: psychology (what do minds do?), neuroscience (what do brains do?), and computer science (can we build something that does the same thing?). The most exciting idea in the room was **connectionism** — the theory that cognition emerges from networks of simple, interconnected units.
 
@@ -75,9 +75,9 @@ cognitive processes, problem solving, semantic memory,
 analogy, adaptive learning
 ```
 
-The textbook was the classic "Artificial Intelligence: A Modern Approach" by Russell and Norvig — a wonderful introduction to the field.
+The textbook was the classic ["Artificial Intelligence: A Modern Approach" by Russell and Norvig](https://a.co/d/03FmBRaa) — a wonderful introduction to the field.
 
-Unfortunately, one of the first things we learned was that neural networks were no longer considered a promising direction for artificial intelligence. The field had moved on. Everything was **expert systems** — hand-crafted rules for making decisions. We spent our time learning Prolog, a logic programming language built for exactly that kind of symbolic reasoning. It was the opposite of connectionism: intelligence as a set of rules written by humans, not patterns learned from data.
+Unfortunately, one of the first things we learned was that neural networks were no longer considered a promising direction for artificial intelligence. The field had moved on. Everything was **expert systems** — hand-crafted rules for making decisions. We spent our time learning [Prolog](https://a.co/d/00a6Fv02), a logic programming language built for exactly that kind of symbolic reasoning. It was the opposite of connectionism: intelligence as a set of rules written by humans, not patterns learned from data.
 
 I continued on with computer science as my major. But I never forgot the idea of connectionism.
 
@@ -125,10 +125,11 @@ Here's the plan:
 2. [Neural Nets Are Simpler Than You Think](/blog/neural-nets-simpler-than-you-think/) — Building a neural net from scratch and teaching it arithmetic
 3. [A Tour of Karpathy's Tutorials](/blog/neural-nets-karpathy-tour/) — Walking through the best resource for building LLMs from zero
 4. [Building a Mixture-of-Experts Model](/blog/neural-nets-mixture-of-experts/) — Can a small model learn to specialize?
-5. [Adding "Thinking"](/blog/neural-nets-adding-thinking/) — Can architecture alone teach a model to reason?
+5. [Adaptive Computation](/blog/neural-nets-adaptive-computation/) — When should a model spend more compute?
 6. [The Economics of Tool Use](/blog/neural-nets-tool-use/) — When should a model compute internally vs. call for help?
+7. [Programs That Write Programs](/blog/neural-nets-neuro-symbolic/) — Can a system discover reusable abstractions?
 
-The arc of this series mirrors my own trajectory: start with the simple, personal encounter with the idea. Build understanding from first principles. Then push into genuinely open questions.
+The arc of this series mirrors my own trajectory: start with the simple, personal encounter with the idea. Build understanding from first principles. Then push into genuinely open questions — each one exploring a different way a model can allocate its computational budget.
 
 Let's go.
 
