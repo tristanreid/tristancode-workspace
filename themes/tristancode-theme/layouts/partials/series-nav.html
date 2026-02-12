@@ -2,6 +2,14 @@
 {{ $series := . }}
 <nav class="series-nav">
   <p class="series-label">Part of the <strong>{{ $series }}</strong> series</p>
+  {{ with $.Params.links }}
+  <p class="series-links">
+    {{- range $i, $link := . -}}
+      {{- if $i }} · {{ end -}}
+      <a href="{{ $link.url }}" target="_blank" rel="noopener">{{ $link.label }}</a>
+    {{- end -}}
+  </p>
+  {{ end }}
   <ol class="series-list">
     {{ range sort (where $.Site.RegularPages "Params.series" $series) "Weight" }}
     <li{{ if eq .RelPermalink $.RelPermalink }} class="current"{{ end }}>

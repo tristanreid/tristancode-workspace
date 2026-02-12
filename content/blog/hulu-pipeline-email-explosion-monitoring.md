@@ -4,6 +4,11 @@ description: "When 175 MapReduce jobs run every hour, traditional monitoring bec
 series: "Hulu Pipeline"
 weight: 4
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *"Big data pipeline? Bet that's going great for you."*

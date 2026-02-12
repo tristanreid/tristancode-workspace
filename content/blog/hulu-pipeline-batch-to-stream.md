@@ -4,6 +4,11 @@ description: "The Hadoop Summit talk was about MapReduce. But the principles —
 series: "Hulu Pipeline"
 weight: 9
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *The tools have changed. The principles haven't.*

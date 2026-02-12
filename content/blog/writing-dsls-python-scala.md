@@ -4,6 +4,11 @@ description: "How a small, focused language can eliminate boilerplate, reduce bu
 series: "Hulu Pipeline"
 weight: 3
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *How a small, focused language can eliminate boilerplate, reduce bugs, and make your team faster — with working examples you can build this afternoon.*

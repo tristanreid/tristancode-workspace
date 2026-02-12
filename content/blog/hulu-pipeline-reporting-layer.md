@@ -4,6 +4,11 @@ description: "How Hulu turned raw pipeline output into a self-service reporting 
 series: "Hulu Pipeline"
 weight: 8
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *The pipeline processes the data. The aggregation layer rolls it up. But none of that matters if the people who need the numbers can't get to them.*

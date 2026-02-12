@@ -95,6 +95,22 @@ pre:hover .copy-btn {
 [data-theme="dark"] .themed-svg .themed-svg-light { display: none; }
 [data-theme="dark"] .themed-svg .themed-svg-dark { display: block; }
 
+/* --- Series external links --- */
+.series-links {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+}
+
+.series-links a {
+  color: var(--accent, #6c5ce7);
+  text-decoration: none;
+}
+
+.series-links a:hover {
+  text-decoration: underline;
+}
+
 /* --- Hero image dark/light switching --- */
 .post-hero-dark { display: none; }
 [data-theme="dark"] .post-hero .post-hero-light { display: none; }

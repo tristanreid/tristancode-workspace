@@ -4,6 +4,11 @@ description: "How flipping the monitoring model from 'what failed?' to 'who is a
 series: "Hulu Pipeline"
 weight: 6
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *Detection of a problem isn't enough. We need to think of things from the report users' perspectives.*

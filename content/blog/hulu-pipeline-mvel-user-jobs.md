@@ -4,6 +4,11 @@ description: "How a lightweight expression language gave non-specialists the pow
 series: "Hulu Pipeline"
 weight: 7
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *How much power do you give your users? Too little and they're blocked on your team for every change. Too much and they bring down the pipeline.*

@@ -4,6 +4,11 @@ description: "How BeaconSpec — a domain-specific language for metric definitio
 series: "Hulu Pipeline"
 weight: 2
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *In the [previous post](/blog/hulu-pipeline-12000-events-per-second/), we saw how Hulu's data pipeline processed 12,000 events per second through a chain of collection, storage, and MapReduce transformation. But with 150–175 MapReduce jobs running every hour, how did engineers define what each job should compute? The answer was a domain-specific language called BeaconSpec.*

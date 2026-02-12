@@ -4,6 +4,11 @@ description: "How Hulu collected, transformed, and processed billions of events 
 series: "Hulu Pipeline"
 weight: 1
 skin: hulu
+links:
+  - label: "Hadoop Summit 2014 Talk"
+    url: "https://www.youtube.com/watch?v=VjXwoHUCvOQ"
+  - label: "Slides"
+    url: "https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit"
 ---
 
 *Every click, every playback start, every ad impression — 12,000 events per second flowing into a system that could never pause, never drop data, and never fall behind.*
