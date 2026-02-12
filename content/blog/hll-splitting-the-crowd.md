@@ -2,7 +2,8 @@
 title: "Splitting the Crowd — How HyperLogLog Tames Randomness"
 description: "How registers, sub-crowds, and the harmonic mean turn a noisy coin-flip estimate into a precise counting algorithm."
 weight: 22
-series: "HyperLogLog: Counting Unique Items the Clever Way"
+series: "HyperLogLog: Counting Unique Items at Scale"
+series_weight: 40
 skin: stochastic
 ---
 

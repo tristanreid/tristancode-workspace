@@ -3,6 +3,7 @@ title: "The 'You' Problem — Why Entity Detection Is Harder Than Ctrl+F"
 description: "You have 100,000 entity names and a million documents. Finding the matches is easy. Knowing which matches are real — that's the hard part."
 weight: 10
 series: "Entity Detection: Finding What Matters in Text"
+series_weight: 30
 skin: graph
 ---
 

@@ -1,7 +1,8 @@
 ---
 title: "Mapping Every Bar in New York City"
 description: "11,000 liquor licenses, weighted by drinkiness, visualized on interactive maps. Also: why does JFK airport have 47 liquor licenses in one building?"
-series: "Drinky Cab"
+series: "NYC Taxis and Tipping"
+series_weight: 80
 weight: 20
 skin: taxicab
 ---

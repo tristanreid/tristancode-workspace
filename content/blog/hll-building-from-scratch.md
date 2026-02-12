@@ -2,7 +2,8 @@
 title: "Building HyperLogLog from Scratch"
 description: "A step-by-step Python implementation of HyperLogLog, from hashing to registers to the harmonic mean — with tests and benchmarks at every stage."
 weight: 23
-series: "HyperLogLog: Counting Unique Items the Clever Way"
+series: "HyperLogLog: Counting Unique Items at Scale"
+series_weight: 40
 skin: stochastic
 ---
 

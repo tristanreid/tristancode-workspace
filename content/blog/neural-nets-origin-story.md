@@ -3,6 +3,7 @@ title: "Minds, Brains and Computers"
 description: "I wrote neural nets in BASIC before they were cool. The experience changed the course of my life."
 weight: 10
 series: "Neural Nets from Scratch"
+series_weight: 50
 skin: chalkboard
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "Whose Art Is It?"
-description: "On AI, authorship, and the thing you're reading right now."
+title: "On AI and Authorship"
+description: "On using AI to build this site, and what that means for authorship."
 ---
 
 This site was mostly made by a machine. I should probably tell you about that.

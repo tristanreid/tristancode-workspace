@@ -1,7 +1,8 @@
 ---
 title: "From Batch to Stream: What 2014's Lessons Mean for Today's Pipelines"
 description: "The Hadoop Summit talk was about MapReduce. But the principles — DSLs, graph-based monitoring, user-centric thinking — are more relevant than ever in the streaming era."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 9
 skin: hulu
 links:
@@ -172,4 +173,4 @@ Build for the domain, and the infrastructure transitions become manageable.
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

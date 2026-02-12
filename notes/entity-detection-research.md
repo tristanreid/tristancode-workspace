@@ -226,7 +226,7 @@ Skin: `graph`. 4 posts.
 - **Trie series**: Entity detection is the primary *application* of the Trie — the Trie series covers the data structure, this series covers its use
 - **Mergeable Operations series**: The tie-breaker is a merge operation; broadcasting the trie is an example of "replicate read-only state to avoid coordination"
 - **HLL series** (existing): Both HLL and entity detection involve scanning large datasets with compact, pre-built data structures
-- **Hulu Pipeline series**: Entity detection is a form of data enrichment — similar in spirit to the pipeline monitoring and metadata extraction described in the Hulu series
+- **Hulu Data Platform series**: Entity detection is a form of data enrichment — similar in spirit to the pipeline monitoring and metadata extraction described in the Hulu series
 
 ---
 

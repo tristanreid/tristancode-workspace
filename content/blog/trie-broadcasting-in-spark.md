@@ -2,7 +2,8 @@
 title: "Broadcasting a Trie in Spark"
 description: "How to scan millions of documents for 100,000 entity names in parallel — by broadcasting a trie to every executor in a Spark cluster."
 weight: 33
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-broadcasting-in-spark
 ---

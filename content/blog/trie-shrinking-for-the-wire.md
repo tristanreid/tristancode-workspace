@@ -2,7 +2,8 @@
 title: "Shrinking the Trie for the Wire"
 description: "We tried to build a compact wire format for tries. Gzip already solved the problem. Here's what we learned by measuring."
 weight: 35
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-shrinking-for-the-wire
 ---

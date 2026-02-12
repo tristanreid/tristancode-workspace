@@ -1,7 +1,8 @@
 ---
 title: "Building Your First Domain-Specific Language: A Practical Guide in Python and Scala"
 description: "How a small, focused language can eliminate boilerplate, reduce bugs, and make your team faster — with working examples."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 3
 skin: hulu
 links:

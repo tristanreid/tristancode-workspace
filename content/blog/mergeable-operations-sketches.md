@@ -3,6 +3,7 @@ title: "Sketches: Trading Precision for Scalability"
 description: "HyperLogLog, Count-Min Sketch, Bloom filters, and T-Digest — the approximate data structures that dominate big data all share one property: they merge."
 weight: 20
 series: "Mergeable Operations in Distributed Computation"
+series_weight: 20
 skin: graph
 ---
 

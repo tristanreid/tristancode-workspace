@@ -242,7 +242,7 @@ A single "pillar" post that covers the intuition and examples, with optional dee
 - **HLL series** (existing): HLL is the poster child for mergeable data structures — the merge series should reference the HLL series extensively
 - **Trie series** (planned): Tries demonstrate the "replicate read-only, merge outputs" variant of distributed computation
 - **Entity Resolution series** (planned): Entity scoring uses sum (mergeable) as its aggregation; the pipeline demonstrates the broadcast+scan pattern
-- **Hulu Pipeline series** (in progress): The Hulu pipeline's MapReduce jobs were an early encounter with distributed computation patterns
+- **Hulu Data Platform series**: The Hulu pipeline's MapReduce jobs were an early encounter with distributed computation patterns
 
 ---
 

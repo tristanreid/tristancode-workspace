@@ -3,6 +3,7 @@ title: "A Tour of Karpathy's Tutorials"
 description: "From counting letters to building a transformer — the three conceptual leaps that turn a toy neural net into a language model."
 weight: 30
 series: "Neural Nets from Scratch"
+series_weight: 50
 skin: chalkboard
 ---
 

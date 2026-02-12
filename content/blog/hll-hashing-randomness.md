@@ -2,7 +2,8 @@
 title: "Hashing — Turning Anything into Random Coin Flips"
 description: "How hash functions produce uniformly random bits, and why that makes HyperLogLog work on any dataset."
 weight: 21
-series: "HyperLogLog: Counting Unique Items the Clever Way"
+series: "HyperLogLog: Counting Unique Items at Scale"
+series_weight: 40
 skin: stochastic
 ---
 

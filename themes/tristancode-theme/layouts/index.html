@@ -2,7 +2,7 @@
 <section class="hero">
   <h1>Hi, I'm Tristan.</h1>
   <p class="hero-sub">I write about data, code, and the things I build.</p>
-  <p class="hero-disclosure">Much of this site was made with generative AI. The ideas and direction are mine, and it is based on my own work; but AI did all the heavy lifting of bringing it together. I have deeply mixed feelings about using tools to create content, and labeling it as my own work. {{ with .Site.GetPage "/blog/whose-art-is-it" }}<a href="{{ .RelPermalink }}">Here's a longer conversation about that.</a>{{ end }}</p>
+  <p class="hero-disclosure">Much of this site was made with generative AI. The ideas and direction are mine, and it is based on my own work; but AI did all the heavy lifting of bringing it together. I have deeply mixed feelings about using tools to create content, and labeling it as my own work. {{ with .Site.GetPage "/blog/whose-art-is-it" }}<a href="{{ .RelPermalink }}">More on that here.</a>{{ end }}</p>
 </section>
 
 <section class="home-section">
@@ -10,12 +10,21 @@
   {{ $blogPages := where .Site.RegularPages "Section" "blog" }}
   {{ $withSeries := where $blogPages "Params.series" "!=" "" }}
   <ul class="post-list">
-    {{/* Series entries */}}
-    {{ range $withSeries.GroupByParam "series" }}
+    {{/* Series entries — sorted by series_weight */}}
+    {{ $groups := $withSeries.GroupByParam "series" }}
+    {{ $ordered := slice }}
+    {{ range $groups }}
+      {{ $sw := 999 }}
+      {{ range .Pages }}
+        {{ with .Params.series_weight }}{{ if lt (int .) $sw }}{{ $sw = int . }}{{ end }}{{ end }}
+      {{ end }}
       {{ $sorted := sort .Pages "Weight" }}
       {{ $first := index $sorted 0 }}
+      {{ $ordered = $ordered | append (dict "Key" .Key "Pages" .Pages "Order" $sw "First" $first) }}
+    {{ end }}
+    {{ range sort $ordered "Order" }}
       <li>
-        <a href="{{ $first.RelPermalink }}">{{ .Key }}</a>
+        <a href="{{ .First.RelPermalink }}">{{ .Key }}</a>
         <span class="post-desc"> — {{ len .Pages }}-part series</span>
       </li>
     {{ end }}

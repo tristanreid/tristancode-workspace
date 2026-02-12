@@ -3,6 +3,7 @@ title: "Entity Detection at Scale — The Broadcast Pattern"
 description: "How to scan 10 million documents for 100,000 entity names across 8 entity types — all in parallel on a Spark cluster."
 weight: 30
 series: "Entity Detection: Finding What Matters in Text"
+series_weight: 30
 skin: graph
 ---
 

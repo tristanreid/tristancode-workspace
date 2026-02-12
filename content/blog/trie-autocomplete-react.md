@@ -2,7 +2,8 @@
 title: "Building a Trie-Powered Autocomplete with React"
 description: "How to build an autocomplete component that searches 100,000 entries in microseconds — no server, no debouncing, just a trie in the browser."
 weight: 34
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-autocomplete-react
 ---

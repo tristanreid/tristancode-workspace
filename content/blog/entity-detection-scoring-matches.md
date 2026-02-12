@@ -3,6 +3,7 @@ title: "Scoring Entity Matches — When Finding Isn't Enough"
 description: "A trie finds the strings. Scoring decides which matches are real. Here's the disambiguation model that solves the 'You' problem."
 weight: 20
 series: "Entity Detection: Finding What Matters in Text"
+series_weight: 30
 skin: graph
 ---
 

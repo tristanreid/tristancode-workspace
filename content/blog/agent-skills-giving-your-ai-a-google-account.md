@@ -3,6 +3,7 @@ title: "Giving Your AI a Google Account: Writing Agent Skills for Cursor and Cla
 description: "Agent Skills are an open standard for extending AI coding assistants with new capabilities. Here's how to write one, using a Google Workspace integration as a real example."
 weight: 10
 series: "Writing Agent Skills"
+series_weight: 100
 skin: generative
 draft: true
 ---

@@ -3,6 +3,7 @@ title: "Shipping a Skill: Installers, Bootstraps, and Google OAuth"
 description: "Writing a skill is easy. Getting it to work on someone else's machine — with the right Python, the right dependencies, and working credentials — is the real challenge."
 weight: 20
 series: "Writing Agent Skills"
+series_weight: 100
 skin: generative
 draft: true
 ---

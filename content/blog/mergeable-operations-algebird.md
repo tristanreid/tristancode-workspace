@@ -3,6 +3,7 @@ title: "When Abstract Algebra Becomes Practical"
 description: "Every mergeable operation in this series has been a monoid. Here's what that means, why it matters, and how a Scala library turned abstract algebra into the most practical tool in distributed computing."
 weight: 30
 series: "Mergeable Operations in Distributed Computation"
+series_weight: 20
 skin: graph
 ---
 

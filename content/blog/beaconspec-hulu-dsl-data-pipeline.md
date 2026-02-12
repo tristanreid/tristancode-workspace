@@ -1,7 +1,8 @@
 ---
 title: "Why Hulu Built a DSL for Its Data Pipeline (and Why You Should Care)"
 description: "How BeaconSpec — a domain-specific language for metric definitions — improved monitoring, maintainability, and consistency across 175 MapReduce jobs per hour."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 2
 skin: hulu
 links:

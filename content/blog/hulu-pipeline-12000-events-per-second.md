@@ -1,7 +1,8 @@
 ---
 title: "12,000 Events Per Second: Inside Hulu's Beacon Data Pipeline"
 description: "How Hulu collected, transformed, and processed billions of events daily — the architecture behind 175 MapReduce jobs per hour."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 1
 skin: hulu
 links:
@@ -149,4 +150,4 @@ The pipeline used Java for MapReduce, Scala and Akka for job scheduling, JFlex a
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

@@ -2,7 +2,8 @@
 title: "The Longest Streak — Estimating Crowd Size from Coin Flips"
 description: "How a simple coin-flipping game leads to one of the most elegant algorithms in computer science."
 weight: 20
-series: "HyperLogLog: Counting Unique Items the Clever Way"
+series: "HyperLogLog: Counting Unique Items at Scale"
+series_weight: 40
 skin: stochastic
 ---
 

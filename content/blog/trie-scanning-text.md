@@ -2,7 +2,8 @@
 title: "Scanning Text with a Trie"
 description: "How to find every occurrence of thousands of patterns in a single pass through text — the algorithm behind entity detection, content moderation, and autocomplete."
 weight: 32
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-scanning-text
 ---

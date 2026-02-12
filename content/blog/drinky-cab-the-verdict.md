@@ -1,7 +1,8 @@
 ---
 title: "The Verdict"
 description: "After all that work: do drunk people actually tip better? The answer is more interesting than you'd think."
-series: "Drinky Cab"
+series: "NYC Taxis and Tipping"
+series_weight: 80
 weight: 50
 skin: taxicab
 ---

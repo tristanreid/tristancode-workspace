@@ -1,7 +1,8 @@
 ---
 title: "MVEL and User-Defined Jobs: Letting Users Configure Their Own Pipeline"
 description: "How a lightweight expression language gave non-specialists the power to define custom pipeline logic — safely."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 7
 skin: hulu
 links:
@@ -181,4 +182,4 @@ Both approaches share the core DSL philosophy: **let users express *what* they w
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

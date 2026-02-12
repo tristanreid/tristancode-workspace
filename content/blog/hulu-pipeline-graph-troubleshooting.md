@@ -1,7 +1,8 @@
 ---
 title: "Think Like a User: Graph-Based Troubleshooting for Data Pipelines"
 description: "How flipping the monitoring model from 'what failed?' to 'who is affected?' transformed pipeline operations — using a graph database and the Cypher skills from the previous post."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 6
 skin: hulu
 links:
@@ -180,4 +181,4 @@ This was the architecture philosophy throughout: at the pipeline level (separate
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

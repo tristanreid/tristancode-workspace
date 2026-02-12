@@ -6,8 +6,17 @@
 
 {{ $withSeries := where .Pages "Params.series" "!=" "" }}
 
-{{/* Series sections first */}}
-{{ range $withSeries.GroupByParam "series" }}
+{{/* Series sections — sorted by series_weight */}}
+{{ $groups := $withSeries.GroupByParam "series" }}
+{{ $ordered := slice }}
+{{ range $groups }}
+  {{ $sw := 999 }}
+  {{ range .Pages }}
+    {{ with .Params.series_weight }}{{ if lt (int .) $sw }}{{ $sw = int . }}{{ end }}{{ end }}
+  {{ end }}
+  {{ $ordered = $ordered | append (dict "Key" .Key "Pages" .Pages "Order" $sw) }}
+{{ end }}
+{{ range sort $ordered "Order" }}
 <section class="series-section">
   <h2 class="series-heading">{{ .Key }}</h2>
   <ol class="post-list series-posts">

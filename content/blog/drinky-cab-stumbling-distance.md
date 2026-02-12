@@ -1,7 +1,8 @@
 ---
 title: "Stumbling Distance"
 description: "Building a custom distance metric using street graphs, k-d trees, and the realization that Google Maps would take a million years."
-series: "Drinky Cab"
+series: "NYC Taxis and Tipping"
+series_weight: 80
 weight: 40
 skin: taxicab
 ---

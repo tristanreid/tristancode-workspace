@@ -3,6 +3,7 @@ title: "From Averages to GARCH — A Ladder of Time Series Models"
 description: "Why each time series model exists, what breaks without it, and how GARCH becomes inevitable."
 weight: 20
 series: "Python for Fixed-Income Risk Analysis"
+series_weight: 70
 series_type: "explainer"
 skin: graph
 ---

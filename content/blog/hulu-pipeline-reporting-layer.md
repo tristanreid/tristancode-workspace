@@ -1,7 +1,8 @@
 ---
 title: "The Reporting Layer: Building a Data API for Self-Service Analytics"
 description: "How Hulu turned raw pipeline output into a self-service reporting platform — with query generation, scheduling, and a portal that put data in users' hands."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 8
 skin: hulu
 links:
@@ -167,4 +168,4 @@ The reporting architecture's clean service separation made this modeling straigh
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

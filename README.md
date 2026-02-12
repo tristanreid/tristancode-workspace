@@ -32,9 +32,9 @@ Built JS files are committed to `static/js/` so Netlify doesn't need to run npm 
 | Series | Parts | Skin | Topic |
 |---|---|---|---|
 | [Python for Fixed-Income Risk Analysis](content/blog/fixed-income-risk-exploring-treasury-yields.md) | 5 | `graph` | Treasury yields, PCA, GARCH volatility, duration & convexity |
-| [HyperLogLog: Counting Unique Items the Clever Way](content/blog/hll-counting-unique-items-part1.md) | 4 | `stochastic` | The HLL algorithm from coin flips to a working implementation, with interactive visualizations |
-| [Hulu Pipeline](content/blog/hulu-pipeline-12000-events-per-second.md) | 9 | `hulu` | Monitoring Hulu's data pipeline — DSLs, graph databases, troubleshooting at scale |
-| [Drinky Cab](content/blog/drinky-cab-88-million-taxi-rides.md) | 5 | `taxicab` | NYC bar and taxi data — mapping, spatial analysis, tipping |
+| [HyperLogLog: Counting Unique Items at Scale](content/blog/hll-counting-unique-items-part1.md) | 4 | `stochastic` | The HLL algorithm from coin flips to a working implementation, with interactive visualizations |
+| [Hulu Data Platform](content/blog/hulu-pipeline-12000-events-per-second.md) | 9 | `hulu` | Monitoring Hulu's data pipeline — DSLs, graph databases, troubleshooting at scale |
+| [NYC Taxis and Tipping](content/blog/drinky-cab-88-million-taxi-rides.md) | 5 | `taxicab` | NYC bar and taxi data — mapping, spatial analysis, tipping |
 
 ## Theme System
 
@@ -68,7 +68,7 @@ tristancode-workspace/
 ├── static/
 │   ├── js/                       # Built interactive component bundles
 │   ├── images/charts/            # Chart PNGs for the finance series
-│   └── drinky_cab/               # Legacy Drinky Cab interactive project
+│   └── drinky_cab/               # Legacy NYC Taxis interactive project
 ├── notes/                        # Working notes and research for upcoming posts
 ├── repos/                        # Reference codebases (read-only, not deployed)
 └── themes/tristancode-theme/

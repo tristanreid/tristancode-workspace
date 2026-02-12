@@ -33,11 +33,11 @@ tristancode-workspace/
 │   ├── blog/
 │   │   ├── _index.md          # Blog section page
 │   │   ├── fixed-income-risk-*.md  # Fixed-income risk series (5 parts)
-│   │   ├── drinky-cab-*.md    # Drinky Cab series (5 parts)
+│   │   ├── drinky-cab-*.md    # NYC Taxis and Tipping series (5 parts)
 │   │   ├── hll-*.md           # HyperLogLog series (4 parts)
-│   │   ├── hulu-pipeline-*.md # Hulu Pipeline series (7 new parts)
-│   │   ├── writing-dsls-python-scala.md       # Hulu Pipeline part 3
-│   │   └── beaconspec-hulu-dsl-data-pipeline.md  # Hulu Pipeline part 2
+│   │   ├── hulu-pipeline-*.md # Hulu Data Platform series (7 new parts)
+│   │   ├── writing-dsls-python-scala.md       # Hulu Data Platform part 3
+│   │   └── beaconspec-hulu-dsl-data-pipeline.md  # Hulu Data Platform part 2
 │   └── projects/
 │       ├── _index.md           # Projects section page
 │       └── drinky-cab.md       # Now points to the blog series
@@ -49,7 +49,7 @@ tristancode-workspace/
 ├── static/
 │   ├── js/hll/                # Built interactive component bundles
 │   ├── images/charts/         # 15 PNG charts for the finance series
-│   └── drinky_cab/            # Full legacy Drinky Cab interactive project
+│   └── drinky_cab/            # Full legacy NYC Taxis interactive project
 ├── notes/                     # Working notes and research for upcoming posts
 │   ├── archive/               # Completed planning docs
 │   ├── entity-detection-research.md
@@ -88,7 +88,7 @@ The site supports multiple visual themes. Each theme is a standalone CSS file th
 | `chalkboard` | `style-chalkboard.css` | Lecture hall / chalk | Handwritten headings (Caveat font), ruled lines; dark = slate-green chalkboard + chalk pastels, light = whiteboard + marker colors |
 | `theorem` | `style-theorem.css` | Published paper / LaTeX | STIX Two Text serif typography, warm ivory paper, QED squares on blockquotes, asterism section breaks |
 | `stochastic` | `style-stochastic.css` | Probability / data-viz | JS-generated SVG (scatter dots, bell curves, histograms, CDF S-curves), teal + orange palette |
-| `taxicab` | `style-taxicab.css` | NYC taxi / Drinky Cab | JS-generated SVG cute taxicabs scattered at random positions, sizes, and angles; yellow + black palette |
+| `taxicab` | `style-taxicab.css` | NYC taxi data | JS-generated SVG taxicabs scattered at random positions, sizes, and angles; yellow + black palette |
 
 ### Per-Post Theme Assignment
 
@@ -109,10 +109,10 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 |---|---|---|
 | Fixed-income risk series (Parts 1–5) | `graph` | Finance / quantitative feel; graph paper suits charts and formulas |
 | HyperLogLog series (Parts 1–4) | `stochastic` | Probability / data-viz theme matches the statistical content |
-| Hulu Pipeline series (Parts 1–9) | `hulu` | Directly about Hulu's data pipeline |
+| Hulu Data Platform series (Parts 1–9) | `hulu` | Directly about Hulu's data pipeline |
 | Tries series | `graph` | Data structure / technical content suits the graph-paper theme |
-| Drinky Cab series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
-| Drinky Cab project page | `taxicab` | Matches the series skin |
+| NYC Taxis and Tipping series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
+| NYC Taxis project page | `taxicab` | Matches the series skin |
 | Writing Agent Skills series (Parts 1–2) | `generative` | Modern / AI-forward aesthetic fits the AI tooling subject matter |
 | Homepage | `generative` (default) | Picker available; user can switch freely |
 | Blog list | `generative` (default) | Picker available |
@@ -154,17 +154,17 @@ Current series:
 | Series | Posts | Skin | Status |
 |---|---|---|---|
 | Python for Fixed-Income Risk Analysis | 5 | `graph` | Published |
-| HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
-| Hulu Pipeline | 9 | `hulu` | Published |
-| Tries: Searching Text the Clever Way | 6 | `graph` | Published |
+| HyperLogLog: Counting Unique Items at Scale | 4 | `stochastic` | Published |
+| Hulu Data Platform | 9 | `hulu` | Published |
+| Tries: Multi-Pattern Text Search | 6 | `graph` | Published |
 | Entity Detection: Finding What Matters in Text | 4 | `graph` | Published |
 | Mergeable Operations in Distributed Computation | 3 | `graph` | Published |
-| Drinky Cab | 5 | `taxicab` | Published |
+| NYC Taxis and Tipping | 5 | `taxicab` | Published |
 | Writing Agent Skills | 2 | `generative` | Written |
 
 ### Projects
 
-- The Drinky Cab project has been converted to a blog series; the project page now links to the series
+- The NYC Taxis and Tipping project has been converted to a blog series; the project page now links to the series
 - Static assets (HTML/JS/CSS/images) remain in `static/drinky_cab/` and are referenced directly from the blog posts
 - Interactive maps use Leaflet 0.7.7 via unpkg CDN
 - Map tiles use OpenStreetMap (migrated from defunct OpenCycleMap)
@@ -220,9 +220,9 @@ The original site at `repos/tristancode-ftp` (read-only) used:
 - jQuery 1.8.2
 - Apache `.htaccess` routing
 
-We preserved only the Drinky Cab project. Everything else was rebuilt from scratch in Hugo.
+We preserved only the NYC Taxis project. Everything else was rebuilt from scratch in Hugo.
 
-### Drinky Cab Asset Fixes
+### NYC Taxis Asset Fixes
 
 During migration, these changes were required:
 - CSS/JS paths changed from `../css/` and `../js/` to co-located paths
@@ -280,12 +280,12 @@ A multi-part series from personal history through original experiments with smal
 ## Future Ideas
 
 ### Content
-- [x] Break the Drinky Cab project into a blog post series (5 parts: intro, mapping, taxi data, stumbling distance, results)
+- [x] Break the NYC Taxis project into a blog post series (5 parts: intro, mapping, taxi data, stumbling distance, results)
 - [ ] Write a "making of this site" post covering the theme system and Hugo migration
 - [ ] Add more interactive projects / tools / visualizations / games
 - [ ] Consider adding a lightweight comment system (e.g. giscus, utterances) for blog posts
 
-### Blog Series: Hulu Pipeline — Monitoring the Data Pipeline
+### Blog Series: Hulu Data Platform — Monitoring the Data Pipeline
 
 A 9-part series expanding on the [Monitoring the Data Pipeline at Hulu](https://www.youtube.com/watch?v=VjXwoHUCvOQ) talk from Hadoop Summit 2014 ([slides](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit)). The two existing DSL posts become parts 2 and 3 of this series. Posts 1–6 form the main narrative arc; 7–9 are supplementary deep-dives.
 
@@ -361,13 +361,13 @@ Skin: `chalkboard`. Research in `notes/neural-nets-research.md`. Narrative plan 
 - Toy implementation on list-processing tasks — CPU-friendly (search-based, not gradient-based)
 - The most fundamental routing question: when to use learned patterns vs. symbolic programs
 
-### Blog Series: Tries — Searching Text the Clever Way
+### Blog Series: Tries: Multi-Pattern Text Search
 
 A 6-part series on the trie data structure, from intuition through production-scale usage. Features reusable D3 interactive trie visualizer and open-source packages. **Published.**
 
 | # | Post | File | Status |
 |---|------|------|--------|
-| 1 | What Is a Trie? The Data Structure That Shares Its Homework | `trie-what-is-a-trie.md` | Published |
+| 1 | What Is a Trie? | `trie-what-is-a-trie.md` | Published |
 | 2 | Building an Interactive Trie Visualizer with D3 | `trie-visualizing-with-d3.md` | Published |
 | 3 | Scanning Text with a Trie | `trie-scanning-text.md` | Published |
 | 4 | Broadcasting a Trie in Spark | `trie-broadcasting-in-spark.md` | Published |

@@ -3,6 +3,7 @@ title: "Building a Mixture-of-Experts Model"
 description: "Can a small model learn to specialize? We replace the transformer's feed-forward network with multiple experts and a router, then watch what happens."
 weight: 40
 series: "Neural Nets from Scratch"
+series_weight: 50
 skin: chalkboard
 ---
 

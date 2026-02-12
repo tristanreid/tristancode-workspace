@@ -3,6 +3,7 @@ title: "A Brief Detour — What PCA Actually Does"
 description: "Building intuition for Principal Component Analysis — no finance required."
 weight: 40
 series: "Python for Fixed-Income Risk Analysis"
+series_weight: 70
 series_type: "explainer"
 skin: graph
 ---

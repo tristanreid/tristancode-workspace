@@ -3,6 +3,7 @@ title: "When Markets Panic — Modeling Volatility with GARCH"
 description: "Build a GARCH model, construct dynamic VaR, and investigate which historical crises triggered extreme moves."
 weight: 30
 series: "Python for Fixed-Income Risk Analysis"
+series_weight: 70
 skin: graph
 ---
 

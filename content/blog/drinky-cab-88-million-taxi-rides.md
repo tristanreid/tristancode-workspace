@@ -1,7 +1,8 @@
 ---
 title: "88.6 Million Taxi Rides"
 description: "Filtering 174 million records down to the rides that actually matter. Plus: nobody tips in cash, and Friday nights are exactly what you'd expect."
-series: "Drinky Cab"
+series: "NYC Taxis and Tipping"
+series_weight: 80
 weight: 30
 skin: taxicab
 ---

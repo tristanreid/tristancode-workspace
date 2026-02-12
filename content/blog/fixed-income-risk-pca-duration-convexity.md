@@ -3,6 +3,7 @@ title: "Why Duration Rules — PCA and the Hidden Structure of the Yield Curve"
 description: "Apply PCA to the yield curve and discover why duration and convexity capture most of the risk."
 weight: 50
 series: "Python for Fixed-Income Risk Analysis"
+series_weight: 70
 skin: graph
 ---
 

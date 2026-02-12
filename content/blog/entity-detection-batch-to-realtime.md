@@ -3,6 +3,7 @@ title: "From Batch to Real-Time — Entity Detection in a Web App"
 description: "The same trie algorithm that scans 10 million documents overnight can tag a single document in milliseconds. Here's how to make the leap."
 weight: 40
 series: "Entity Detection: Finding What Matters in Text"
+series_weight: 30
 skin: graph
 ---
 

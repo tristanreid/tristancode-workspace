@@ -1,8 +1,9 @@
 ---
-title: "What Is a Trie? The Data Structure That Shares Its Homework"
+title: "What Is a Trie?"
 description: "How a prefix tree stores thousands of strings using shared structure — and why that makes it one of the most efficient data structures for text search."
 weight: 30
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-what-is-a-trie
 ---

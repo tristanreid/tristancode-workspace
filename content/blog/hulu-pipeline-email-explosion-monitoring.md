@@ -1,7 +1,8 @@
 ---
 title: "The Email Explosion: Why Monitoring a Data Pipeline Is Harder Than You Think"
 description: "When 175 MapReduce jobs run every hour, traditional monitoring becomes a firehose of alerts. Here's how the first approach fell short — and what it taught us."
-series: "Hulu Pipeline"
+series: "Hulu Data Platform"
+series_weight: 60
 weight: 4
 skin: hulu
 links:
@@ -123,4 +124,4 @@ In the [next post](/blog/hulu-pipeline-neo4j-cypher-graph-queries/), we'll learn
 
 ---
 
-*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Pipeline series](/blog/) for more.*
+*This post is part of a series based on [Monitoring the Data Pipeline at Hulu](https://docs.google.com/presentation/d/1yETDcfD1IADBHgor0LDEjwqcDoGlt2Epdjlm0DajUrM/edit), presented at [Hadoop Summit 2014](https://www.youtube.com/watch?v=VjXwoHUCvOQ). See the full [Hulu Data Platform series](/blog/) for more.*

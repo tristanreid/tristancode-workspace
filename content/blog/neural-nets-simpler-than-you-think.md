@@ -3,6 +3,7 @@ title: "Neural Nets Are Simpler Than You Think"
 description: "A neural network in 20 lines of Python. We build one from scratch, break it on purpose, fix it, and teach it arithmetic."
 weight: 20
 series: "Neural Nets from Scratch"
+series_weight: 50
 skin: chalkboard
 ---
 

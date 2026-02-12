@@ -2,7 +2,8 @@
 title: "Building an Interactive Trie Visualizer with D3"
 description: "How to turn a data structure into a living diagram — D3's tree layout, the enter/update/exit pattern, and making visualizations that adapt to any theme."
 weight: 31
-series: "Tries: Searching Text the Clever Way"
+series: "Tries: Multi-Pattern Text Search"
+series_weight: 10
 skin: graph
 hero: /images/trie-series/trie-visualizing-with-d3
 ---

@@ -3,6 +3,7 @@ title: "Exploring Treasury Yield Data with Python"
 description: "Get the data, explore it, and discover why simple risk assumptions break down."
 weight: 10
 series: "Python for Fixed-Income Risk Analysis"
+series_weight: 70
 skin: graph
 ---
 

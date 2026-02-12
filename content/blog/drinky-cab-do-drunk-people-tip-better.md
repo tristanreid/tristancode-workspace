@@ -1,7 +1,8 @@
 ---
 title: "Do Drunk People Tip Better?"
 description: "My friend Steve has a question about taxis, drinking, and tipping. We have 174 million taxi records. Let's find out."
-series: "Drinky Cab"
+series: "NYC Taxis and Tipping"
+series_weight: 80
 weight: 10
 skin: taxicab
 ---

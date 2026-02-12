@@ -3,6 +3,7 @@ title: "Split, Process, Combine"
 description: "Why some operations survive being distributed across a thousand machines — and why others break. The hidden design constraint behind every choice in distributed data processing."
 weight: 10
 series: "Mergeable Operations in Distributed Computation"
+series_weight: 20
 skin: graph
 ---
 
