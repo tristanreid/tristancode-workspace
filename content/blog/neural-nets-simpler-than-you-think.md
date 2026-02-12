@@ -4,7 +4,6 @@ description: "A neural network in 20 lines of Python. We build one from scratch,
 weight: 20
 series: "Neural Nets from Scratch"
 skin: chalkboard
-draft: true
 ---
 
 In [Part 1](/blog/neural-nets-origin-story/), I described writing a neural network in BASIC as an undergrad — a couple of layers, a handful of nodes, training by hand on the command line. It was the most interesting thing I'd ever built.

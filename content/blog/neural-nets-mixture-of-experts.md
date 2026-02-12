@@ -4,7 +4,6 @@ description: "Can a small model learn to specialize? We replace the transformer'
 weight: 40
 series: "Neural Nets from Scratch"
 skin: chalkboard
-draft: true
 ---
 
 In the transformer we built in [Part 3](/blog/neural-nets-karpathy-tour/), every token gets the same treatment. It passes through the same attention heads, the same feed-forward network, the same number of layers. A name like "emma" gets exactly as much computation as an arithmetic expression like "23+45=68."

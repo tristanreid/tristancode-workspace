@@ -4,7 +4,6 @@ description: "I wrote neural nets in BASIC before they were cool. The experience
 weight: 10
 series: "Neural Nets from Scratch"
 skin: chalkboard
-draft: true
 ---
 
 I've always felt a deep affinity for neural networks. It was my first exposure to machine learning, and it was the first time I felt like I was building something that was actually learning.

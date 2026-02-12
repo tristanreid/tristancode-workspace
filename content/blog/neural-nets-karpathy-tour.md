@@ -4,7 +4,6 @@ description: "From counting letters to building a transformer — the three conc
 weight: 30
 series: "Neural Nets from Scratch"
 skin: chalkboard
-draft: true
 ---
 
 In [Part 2](/blog/neural-nets-simpler-than-you-think/), we built a neural network from scratch — no PyTorch, no TensorFlow, just NumPy. It learned AND, solved XOR, and even figured out addition. Sixty lines of Python, and it captured the entire learning mechanism that powers every neural network ever built.
