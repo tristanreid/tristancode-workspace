@@ -113,6 +113,7 @@ When a page has a `skin` value, it overrides the user's saved preference and the
 | Tries series | `graph` | Data structure / technical content suits the graph-paper theme |
 | Drinky Cab series | `taxicab` | NYC taxi theme with scattered SVG cabs — perfect match for the subject |
 | Drinky Cab project page | `taxicab` | Matches the series skin |
+| Writing Agent Skills series (Parts 1–2) | `generative` | Modern / AI-forward aesthetic fits the AI tooling subject matter |
 | Homepage | `generative` (default) | Picker available; user can switch freely |
 | Blog list | `generative` (default) | Picker available |
 
@@ -159,6 +160,7 @@ Current series:
 | Tries: Searching Text the Clever Way | 6 | `graph` | Published |
 | Entity Detection: Finding What Matters in Text | 4 | `graph` | Published |
 | Mergeable Operations in Distributed Computation | 3 | `graph` | Published |
+| Writing Agent Skills | 2 | `generative` | Written |
 
 ### Projects
 
@@ -231,7 +233,7 @@ During migration, these changes were required:
 
 ## Roadmap
 
-Two parallel streams of work:
+Multiple streams of work:
 
 ### Stream 1: Entity Resolution → Mergeable Operations
 
@@ -239,7 +241,18 @@ Two parallel streams of work:
 
 **Mergeable Operations** (follows Entity Resolution) — A "capstone" series tying together HLL, Tries, and Entity Resolution through the lens of mergeable/composable operations in distributed computation. Covers monoids, approximate data structures, and Algebird. Research in `notes/mergeable-operations-research.md`.
 
-### Stream 2: Neural Nets from Scratch (drafting phase — Parts 1–2 drafted)
+### Stream 2: Writing Agent Skills (written — ready for review)
+
+A two-part series on writing Agent Skills for Cursor and Claude Code, using the Google Workspace skill as a real example. Covers the open standard, writing SKILL.md files, the shared library pattern, distribution with installers, the venv bootstrap pattern, credential protection, and working with Google APIs.
+
+| # | Post | File | Status |
+|---|------|------|--------|
+| 1 | Giving Your AI a Google Account: Writing Agent Skills for Cursor and Claude Code | `agent-skills-giving-your-ai-a-google-account.md` | Written |
+| 2 | Shipping a Skill: Installers, Bootstraps, and Google OAuth | `agent-skills-shipping-installers-bootstraps-oauth.md` | Written |
+
+Skin: `generative`. Companion repo: `repos/google-workspace-skills/` (sanitized public version at [github.com/tristanreid/google-workspace-skills](https://github.com/tristanreid/google-workspace-skills) — not pushed yet).
+
+### Stream 3: Neural Nets from Scratch (drafting phase — Parts 1–2 drafted)
 
 A multi-part series from personal history through original experiments with small language models. Starts with the "Minds, Brains and Computers" seminar at Duke, builds simple nets from scratch, tours Karpathy's tutorials, then experiments with Mixture-of-Experts, chain-of-thought, and Toolformer-style tool use. Research in `notes/neural-nets-research.md`.
 
@@ -292,7 +305,7 @@ Skin: `hulu`. Full plan in `notes/archive/hulu-pipeline-series-plan.md`.
 
 ### Blog Series: Neural Nets from Scratch
 
-A multi-part series on neural networks, starting from personal history and building toward original experiments with small language models.
+A seven-part series on neural networks, starting from personal history and building toward original experiments with small language models. Unified by a "conditional computation under a budget" spine — each of Parts 4–7 explores a different routing decision. All experiments are CPU-first (no GPU required). makemore is the canonical codebase spine.
 
 | # | Post | File | Status |
 |---|------|------|--------|
@@ -300,10 +313,11 @@ A multi-part series on neural networks, starting from personal history and build
 | 2 | Neural Nets Are Simpler Than You Think | `neural-nets-simpler-than-you-think.md` | Draft |
 | 3 | A Tour of Karpathy's Tutorials | — | Research complete |
 | 4 | Building a Mixture-of-Experts Model | — | Research complete |
-| 5 | Adding "Thinking" — Chain-of-Thought from Architecture | — | Research complete |
-| 6+ | Toolformer and the Economics of Tool Use | — | Research complete |
+| 5 | Adaptive Computation: Learning When to Think Harder | — | Research complete |
+| 6 | The Economics of Tool Use | — | Research complete |
+| 7 | Programs That Write Programs: Neuro-Symbolic Computing | — | NEW — needs research |
 
-Skin: `chalkboard`. Research in `notes/neural-nets-research.md`. Narrative plan in `notes/neural-nets-narrative-plan.md`.
+Skin: `chalkboard`. Research in `notes/neural-nets-research.md`. Narrative plan in `notes/neural-nets-narrative-plan.md`. Revised series plan (incorporating researcher feedback) in `notes/neural-nets-revised-series-plan.md`.
 
 #### Part 1: Origin Story — "Minds, Brains and Computers"
 - Personal memoir: took the seminar "Minds, Brains and Computers" at Duke as an undergrad
@@ -316,27 +330,36 @@ Skin: `chalkboard`. Research in `notes/neural-nets-research.md`. Narrative plan 
 - Demystifies the gap between "a neural net" and "an LLM"
 
 #### Part 3: A Tour of Karpathy's Tutorials
-- Reference and annotate Karpathy's code (not reproduce it) — focus on education, not reproduction
-- Walk through the conceptual leaps: bigram → MLP → transformer
-- Build enough fluency to extend the codebase in Parts 4-6
+- **Three conceptual deltas** (not a full survey): counting → learned model, MLP → stable deep training, local computation → attention
+- makemore as the spine codebase; nanoGPT acknowledged as deprecated, nanochat as modern reference
+- Establishes the baseline transformer that Parts 4–7 modify
 
-#### Part 4: Building a Mixture-of-Experts Model
-- Starting from Karpathy's simple LLM, add a routing mechanism that dispatches to specialized "expert" sub-networks
-- Explore: does specialization emerge naturally? Can you see different experts learning different domains?
-- Keep it small and interpretable — the goal is understanding, not benchmark scores
+#### Part 4: Building a Mixture-of-Experts Model *(in progress)*
+- Implementation: `experiments/makemore/makemore_moe.py` — MoE-FFN as a drop-in replacement for the transformer FFN
+- Dataset: `experiments/makemore/build_domain_mix.py` generates 24K examples across names/arithmetic/code
+- Four experiments: dense baseline, MoE top-1 (with/without load balancing), MoE top-2
+- Run script: `experiments/makemore/run_moe_experiments.sh` (~15-25 min on M-series Mac)
+- Blog draft: `content/blog/neural-nets-mixture-of-experts.md` — structured with placeholder sections for experimental results
+- Routing analysis: per-domain expert utilization breakdown (names vs. arithmetic vs. code)
+- Key lesson: expert collapse without auxiliary loss, partial specialization with it
 
-#### Part 5: Adding "Thinking" — Chain-of-Thought from Architecture
-- Build on the MoE model from Part 4
-- Experiment with giving the model a mechanism for intermediate reasoning steps (internal scratchpad, recurrent passes, etc.)
-- Can a small model learn to "think before answering"?
-- Explore whether the expert routing from Part 4 interacts with thinking (e.g., does the model learn to route "hard" problems through more computation?)
+#### Part 5: Adaptive Computation: Learning When to Think Harder
+- Reframed from "thinking" to adaptive computation / deliberation under budget (ACT, early-exit)
+- **Algorithmic task suite** (parity, addition-with-carry, parenthesis matching) with variable difficulty
+- Key plot: accuracy vs. measured compute — "more compute helps more on harder inputs"
+- Test MoE + depth interaction: does the router allocate more compute to harder inputs?
 
-#### Part 6+: Toolformer and the Economics of Tool Use
-- Explore Toolformer and related ideas: models that learn to emit special tokens to invoke external tools (calculators, search, databases)
-- Central question: tool-augmented lookup seems incredibly useful and scalable — why isn't this the dominant approach at major AI companies? Is this a Bitter Lesson situation where human curation of tool use is an inferior approach to just scaling up?
-- Are there frameworks where the AI is somehow aware of its own computational costs and can weigh them against the cost of using a tool?
-- Original idea to explore: a "dream" state with an adversarial process that tries to find cases where tool outputs differ from what the model would predict on its own. If the adversary can't find divergences, the model is discouraged from using the tool (since it already "knows" the answer). This naturally routes tool calls to cases where they actually add value, and favors whichever path (internal computation vs. tool) is cheaper for a given query.
-- This connects back to the MoE/thinking work: tool use is essentially another form of routing — sending a sub-problem to an external expert
+#### Part 6: The Economics of Tool Use
+- Updated premise: tool use is not niche — Toolformer, RAG, ReAct, Self-RAG are well-established
+- **Toy calculator experiment** with `<CALL_TOOL>` / `<NO_TOOL>` policy token and cost term
+- Simplified "dream state": compare no-tool vs. tool outputs, upweight divergences in training
+- Routing unification: MoE + adaptive depth + tool use as three faces of "allocate your compute budget"
+
+#### Part 7: Programs That Write Programs — Neuro-Symbolic Computing (NEW)
+- DreamCoder: wake-sleep cycle combining neural networks with program synthesis
+- Library learning: the system discovers reusable abstractions ("map," "fold") automatically
+- Toy implementation on list-processing tasks — CPU-friendly (search-based, not gradient-based)
+- The most fundamental routing question: when to use learned patterns vs. symbolic programs
 
 ### Blog Series: Tries — Searching Text the Clever Way
 

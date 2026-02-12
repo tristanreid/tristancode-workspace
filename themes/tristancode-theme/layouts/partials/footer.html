@@ -1,5 +1,5 @@
 <footer class="site-footer">
-  <p>&copy; {{ now.Year }} Tristan Reid</p>
+  <p>&copy; {{ now.Year }} Tristan Reid · {{ with .Site.GetPage "/blog/whose-art-is-it" }}<a href="{{ .RelPermalink }}">Made with AI</a>{{ else }}Made with AI{{ end }}</p>
 </footer>
 
 <script>

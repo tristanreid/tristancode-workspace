@@ -1,7 +1,8 @@
 {{ define "main" }}
 <section class="hero">
   <h1>Hi, I'm Tristan.</h1>
-  <p class="hero-sub">I write about data, code, and the things I build. This site is a collection of blog posts, interactive visualizations, and fun side projects.</p>
+  <p class="hero-sub">I write about data, code, and the things I build.</p>
+  <p class="hero-disclosure">Much of this site was made with generative AI. The ideas and direction are mine, and it is based on my own work; but AI did all the heavy lifting of bringing it together. I have deeply mixed feelings about using tools to create content, and labeling it as my own work. {{ with .Site.GetPage "/blog/whose-art-is-it" }}<a href="{{ .RelPermalink }}">Here's a longer conversation about that.</a>{{ end }}</p>
 </section>
 
 <section class="home-section">
@@ -9,7 +10,7 @@
   {{ $blogPages := where .Site.RegularPages "Section" "blog" }}
   {{ $withSeries := where $blogPages "Params.series" "!=" "" }}
   <ul class="post-list">
-    {{/* Series entries first */}}
+    {{/* Series entries */}}
     {{ range $withSeries.GroupByParam "series" }}
       {{ $sorted := sort .Pages "Weight" }}
       {{ $first := index $sorted 0 }}
@@ -18,26 +19,13 @@
         <span class="post-desc"> — {{ len .Pages }}-part series</span>
       </li>
     {{ end }}
-    {{/* Then standalone posts */}}
+    {{/* Standalone posts */}}
     {{ range $blogPages }}
       {{ if not .Params.series }}
       <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
       {{ end }}
     {{ end }}
   </ul>
+  <p class="see-all"><a href="/blog/">See all writing →</a></p>
 </section>
-
-{{ with (where .Site.RegularPages "Section" "projects") }}
-<section class="home-section">
-  <h2>Projects</h2>
-  <ul class="post-list">
-    {{ range . }}
-    <li>
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
-    </li>
-    {{ end }}
-  </ul>
-</section>
-{{ end }}
 {{ end }}

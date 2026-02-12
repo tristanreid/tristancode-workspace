@@ -25,15 +25,18 @@
 {{ $hasSingles := false }}
 {{ range .Pages }}{{ if not .Params.series }}{{ $hasSingles = true }}{{ end }}{{ end }}
 {{ if $hasSingles }}
-<ul class="post-list">
-  {{ range .Pages }}
-  {{ if not .Params.series }}
-  <li>
-    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-    {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
-  </li>
-  {{ end }}
-  {{ end }}
-</ul>
+<section class="series-section">
+  <h2 class="series-heading">Other</h2>
+  <ul class="post-list">
+    {{ range .Pages }}
+    {{ if not .Params.series }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ with .Description }}<span class="post-desc"> — {{ . }}</span>{{ end }}
+    </li>
+    {{ end }}
+    {{ end }}
+  </ul>
+</section>
 {{ end }}
 {{ end }}

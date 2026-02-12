@@ -22,10 +22,6 @@ theme = 'tristancode-theme'
     name = "Blog"
     url = "/blog/"
     weight = 1
-  [[menu.main]]
-    name = "Projects"
-    url = "/projects/"
-    weight = 2
 
 [outputs]
   home = ["HTML", "RSS"]

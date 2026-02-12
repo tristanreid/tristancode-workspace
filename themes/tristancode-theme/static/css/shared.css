@@ -39,6 +39,67 @@ pre:hover .copy-btn {
   opacity: 1;
 }
 
+/* --- Hero disclosure --- */
+.hero-disclosure {
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  line-height: 1.6;
+  max-width: 560px;
+  margin-top: 1.2rem;
+}
+
+.hero-disclosure a {
+  color: var(--accent, #6c5ce7);
+}
+
+/* --- See-all link --- */
+.see-all {
+  margin-top: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.see-all a {
+  color: var(--accent, #6c5ce7);
+  font-weight: 500;
+}
+
+/* --- Footer disclosure link --- */
+.site-footer a {
+  color: var(--text-muted, #888);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.site-footer a:hover {
+  color: var(--accent, #6c5ce7);
+}
+
+/* --- Themed SVG shortcode (dark/light switching) --- */
+.themed-svg {
+  margin: 1.5rem auto;
+  text-align: center;
+}
+.themed-svg img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  border: none !important;
+}
+.themed-svg figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+.themed-svg .themed-svg-dark { display: none; }
+[data-theme="dark"] .themed-svg .themed-svg-light { display: none; }
+[data-theme="dark"] .themed-svg .themed-svg-dark { display: block; }
+
+/* --- Hero image dark/light switching --- */
+.post-hero-dark { display: none; }
+[data-theme="dark"] .post-hero .post-hero-light { display: none; }
+[data-theme="dark"] .post-hero .post-hero-dark { display: block; }
+
 /* --- 404 Error Page --- */
 .error-page {
   text-align: center;

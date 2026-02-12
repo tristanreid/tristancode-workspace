@@ -21,7 +21,11 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+.cursor/
 
 # Cloned repos (separate git repositories)
 repos
 packages/
+
+# Experiments (cloned codebases, model weights, venvs)
+experiments/
