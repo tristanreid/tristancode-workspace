@@ -154,12 +154,12 @@ Current series:
 | Series | Posts | Skin | Status |
 |---|---|---|---|
 | Python for Fixed-Income Risk Analysis | 5 | `graph` | Published |
-| Drinky Cab | 5 | `taxicab` | Published |
 | HyperLogLog: Counting Unique Items the Clever Way | 4 | `stochastic` | Published |
 | Hulu Pipeline | 9 | `hulu` | Published |
 | Tries: Searching Text the Clever Way | 6 | `graph` | Published |
 | Entity Detection: Finding What Matters in Text | 4 | `graph` | Published |
 | Mergeable Operations in Distributed Computation | 3 | `graph` | Published |
+| Drinky Cab | 5 | `taxicab` | Published |
 | Writing Agent Skills | 2 | `generative` | Written |
 
 ### Projects
@@ -394,6 +394,29 @@ A 4-part series on dictionary-based entity detection: finding known entities in 
 | 4 | From Batch to Real-Time — Entity Detection in a Web App | `entity-detection-batch-to-realtime.md` | Written |
 
 Skin: `graph`. Research in `notes/entity-detection-research.md`.
+
+### Stream 4: ML Literacy for Developers (planning phase)
+
+Multiple series aimed at software developers gaining AI/ML literacy. Three arcs planned, with Arc 1 most developed.
+
+**Arc 1: Exploring High-Dimensional Data** — A 6-post series following the real workflow of making sense of large, high-dimensional datasets. Signature interactive: Three.js 3D data explorer. Primary dataset: IMDB/Rotten Tomatoes (entertainment data). Personal thread: learning word2vec at Hulu, training embedding models at Netflix.
+
+| # | Post | Status |
+|---|------|--------|
+| 1 | What Embeddings Actually Are | Planning |
+| 2 | First Contact: Statistics and Distributions | Planning |
+| 3 | Projecting to See: PCA, t-SNE, UMAP | Planning |
+| 4 | Building a 3D Data Explorer with Three.js | Planning |
+| 5 | Making Sense of Clusters | Planning |
+| 6 | Feature Engineering: Beyond the Embedding | Planning |
+
+Skin: `stochastic` (likely). Tools: plotnine, scikit-learn, Three.js, sentence-transformers, networkx.
+
+**Arc 2: Classical ML Demystified** — SVM, decision trees/forests/boosting, model evaluation. Code-heavy with scikit-learn and D3 interactive visualizations. Planning stage.
+
+**Arc 3: How LLMs Actually Work** — In-context learning as Bayesian inference, plus other conceptual posts TBD. Less code, more insight. Early planning.
+
+Full plan in `notes/ml-literacy-series-plan.md`.
 
 ### Blog Series: Elasticsearch — Lessons Learned & Open-Source Loader
 
