@@ -285,4 +285,4 @@ In Part 6, we'll explore tool use — routing computation *outside* the model en
 
 *Previous: [Building a Mixture-of-Experts Model](/blog/neural-nets-mixture-of-experts/)*
 
-*Next: The Economics of Tool Use (coming soon)*
+*Next: [The Economics of Tool Use](/blog/neural-nets-tool-use/)*
