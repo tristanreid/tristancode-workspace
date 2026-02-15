@@ -22,9 +22,28 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = REPO_ROOT / "content"
 STATIC_DIR = REPO_ROOT / "static"
+ALLOWLIST_FILE = REPO_ROOT / ".link-allowlist"
 
 # Matches markdown links: [text](target) and [text](target#anchor)
 LINK_RE = re.compile(r"\[(?:[^\]]*)\]\(([^)]+)\)")
+
+
+def load_allowlist() -> set[str]:
+    """Load allowed broken links from .link-allowlist (one path per line).
+
+    Lines starting with # are comments. Paths are stripped of trailing
+    slashes and anchors for matching, just like check_link does.
+    """
+    if not ALLOWLIST_FILE.exists():
+        return set()
+    allowed = set()
+    for line in ALLOWLIST_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        # Normalize: strip anchor and trailing slash
+        allowed.add(line.split("#")[0].rstrip("/"))
+    return allowed
 
 
 def resolve_blog_link(path: str) -> bool:
@@ -133,9 +152,12 @@ def main() -> int:
         print("ERROR: content/blog/ not found", file=sys.stderr)
         return 1
 
+    allowlist = load_allowlist()
+
     md_files = sorted(blog_dir.glob("*.md"))
     total_links = 0
     total_broken = 0
+    total_allowed = 0
     broken_files: list[tuple[Path, list[tuple[int, str]]]] = []
 
     for filepath in md_files:
@@ -156,11 +178,21 @@ def main() -> int:
                     total_links += 1
 
         if broken:
-            broken_files.append((filepath, broken))
-            total_broken += len(broken)
+            # Filter out allowlisted links
+            real_broken = []
+            for lineno, target in broken:
+                normalized = target.split("#")[0].rstrip("/")
+                if normalized in allowlist:
+                    total_allowed += 1
+                else:
+                    real_broken.append((lineno, target))
+            if real_broken:
+                broken_files.append((filepath, real_broken))
+                total_broken += len(real_broken)
 
     if broken_files:
-        print(f"BROKEN LINKS FOUND ({total_broken} broken / {total_links} checked)\n")
+        allowed_note = f", {total_allowed} allowlisted" if total_allowed else ""
+        print(f"BROKEN LINKS FOUND ({total_broken} broken{allowed_note} / {total_links} checked)\n")
         for filepath, broken in broken_files:
             relpath = filepath.relative_to(REPO_ROOT)
             for lineno, target in broken:
@@ -168,7 +200,8 @@ def main() -> int:
         print()
         return 1
     else:
-        print(f"All internal links OK ({total_links} checked across {len(md_files)} files)")
+        allowed_note = f" ({total_allowed} allowlisted)" if total_allowed else ""
+        print(f"All internal links OK ({total_links} checked across {len(md_files)} files){allowed_note}")
         return 0
 
 
