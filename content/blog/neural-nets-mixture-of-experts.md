@@ -389,7 +389,7 @@ Even at our tiny scale, this experiment reveals the core dynamics of conditional
 
 ---
 
-## The Honest Gap
+## The Gaps
 
 Let's be clear about what our experiment *doesn't* show:
 

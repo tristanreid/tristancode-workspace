@@ -363,7 +363,7 @@ Compare that to the original BeaconSpec syntax at the top of this post. It's rem
 
 ---
 
-## Part 3: Python vs. Scala — An Honest Comparison
+## Part 3: Python vs. Scala
 
 Having built the same DSL in both languages, here's what stands out:
 

@@ -37,7 +37,7 @@ There's a related question that nags at me. These posts cover neural networks, d
 
 When I was in school, writing was how I learned. The act of struggling to explain something — choosing words, finding the right analogy, restructuring an argument that wasn't working — was the thinking itself. If the AI does the struggling, what am I left with? Editorial judgment, maybe. A sense of quality. But not the same depth.
 
-I think the honest answer is: it depends on the post. Some of these I could teach from memory. Others I'd need to re-read my own site to talk about. That's a strange position to be in as the "author."
+I think the best answer is: it depends on the post. Some of these I could teach from memory. Others I'd need to re-read my own site to talk about. That's a strange position to be in as the "author."
 
 ## The Serious Part
 

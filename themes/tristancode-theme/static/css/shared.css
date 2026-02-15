@@ -116,6 +116,39 @@ pre:hover .copy-btn {
 [data-theme="dark"] .post-hero .post-hero-light { display: none; }
 [data-theme="dark"] .post-hero .post-hero-dark { display: block; }
 
+/* --- Wide image shortcode — breaks out of content column for data viz --- */
+.main-content {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+.post-content {
+  overflow: visible !important;
+}
+.post-content .wide-img {
+  position: relative;
+  width: 960px;
+  max-width: calc(100vw - 2rem);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 2rem 0;
+}
+.post-content .wide-img img {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border, #ddd);
+  margin: 0 !important;
+}
+.post-content .wide-img figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
 /* --- 404 Error Page --- */
 .error-page {
   text-align: center;
