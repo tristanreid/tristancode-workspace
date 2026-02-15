@@ -214,10 +214,10 @@ The sketches aren't a compromise. They're a design choice: give up a little prec
 
 Every sketch we've seen has an associative merge operation with an identity element (the empty sketch). In mathematics, this structure has a name — but we've been careful not to front-load the formalism.
 
-In the [next post](/blog/mergeable-operations-algebird/), we'll name it. We'll look at a library that takes this pattern and makes it a first-class abstraction: define the merge for your data type, and get distributed computation for free. It turns out the abstract algebra is not just theoretically elegant — it's the most practical tool in the distributed engineer's toolkit.
+In the [next post](/blog/mergeable-operations-build-merge-query/), we'll see what it takes to turn this theory into practice — building UDFs that make these sketches usable from SQL, and discovering that the aggregation framework's lifecycle was designed for exactly this pattern.
 
 ---
 
 *Previous: [Split, Process, Combine](/blog/mergeable-operations-split-process-combine/)*
 
-*Next: [When Abstract Algebra Becomes Practical](/blog/mergeable-operations-algebird/)*
+*Next: [Build, Merge, Query](/blog/mergeable-operations-build-merge-query/)*

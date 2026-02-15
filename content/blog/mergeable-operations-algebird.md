@@ -11,7 +11,9 @@ In [Part 1](/blog/mergeable-operations-split-process-combine/), we built an intu
 
 In [Part 2](/blog/mergeable-operations-sketches/), we saw that even operations that *seem* impossible to distribute — distinct counts, frequency estimation, percentiles — have approximate versions that merge beautifully. HyperLogLog, Count-Min Sketch, Bloom filters, T-Digest.
 
-Every one of these — the simple operations and the sketches — shares the same underlying structure. It has a name, and it's simpler than you'd expect.
+In [Part 3](/blog/mergeable-operations-build-merge-query/), we built UDFs to make those sketches usable from SQL — and noticed that the Hive aggregation framework decomposes every aggregation into the same lifecycle: an empty buffer, an iterate step, and a merge step. Different sketches, same shape.
+
+Every one of these — the simple operations, the sketches, and the aggregation framework itself — shares the same underlying structure. It has a name, and it's simpler than you'd expect.
 
 ---
 
@@ -176,6 +178,6 @@ The ideas in this series go deeper than we've covered. If you want to explore fu
 
 ---
 
-*Previous: [Sketches: Trading Precision for Scalability](/blog/mergeable-operations-sketches/)*
+*Previous: [Build, Merge, Query](/blog/mergeable-operations-build-merge-query/)*
 
 *This is the final post in the Mergeable Operations in Distributed Computation series.*

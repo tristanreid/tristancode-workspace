@@ -2,7 +2,7 @@
 
 ## Series Overview
 
-A three-part series on why some operations compose cleanly across machine boundaries and others don't — and why this distinction shapes every choice in distributed data processing. Ties together the HLL, Trie, and Entity Detection series through the unifying lens of mergeability.
+A four-part series on why some operations compose cleanly across machine boundaries and others don't — and why this distinction shapes every choice in distributed data processing. Ties together the HLL, Trie, and Entity Detection series through the unifying lens of mergeability.
 
 ### Series Structure
 
@@ -10,16 +10,18 @@ A three-part series on why some operations compose cleanly across machine bounda
 |------|-------|-------|
 | **1** | Split, Process, Combine | The intuition: which operations survive distribution? |
 | **2** | Sketches: Trading Precision for Scalability | HLL, Count-Min Sketch, Bloom filters — approximation enables composition |
-| **3** | When Abstract Algebra Becomes Practical | Algebird, monoids, and the reveal that everything in Parts 1-2 was algebra all along |
+| **3** | Build, Merge, Query | Making sketches usable: Hive UDFs for T-Digest and Bloom filters, and the UDAF lifecycle |
+| **4** | When Abstract Algebra Becomes Practical | Algebird, monoids, and the reveal that everything in Parts 1-3 was algebra all along |
 
-Part 1 builds intuition through everyday examples and case studies from the existing series. Part 2 explores the approximate data structures that dominate big data (and explains why). Part 3 reveals the mathematical framework — Algebird and monoids — as the formalization of what the reader already understands.
+Part 1 builds intuition through everyday examples and case studies from the existing series. Part 2 explores the approximate data structures that dominate big data (and explains why). Part 3 shows what it takes to make sketches usable in production — building UDFs that expose them as SQL functions — and discovers that the aggregation framework's lifecycle maps perfectly onto the sketch operations. Part 4 reveals the mathematical framework — Algebird and monoids — as the formalization of what the reader already understands.
 
 ### What makes this series distinctive
 
 1. **Capstone**: This series exists because the HLL, Trie, and Entity Detection series already built the case studies. This pulls them together under one idea.
-2. **The "aha" structure**: The reader should feel the constraint before learning the name. Monoids come in Part 3, not Part 1.
+2. **The "aha" structure**: The reader should feel the constraint before learning the name. Monoids come in Part 4, not Part 1.
 3. **Concrete first, abstract second**: Every concept is grounded in "imagine you have 100 servers" before any formalism appears.
-4. **Personal**: The Algebird section draws on real experience with Scalding at scale.
+4. **Theory to practice to theory**: Part 2 teaches sketch theory, Part 3 shows the engineering, Part 4 reveals the algebra — the reader sees the same structure at every level.
+5. **Personal**: The Algebird section draws on real experience with Scalding at scale, and the UDF section draws on real code.
 
 ---
 
@@ -69,7 +71,7 @@ Two properties that make an operation safe to distribute:
 1. **Associativity**: grouping doesn't matter → `merge(merge(a, b), c) = merge(a, merge(b, c))`
 2. **Commutativity**: order doesn't matter → `merge(a, b) = merge(b, a)`
 
-Don't name these "monoid" yet — that comes in Part 3.
+Don't name these "monoid" yet — that comes in Part 4.
 
 #### 1.6 — Why This Matters
 
@@ -133,7 +135,7 @@ All of these share three properties:
 2. Associative, commutative merge operation
 3. Bounded error with probabilistic guarantees
 
-They all trade exactness for mergeability. And they're all... well, Part 3 will name it.
+They all trade exactness for mergeability. And they're all... well, Part 4 will name it.
 
 ### Interactive Component Ideas
 - **Sketch comparison**: a single dataset processed by HLL, CMS, and Bloom filter. Show each sketch's merge operation side by side.
@@ -146,18 +148,77 @@ They all trade exactness for mergeability. And they're all... well, Part 3 will 
 
 ---
 
-## Part 3: "When Abstract Algebra Becomes Practical"
+## Part 3: "Build, Merge, Query"
 
 ### Narrative Arc
 
-#### 3.1 — The Reveal
+#### 3.1 — From Theory to Practice
 
-- "Every data structure in Part 2, every operation in Part 1 — they all share a mathematical structure."
+- Part 2 taught what sketches are. This post answers: how do you put them to work?
+- A sketch in a library is potential energy. To make it usable, you need three operations: build, merge, query.
+- The goal: make sketches callable from SQL, so anyone on the team can use them without understanding the internals.
+
+#### 3.2 — The Three Operations
+
+- **Build** (UDAF): consume raw data, produce a sketch. An aggregation.
+- **Merge** (UDAF): combine existing sketches into one. Also an aggregation.
+- **Query** (UDF): extract an answer from a sketch. A scalar function.
+- Show the SQL usage: three functions, three roles, complete API surface.
+
+#### 3.3 — The UDAF Lifecycle
+
+- The Hive UDAF framework decomposes aggregation into: `getNewAggregationBuffer`, `iterate`, `terminatePartial`, `merge`, `terminate`
+- This maps perfectly onto the sketch lifecycle: create empty → add data → serialize → combine → output
+- The framework handles distribution; the sketch just implements the five methods
+- Key insight: the framework doesn't care what it's aggregating — the lifecycle is the same for sums, T-Digests, and Bloom filters
+
+#### 3.4 — T-Digest Implementation Walkthrough
+
+- The aggregation buffer: wraps `MergingDigest`, with `update` overloads for raw values and serialized sketches
+- Build UDAF: accepts data points, optional compression, optional weight
+- Merge UDAF: accepts pre-built sketches, combines them
+- Query UDF: deserializes a sketch, extracts quantiles
+- The merge code is identical at both levels (user-facing and framework-facing) because the operation is the same
+
+#### 3.5 — Bloom Filter Implementation Walkthrough
+
+- Same three-operation pattern, with boolean membership test instead of numeric estimate
+- Two UDAF variants for different key types (long, string)
+- The buffer has the same shape as T-Digest: init, update (two overloads), getResult, reset
+
+#### 3.6 — The Serialization Problem
+
+- Sketches must cross JVM boundaries during shuffles
+- Defensive deserialization: handle String, byte[], BytesWritable, Text depending on aggregation phase
+- T-Digest uses binary serialization; Bloom filters use Base64 (storable in string columns)
+- Vendored BloomKFilter and Murmur3 to avoid Hive/Spark version conflicts
+
+#### 3.7 — The Pattern (Foreshadow Part 4)
+
+- Different sketches, same five-method lifecycle
+- The empty buffer is the identity element; the merge is the associative operation
+- The aggregation framework was built for this structure because every distributed aggregation has the same algebraic shape
+- Tease Part 4: this structure has a name
+
+### Assumptions About the Reader
+- Has read Parts 1-2 — understands mergeability and what sketches are
+- Comfortable with code (Scala/Java) — this is the engineering post
+- Ready to see real implementation details, including the unglamorous parts (serialization, version conflicts)
+
+---
+
+## Part 4: "When Abstract Algebra Becomes Practical"
+
+### Narrative Arc
+
+#### 4.1 — The Reveal
+
+- "Every data structure in Part 2, every operation in Part 1, every UDAF lifecycle in Part 3 — they all share a mathematical structure."
 - A **monoid** is: a set of values, an associative binary operation (`plus`), and an identity element (`zero`)
 - That's it. Sum is a monoid (zero is 0). Max is a monoid (zero is -∞). HLL is a monoid (zero is an empty register array).
 - Name-drop: "if you carried (sum, count) pairs for mean in Part 1, you were building a **product monoid** without knowing it"
 
-#### 3.2 — Algebird
+#### 4.2 — Algebird
 
 - Oscar Boykin and Twitter's Algebird library: abstract algebra made practical
 - The `Monoid` typeclass: define `zero` and `plus` for your type, and you get Scalding's `sumByKey`, `aggregate`, and `reduce` for free
@@ -165,20 +226,20 @@ They all trade exactness for mergeability. And they're all... well, Part 3 will 
 - Key types: `HyperLogLogMonoid`, `CountMinSketch`, `BloomFilter`, `DecayedValue`, `Moments`, `QTree`
 - The magic: once your data type is a Monoid, the framework handles distribution, parallelism, and combining automatically
 
-#### 3.3 — Personal Experience
+#### 4.3 — Personal Experience
 
 - Working with Algebird + Scalding at scale
 - The moment it clicked: "these aren't just data structures — they're algebraic objects, and the algebra is what makes them work"
 - Why this was genuinely exciting as an engineer — not because the math is elegant (it is), but because it *works*
 - The practical payoff: adding a new metric to a pipeline was trivial if it was a Monoid — define the merge, get distribution for free
 
-#### 3.4 — The Broader Lesson
+#### 4.4 — The Broader Lesson
 
 - The most powerful data structures for big data aren't the most precise — they're the ones whose operations compose
 - This is a design constraint hiding in plain sight: when you choose how to aggregate data, you're implicitly choosing whether your system can scale
 - The "is this a monoid?" question is the most important question in distributed system design — even if you never use the word
 
-#### 3.5 — Further Reading
+#### 4.5 — Further Reading
 
 - Algebird repo, Oscar Boykin's talks
 - Avi Bryant's "Add ALL the Things: Abstract Algebra Meets Analytics"
@@ -191,7 +252,7 @@ They all trade exactness for mergeability. And they're all... well, Part 3 will 
 - The personal experience section is critical: this isn't abstract appreciation, it's practical testimony
 
 ### Assumptions About the Reader
-- Has read Parts 1-2 — already understands mergeability, sketches, and the trade-off
+- Has read Parts 1-3 — already understands mergeability, sketches, the UDAF lifecycle, and the trade-off
 - Ready for: the mathematical name for what they've been seeing, and Scala code examples
 
 ---
@@ -202,11 +263,11 @@ They all trade exactness for mergeability. And they're all... well, Part 3 will 
 
 2. **Capstone energy**: This series ties together HLL, Tries, and Entity Detection. Cross-references should be generous — reward the reader who's been following along, without excluding newcomers.
 
-3. **The "aha" is the structure**: The three-part arc mirrors the reader's understanding: intuition → examples → "oh, there's a name for this."
+3. **The "aha" is the structure**: The four-part arc mirrors the reader's understanding: intuition → theory → engineering → "oh, there's a name for this."
 
 4. **Honest about trade-offs**: Approximation is a genuine cost. Don't oversell — explain why it's usually worth it.
 
-5. **Personal in Part 3**: The Algebird section is the one place the series gets personal. Make it count.
+5. **Personal in Parts 3-4**: The UDF code and Algebird sections draw on real experience. Make it count.
 
 ---
 
