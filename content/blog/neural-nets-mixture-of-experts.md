@@ -413,4 +413,4 @@ In Part 5, we'll explore adaptive computation — a model that learns *how much*
 
 ---
 
-*Next: Adaptive Computation (coming soon)*
+*Next: [Adaptive Computation: Learning When to Think Harder](/blog/neural-nets-adaptive-computation/)*
