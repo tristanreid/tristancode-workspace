@@ -173,3 +173,9 @@ The ideas in this series go deeper than we've covered. If you want to explore fu
 - **[Apache DataSketches](https://datasketches.apache.org/)** — A Java library of mergeable sketch data structures: HLL, CMS, Theta sketches, KLL quantiles, and more.
 - **The HyperLogLog series** — [Part 1: Counting the Crowd](/blog/hll-counting-unique-items-part1/) through [Part 4: Building from Scratch](/blog/hll-building-from-scratch/). Everything in this series about HLL connects back there.
 - **The Entity Detection series** — [The "You" Problem](/blog/entity-detection-the-you-problem/) through [Batch to Real-Time](/blog/entity-detection-batch-to-realtime/). The broadcast + scan pattern from Part 1 is developed in full there.
+
+---
+
+*Previous: [Sketches: Trading Precision for Scalability](/blog/mergeable-operations-sketches/)*
+
+*This is the final post in the Mergeable Operations in Distributed Computation series.*

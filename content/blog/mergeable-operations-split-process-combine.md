@@ -93,6 +93,14 @@ There's no trick that makes the median of the medians equal the global median. E
 
 ---
 
+## Try It Yourself
+
+Pick an operation, see data split across three machines, and watch whether the distributed result matches the centralized answer. **Sum, max, min, and count always work.** Mean and median don't — reshuffle the data a few times to see them fail.
+
+{{< interactive component="merge-explorer" >}}
+
+---
+
 ## The Mean Trick: Carrying More State
 
 The mean isn't naturally mergeable, but it can be *made* mergeable. The trick: instead of carrying just the mean, carry the `(sum, count)` pair:

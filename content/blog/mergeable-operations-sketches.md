@@ -130,6 +130,12 @@ If an item is in *either* filter, its bit positions are set in the merged filter
 
 **Why it matters**: Bloom filters are everywhere. Databases use them to avoid unnecessary disk reads. CDNs use them to decide which items to cache. Web crawlers use them to avoid re-visiting URLs. Network routers use them for packet classification. The merge operation means you can build per-partition filters and combine them — useful for distributed duplicate detection, where each machine tracks what it's seen and the merged filter represents what *anyone* has seen.
 
+### Try It: Bloom Filter
+
+Add words to two independent filters and watch the bit arrays fill up. Merge them with bitwise OR. Then check membership — try words that *aren't* in either filter to discover false positives.
+
+{{< interactive component="bloom-filter-demo" >}}
+
 ---
 
 ## T-Digest — "What's the Median?"
@@ -188,7 +194,7 @@ And there's a deeper point: every one of these merge operations is **trivially c
 
 ## The Trade-Off Is Usually Worth It
 
-There's an honest question here: is approximation actually good enough?
+There's a question here: is approximation actually good enough?
 
 For most applications, overwhelmingly yes.
 
@@ -211,5 +217,7 @@ Every sketch we've seen has an associative merge operation with an identity elem
 In the [next post](/blog/mergeable-operations-algebird/), we'll name it. We'll look at a library that takes this pattern and makes it a first-class abstraction: define the merge for your data type, and get distributed computation for free. It turns out the abstract algebra is not just theoretically elegant — it's the most practical tool in the distributed engineer's toolkit.
 
 ---
+
+*Previous: [Split, Process, Combine](/blog/mergeable-operations-split-process-combine/)*
 
 *Next: [When Abstract Algebra Becomes Practical](/blog/mergeable-operations-algebird/)*
