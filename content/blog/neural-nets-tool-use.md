@@ -206,4 +206,4 @@ In Part 7, we confront the most fundamental routing question: when should you us
 
 *Previous: [Adaptive Computation: Learning When to Think Harder](/blog/neural-nets-adaptive-computation/)*
 
-*Next: Programs That Write Programs (coming soon)*
+*Next: [Programs That Write Programs](/blog/neural-nets-neuro-symbolic/)*
