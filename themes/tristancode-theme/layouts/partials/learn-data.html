@@ -1,0 +1,13 @@
+{{/* Emits the ordered lesson index + config for learn.js. Included on every /learn/ page. */}}
+<script>
+window.LEARN = Object.assign(window.LEARN || {}, { buffer: 12 });
+window.LEARN.lessons = [
+{{- $solutions := where .Site.RegularPages "Params.role" "solution" -}}
+{{- range sort (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" -}}
+  {{- $n := .Params.lesson_number -}}
+  {{- $sol := "" -}}
+  {{- with where $solutions "Params.lesson_number" $n -}}{{- $sol = (index . 0).RelPermalink -}}{{- end }}
+  { "n": {{ $n }}, "title": {{ .Title }}, "url": {{ .RelPermalink }}, "solution": {{ if $sol }}{{ $sol }}{{ else }}null{{ end }} },
+{{- end }}
+];
+</script>

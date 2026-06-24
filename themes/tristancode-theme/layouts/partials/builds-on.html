@@ -1,0 +1,17 @@
+{{/* Renders backlinks to the lessons this one builds on. Each lesson is standalone, so this is "go deeper", not "required reading". */}}
+{{ with .Params.builds_on }}
+{{ $puzzles := where $.Site.RegularPages "Params.role" "puzzle" }}
+<nav class="learn-builds-on">
+  <p class="learn-builds-label">Builds on earlier lessons:</p>
+  <ul>
+    {{ range . }}
+      {{ $n := . }}
+      {{ with where $puzzles "Params.lesson_number" $n }}
+        {{ $p := index . 0 }}
+        <li><a href="{{ $p.RelPermalink }}">Lesson {{ $n }}: {{ $p.Title }}</a>{{ with $p.Params.concept }} <span class="learn-builds-concept">— {{ . }}</span>{{ end }}</li>
+      {{ end }}
+    {{ end }}
+  </ul>
+  <p class="learn-builds-note">New here? Every lesson re-explains the terms it uses, so you can start anywhere — these links just go deeper.</p>
+</nav>
+{{ end }}

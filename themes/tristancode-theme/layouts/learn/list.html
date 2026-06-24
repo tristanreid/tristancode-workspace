@@ -1,0 +1,25 @@
+{{ define "main" }}
+<section class="page-header">
+  <h1>{{ .Title }}</h1>
+  {{ with .Content }}<div class="page-description">{{ . }}</div>{{ end }}
+</section>
+
+<section class="learn-resume">
+  <a class="learn-btn learn-btn-lg" id="learn-resume-link" href="#" aria-live="polite">Loading your spot…</a>
+  <p class="learn-resume-note" id="learn-resume-note"></p>
+</section>
+
+<section class="learn-archive">
+  <h2>All lessons</h2>
+  <ol class="learn-archive-list">
+    {{ range sort (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" }}
+    <li data-lesson="{{ .Params.lesson_number }}">
+      <a href="{{ .RelPermalink }}"><span class="learn-archive-n">{{ printf "%03d" (int .Params.lesson_number) }}</span> {{ .Title }}</a>{{ with .Params.concept }}<span class="learn-archive-concept"> — {{ . }}</span>{{ end }}
+    </li>
+    {{ end }}
+  </ol>
+</section>
+
+{{ partial "learn-data.html" . }}
+<script src="{{ "js/learn/learn.js" | relURL }}" defer></script>
+{{ end }}

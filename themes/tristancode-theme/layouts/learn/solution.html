@@ -1,0 +1,27 @@
+{{ define "main" }}
+<article class="post learn-solution" data-lesson="{{ .Params.lesson_number }}">
+  <header class="post-header">
+    <p class="learn-eyebrow">Lesson {{ .Params.lesson_number }} · Solution{{ with .Params.concept }} · {{ . }}{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+  </header>
+
+  {{/* Back to the puzzle */}}
+  {{ with where (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" .Params.lesson_number }}
+    <p class="learn-backlink"><a href="{{ (index . 0).RelPermalink }}">← Back to the puzzle</a></p>
+  {{ end }}
+
+  <div class="post-content">
+    {{ .Content }}
+  </div>
+
+  {{ partial "builds-on.html" . }}
+
+  <section class="learn-complete">
+    <button type="button" class="learn-btn learn-mark-complete" data-lesson="{{ .Params.lesson_number }}">Mark complete &amp; go to next →</button>
+    <p class="learn-complete-note" hidden></p>
+  </section>
+
+  {{ partial "learn-data.html" . }}
+  <script src="{{ "js/learn/learn.js" | relURL }}" defer></script>
+</article>
+{{ end }}

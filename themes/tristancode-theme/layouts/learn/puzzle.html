@@ -1,0 +1,45 @@
+{{ define "main" }}
+<article class="post learn-puzzle" data-lesson="{{ .Params.lesson_number }}">
+  <header class="post-header">
+    <p class="learn-eyebrow">Lesson {{ .Params.lesson_number }}{{ with .Params.concept }} · {{ . }}{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+  </header>
+
+  {{ partial "builds-on.html" . }}
+
+  <div class="post-content">
+    {{ .Content }}
+  </div>
+
+  {{/* Resolve this lesson's solution page */}}
+  {{ $sol := "" }}
+  {{ with where (where .Site.RegularPages "Params.role" "solution") "Params.lesson_number" .Params.lesson_number }}
+    {{ $sol = (index . 0).RelPermalink }}
+  {{ end }}
+
+  {{ $type := .Params.answer_type | default "reveal" }}
+  <section class="learn-answer" data-answer-type="{{ $type }}" data-solution="{{ $sol }}">
+    {{ if eq $type "mcq" }}
+      {{ with .Params.mcq }}
+      <div class="learn-mcq" data-correct="{{ .correct }}">
+        <p class="learn-mcq-q">{{ .question }}</p>
+        <ol class="learn-mcq-options">
+          {{ range $i, $opt := .options }}
+          <li><button type="button" class="learn-mcq-opt" data-index="{{ $i }}">{{ $opt }}</button></li>
+          {{ end }}
+        </ol>
+        <p class="learn-mcq-feedback" hidden></p>
+      </div>
+      {{ end }}
+    {{ else }}
+      <p class="learn-reveal-prompt">Work out your answer first — then check it.</p>
+    {{ end }}
+    <div class="learn-answer-actions">
+      <a class="learn-btn learn-reveal" href="{{ $sol }}">Reveal the solution →</a>
+    </div>
+  </section>
+
+  {{ partial "learn-data.html" . }}
+  <script src="{{ "js/learn/learn.js" | relURL }}" defer></script>
+</article>
+{{ end }}

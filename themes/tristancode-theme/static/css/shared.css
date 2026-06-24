@@ -191,3 +191,95 @@ pre:hover .copy-btn {
   border-color: var(--accent, #6c5ce7);
   text-decoration: none;
 }
+
+/* ============================================
+   LEARN / PUZZLE PATH
+   ============================================ */
+.learn-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #888);
+  margin: 0 0 0.4rem;
+}
+
+.learn-btn {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  background: var(--accent, #2563eb);
+  color: #fff !important;
+  font-family: var(--font-sans, sans-serif);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.learn-btn:hover { background: var(--accent-hover, #1d4ed8); }
+.learn-btn:disabled { opacity: 0.6; cursor: default; }
+.learn-btn-lg { font-size: 1.05rem; padding: 0.8rem 1.4rem; }
+
+.learn-answer-actions { margin-top: 1.5rem; }
+.learn-reveal-prompt { color: var(--text-muted, #888); font-style: italic; }
+
+/* For multiple-choice puzzles, the solution link stays hidden until the
+   reader answers correctly; for reveal puzzles it is shown immediately. */
+.learn-answer[data-answer-type="mcq"] .learn-reveal { display: none; }
+.learn-answer[data-answer-type="mcq"] .learn-reveal.show { display: inline-block; }
+
+.learn-mcq {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  background: var(--bg-secondary, rgba(128,128,128,0.06));
+}
+.learn-mcq-q { font-weight: 600; margin: 0 0 0.8rem; }
+.learn-mcq-options { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.learn-mcq-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  background: var(--bg, #fff);
+  color: var(--text, #222);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.learn-mcq-opt:hover { border-color: var(--accent, #2563eb); }
+.learn-mcq-opt.selected { border-color: var(--accent, #2563eb); }
+.learn-mcq-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.12); }
+.learn-mcq-opt.incorrect { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+.learn-mcq-feedback { margin: 0.8rem 0 0; font-weight: 500; }
+
+.learn-builds-on {
+  margin: 1.2rem 0 2rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--accent, #2563eb);
+  background: var(--accent-glow, rgba(128,128,128,0.05));
+  border-radius: 0 8px 8px 0;
+}
+.learn-builds-label { font-weight: 600; margin: 0 0 0.4rem; font-size: 0.9rem; }
+.learn-builds-on ul { margin: 0; padding-left: 1.1rem; }
+.learn-builds-concept { color: var(--text-muted, #888); }
+.learn-builds-note { font-size: 0.85rem; color: var(--text-muted, #888); margin: 0.6rem 0 0; }
+
+.learn-backlink { margin: 0 0 1.5rem; }
+.learn-complete { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border, #ddd); }
+
+.learn-resume { margin: 1.5rem 0 2.5rem; }
+.learn-resume-note { color: var(--text-muted, #888); margin: 0.6rem 0 0; font-size: 0.9rem; }
+
+.learn-archive h2 { font-size: 1.2rem; }
+.learn-archive-list { list-style: none; padding: 0; }
+.learn-archive-list li { padding: 0.45rem 0; border-bottom: 1px solid var(--chalk-rule, rgba(128,128,128,0.12)); }
+.learn-archive-n { font-family: var(--font-mono, monospace); color: var(--text-muted, #888); font-size: 0.85rem; }
+.learn-archive-concept { color: var(--text-muted, #888); font-size: 0.92rem; }
+.learn-archive-list li.done .learn-archive-n::after { content: " ✓"; color: #22c55e; }
+.learn-archive-list li.current > a { font-weight: 700; }
