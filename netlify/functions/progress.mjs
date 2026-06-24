@@ -33,7 +33,10 @@ async function readRecord(store, token) {
 export default async (req) => {
   if (req.method === 'OPTIONS') return new Response('', { status: 204, headers: CORS });
 
-  const store = getStore(STORE);
+  // Strong consistency: a read always reflects the latest write. Without this,
+  // Blobs defaults to eventual consistency and a GET right after a POST can
+  // return a stale value for tens of seconds — wrong for live progress.
+  const store = getStore({ name: STORE, consistency: 'strong' });
 
   if (req.method === 'GET') {
     const token = new URL(req.url).searchParams.get('token');
