@@ -7,6 +7,13 @@
   # Pin Hugo version to match local development
   HUGO_VERSION = "0.155.2"
 
+# Serverless functions (progress tracking for the /learn/ puzzle path).
+# The function self-routes to /api/progress via its `config.path` export.
+# Netlify installs root package.json deps (@netlify/blobs) and bundles with esbuild.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Note: HTTP→HTTPS redirect is handled automatically by Netlify
 
 # Custom headers for caching and security

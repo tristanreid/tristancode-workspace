@@ -29,21 +29,49 @@
   }
   var TOKEN = resolveToken();
 
-  // --- progress backend (Phase A stub) ---
+  // --- progress backend ---
+  // A real token (from a ?u=<token> link) syncs via the API for cross-device
+  // resume. Without one ('local'), or if the network fails, we fall back to a
+  // localStorage cache so the path still works on a single device / offline.
+  var API = '/api/progress';
+  var useApi = TOKEN && TOKEN !== 'local';
+
   function progressKey() { return 'learn-progress:' + TOKEN; }
 
+  function readLocal() {
+    try { return parseInt(localStorage.getItem(progressKey()) || '0', 10) || 0; } catch (e) { return 0; }
+  }
+  function writeLocal(n) {
+    try { localStorage.setItem(progressKey(), String(n)); } catch (e) {}
+    return n;
+  }
+
   function getProgress() {
-    var n = 0;
-    try { n = parseInt(localStorage.getItem(progressKey()) || '0', 10) || 0; } catch (e) {}
-    return Promise.resolve(n);
+    var cached = readLocal();
+    if (!useApi) return Promise.resolve(cached);
+    return fetch(API + '?token=' + encodeURIComponent(TOKEN), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && typeof d.lastCompleted === 'number') {
+          // Never lose progress made offline on this device.
+          return writeLocal(Math.max(d.lastCompleted, cached));
+        }
+        return cached;
+      })
+      .catch(function () { return cached; });
   }
 
   function setComplete(n) {
-    return getProgress().then(function (cur) {
-      var next = Math.max(cur, n);
-      try { localStorage.setItem(progressKey(), String(next)); } catch (e) {}
-      return next;
-    });
+    var next = writeLocal(Math.max(readLocal(), n)); // optimistic, instant on this device
+    if (!useApi) return Promise.resolve(next);
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN, completed: n })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(d.lastCompleted) : next; })
+      .catch(function () { return next; });
   }
 
   function lessonByN(n) {

@@ -23,4 +23,9 @@ Standing preferences (edit freely):
 
 ---
 
-## (no dated feedback yet)
+## 2026-06-23
+- general: Lessons 1–6 felt too easy — that's fine/expected for the very beginning, but the path
+  should **ramp up** so puzzles become genuinely challenging as the sequence progresses. Don't linger
+  on trivial material; by mid–Stage 2 and into Stage 3 (HOFs from scratch, ADTs, folds) the puzzles
+  should require real thought, and later stages (parallel combinators, continuations, affine) should
+  be hard. Bias toward "slightly too hard" over "too easy" once past the warm-up.

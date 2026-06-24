@@ -1,0 +1,10 @@
+{
+  "name": "tristancode-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Dependencies for Netlify Functions (the site itself is built by Hugo).",
+  "dependencies": {
+    "@netlify/blobs": "^10.7.9"
+  }
+}
