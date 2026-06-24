@@ -84,9 +84,12 @@
     return '/learn/';
   }
 
-  // --- landing page: resume button + archive markers ---
+  // --- landing page: resume button, archive markers, sync bookmark ---
   var resumeLink = document.getElementById('learn-resume-link');
-  if (resumeLink) {
+  var syncEl = document.getElementById('learn-sync');
+
+  function renderResume() {
+    if (!resumeLink) return;
     getProgress().then(function (done) {
       var note = document.getElementById('learn-resume-note');
       var current = lessonByN(done + 1);
@@ -107,10 +110,74 @@
       var items = document.querySelectorAll('.learn-archive-list li');
       for (var i = 0; i < items.length; i++) {
         var n = parseInt(items[i].getAttribute('data-lesson'), 10);
+        items[i].classList.remove('done', 'current');
         if (n <= done) items[i].classList.add('done');
         else if (n === done + 1) items[i].classList.add('current');
       }
     });
+  }
+
+  // --- sync bookmark: a login-free way to carry progress across devices ---
+  function originLearnBase() { return window.location.origin + learnHomeUrl(); }
+
+  function genToken() {
+    var bytes = new Uint8Array(16);
+    if (window.crypto && window.crypto.getRandomValues) {
+      window.crypto.getRandomValues(bytes);
+    } else {
+      for (var i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    }
+    var s = '';
+    for (var j = 0; j < bytes.length; j++) s += String.fromCharCode(bytes[j]);
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function renderSync() {
+    if (!syncEl) return;
+    syncEl.hidden = false;
+    if (useApi) {
+      var url = originLearnBase() + '?u=' + encodeURIComponent(TOKEN);
+      syncEl.innerHTML =
+        '<h2>Your sync bookmark</h2>' +
+        '<p>Open this link on your phone, tablet, or any other computer, and bookmark it there. Your place in the path stays in sync across every device that uses it — no account, no login.</p>' +
+        '<div class="learn-sync-url"><input type="text" id="learn-sync-input" readonly></div>' +
+        '<button type="button" class="learn-btn" id="learn-sync-copy">Copy link</button>' +
+        '<p class="learn-sync-note">Treat this like a private bookmark — anyone who has the link can see and change your progress. Misplaced it? Just make a new one; your progress on this device is saved here regardless.</p>';
+      var input = document.getElementById('learn-sync-input');
+      input.value = url;
+      var copyBtn = document.getElementById('learn-sync-copy');
+      copyBtn.addEventListener('click', function () {
+        input.focus();
+        input.select();
+        var done = function () { copyBtn.textContent = 'Copied!'; setTimeout(function () { copyBtn.textContent = 'Copy link'; }, 2000); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(input.value).then(done, function () { try { document.execCommand('copy'); done(); } catch (e) {} });
+        } else { try { document.execCommand('copy'); done(); } catch (e) {} }
+      });
+    } else {
+      syncEl.innerHTML =
+        '<h2>Sync across your devices</h2>' +
+        '<p>Right now your progress lives only in this browser. Create a private bookmark link and your place will follow you to your phone, tablet, and other computers — no account or login needed.</p>' +
+        '<button type="button" class="learn-btn" id="learn-sync-create">Create a sync bookmark</button>';
+      document.getElementById('learn-sync-create').addEventListener('click', createSyncBookmark);
+    }
+  }
+
+  function createSyncBookmark() {
+    var carried = readLocal(); // progress so far under the current (anonymous) token
+    var newToken = genToken();
+    try { localStorage.setItem('learn-token', newToken); } catch (e) {}
+    TOKEN = newToken;
+    useApi = true;
+    writeLocal(carried);              // copy progress under the new token's key
+    if (carried > 0) setComplete(carried); // seed the server so other devices see it
+    renderSync();
+    renderResume();
+  }
+
+  if (resumeLink || syncEl) {
+    renderResume();
+    renderSync();
   }
 
   // --- puzzle page: multiple-choice interaction ---
