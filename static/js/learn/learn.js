@@ -74,6 +74,21 @@
       .catch(function () { return next; });
   }
 
+  // Explicit override (the "Start from this lesson" button): set the pointer
+  // to exactly `n` — may move it down, unlike setComplete's high-water advance.
+  function setPosition(n) {
+    var v = writeLocal(Math.max(0, n));
+    if (!useApi) return Promise.resolve(v);
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN, set: v })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(d.lastCompleted) : v; })
+      .catch(function () { return v; });
+  }
+
   function lessonByN(n) {
     for (var i = 0; i < lessons.length; i++) { if (lessons[i].n === n) return lessons[i]; }
     return null;
@@ -178,6 +193,18 @@
   if (resumeLink || syncEl) {
     renderResume();
     renderSync();
+  }
+
+  // --- "Start from this lesson": move the resume pointer here (up or down) ---
+  var setCurrentBtn = document.querySelector('.learn-set-current');
+  if (setCurrentBtn) {
+    setCurrentBtn.addEventListener('click', function () {
+      var n = parseInt(setCurrentBtn.getAttribute('data-lesson'), 10);
+      setCurrentBtn.disabled = true;
+      setPosition(n - 1).then(function () { // n-1 completed → lesson n becomes current
+        setCurrentBtn.textContent = '✓ This is now your current lesson';
+      });
+    });
   }
 
   // --- puzzle page: multiple-choice interaction ---

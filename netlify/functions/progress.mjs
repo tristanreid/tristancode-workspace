@@ -49,12 +49,21 @@ export default async (req) => {
       return json({ error: 'invalid json body' }, 400);
     }
     const token = body && body.token;
-    const completed = parseInt(body && body.completed, 10);
-    if (!token || Number.isNaN(completed)) {
-      return json({ error: 'missing token or completed' }, 400);
-    }
+    if (!token) return json({ error: 'missing token' }, 400);
+
     const current = await readRecord(store, token);
-    const next = Math.max(current, completed);
+    let next;
+    if (body.set !== undefined && body.set !== null) {
+      // Explicit override (the "Start from this lesson" button) — may move down.
+      const s = parseInt(body.set, 10);
+      if (Number.isNaN(s)) return json({ error: 'invalid set' }, 400);
+      next = Math.max(0, s);
+    } else {
+      // Normal advance ("Mark complete") — high-water mark, never regresses.
+      const completed = parseInt(body.completed, 10);
+      if (Number.isNaN(completed)) return json({ error: 'missing completed or set' }, 400);
+      next = Math.max(current, completed);
+    }
     await store.setJSON(token, { lastCompleted: next, updated: new Date().toISOString() });
     return json({ lastCompleted: next });
   }

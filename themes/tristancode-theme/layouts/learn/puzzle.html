@@ -5,6 +5,10 @@
     <h1>{{ .Title }}</h1>
   </header>
 
+  <p class="learn-set-current-wrap">
+    <button type="button" class="learn-set-current" data-lesson="{{ .Params.lesson_number }}" title="Make this the lesson your Start/Resume button opens — handy for jumping ahead or going back to redo earlier lessons.">Start from this lesson</button>
+  </p>
+
   {{ partial "builds-on.html" . }}
 
   <div class="post-content">

@@ -270,6 +270,21 @@ pre:hover .copy-btn {
 .learn-builds-concept { color: var(--text-muted, #888); }
 .learn-builds-note { font-size: 0.85rem; color: var(--text-muted, #888); margin: 0.6rem 0 0; }
 
+.learn-set-current-wrap { margin: 0 0 1.4rem; }
+.learn-set-current {
+  font-size: 0.82rem;
+  color: var(--text-muted, #888);
+  background: transparent;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-sans, sans-serif);
+  transition: border-color 0.15s, color 0.15s;
+}
+.learn-set-current:hover { border-color: var(--accent, #2563eb); color: var(--accent, #2563eb); }
+.learn-set-current:disabled { cursor: default; border-color: #22c55e; color: #22c55e; }
+
 .learn-backlink { margin: 0 0 1.5rem; }
 .learn-complete { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border, #ddd); }
 
