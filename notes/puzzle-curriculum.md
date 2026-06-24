@@ -40,26 +40,26 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 ### Stage 0 — Foundations of the functional mindset
 - [x] L1 Pure functions (output depends only on inputs; no side effects) — `mcq`
 - [x] L2 Immutability & expressions vs statements (build new values, don't mutate) — `mcq`
-- [ ] L3-slot Referential transparency & substitution (replace a call with its result) — `mcq`/`reveal`
-- [ ] Side effects at the edges (why pushing effects to the boundary helps)
+- [x] L7 Referential transparency & substitution (replace a call with its result) — `mcq`
+- [x] L8 Side effects at the edges (why pushing effects to the boundary helps) — `reveal`
 
 ### Stage 1 — Recursion over lists
 - [x] L3 Recursion basics: sum a list (base case + recursive case) — `reveal`
 - [x] L4 Last element (two-branch base: empty vs single) — `reveal`
 - [x] L5 Length recursively (counting; teaser: accumulators) — `mcq`
 - [x] L6 Reverse (naive O(n²) vs accumulator O(n); efficiency teaser) — `reveal`
-- [ ] Membership / find; map-by-hand (transform each element)
-- [ ] Filter-by-hand; take / drop / nth
-- [ ] Flatten a nested list (recursion that recurses on both head and tail)
-- [ ] Accumulator pattern & tail recursion proper (constant stack)
+- [x] L9 Membership / find; map-by-hand (transform each element) — `reveal`
+- [x] L10 Filter-by-hand; take / drop / nth — `reveal`
+- [x] L11 Flatten a nested list (recursion that recurses on both head and tail) — `reveal`
+- [x] L12 Accumulator pattern & tail recursion proper (constant stack) — `reveal`
 
 ### Stage 2 — Higher-order functions & closures
-- [ ] Functions as values; passing a function in
-- [ ] Build `map` from scratch; then `filter`
-- [ ] Build `reduce`/`foldLeft` from scratch — the universal list consumer
-- [ ] Closures: a function that captures its environment (counter/adder factory)
-- [ ] Partial application & currying; function composition
-- [ ] `reduce` reconstructs map/filter/sum — one combinator to rule lists
+- [x] L13 Functions as values; passing a function in — `mcq`
+- [x] L14 Build `map` from scratch; then `filter` — `reveal`
+- [x] L15 Build `reduce`/`foldLeft` from scratch — the universal list consumer — `reveal`
+- [x] L16 Closures: a function that captures its environment (counter/adder factory) — `mcq`
+- [x] L17 Partial application & currying; function composition — `reveal`
+- [x] L18 `reduce` reconstructs map/filter/sum — one combinator to rule lists — `reveal`
 
 ### Stage 3 — Algebraic data types, pattern matching, trees, folds
 - [ ] What an ADT is (sum types / "one of"; product types / "all of") with a neutral encoding
@@ -103,5 +103,5 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 
 ## Generation marker
 
-`last_generated_lesson: 6`
+`last_generated_lesson: 18`
 (The generator updates this after each run. New lessons continue the next unchecked item, in order.)
