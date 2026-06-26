@@ -62,12 +62,12 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 - [x] L18 `reduce` reconstructs map/filter/sum — one combinator to rule lists — `reveal`
 
 ### Stage 3 — Algebraic data types, pattern matching, trees, folds
-- [ ] What an ADT is (sum types / "one of"; product types / "all of") with a neutral encoding
-- [ ] Pattern matching as structured case analysis (vs if/else + accessors)
-- [ ] Model a binary tree as an ADT; size & depth by recursion
-- [ ] Mirror a tree; sum a tree
-- [ ] **Fold as elimination**: a fold is a recursive `match` that consumes a structure
-- [ ] "Choose the representation, then erase it with a fold"
+- [x] L19 What an ADT is (sum types / "one of"; product types / "all of") with a neutral encoding
+- [x] L20 Pattern matching as structured case analysis (vs if/else + accessors)
+- [x] L21 Model a binary tree as an ADT; size & depth by recursion
+- [x] L22 Mirror a tree; sum a tree
+- [x] L23 **Fold as elimination**: a fold is a recursive `match` that consumes a structure
+- [x] L24 "Choose the representation, then erase it with a fold"
 
 ### Stage 4 — Building data (the dual of folding)
 - [ ] Unfold: generate a structure from a seed (range, repeat)
@@ -103,5 +103,5 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 
 ## Generation marker
 
-`last_generated_lesson: 18`
+`last_generated_lesson: 24`
 (The generator updates this after each run. New lessons continue the next unchecked item, in order.)
