@@ -70,14 +70,14 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 - [x] L24 "Choose the representation, then erase it with a fold"
 
 ### Stage 4 — Building data (the dual of folding)
-- [ ] Unfold: generate a structure from a seed (range, repeat)
-- [ ] Build a tree top-down from a seed (the `bend`-style pure recursive loop)
-- [ ] Fold ∘ unfold; why "build then consume" is a clean mental model
+- [x] L25 Unfold: generate a structure from a seed (range, repeat)
+- [x] L26 Build a tree top-down from a seed (the `bend`-style pure recursive loop)
+- [x] L27 Fold ∘ unfold; why "build then consume" is a clean mental model
 
 ### Stage 5 — Evaluation strategy as a tool
-- [ ] Eager vs lazy evaluation (when is the argument computed?)
-- [ ] Infinite structures via laziness (lazy naturals / streams)
-- [ ] Runaway recursion: why an eager recursive definition can expand forever
+- [x] L28 Eager vs lazy evaluation (when is the argument computed?)
+- [x] L29 Infinite structures via laziness (lazy naturals / streams)
+- [x] L30 Runaway recursion: why an eager recursive definition can expand forever
 - [ ] Tail calls & why some languages need accumulators to avoid stack blowups
 - [ ] Sharing vs recomputation; spotting duplicated work
 
@@ -103,5 +103,5 @@ several lessons in a day, so the path must stay correct and well-ordered rather 
 
 ## Generation marker
 
-`last_generated_lesson: 24`
+`last_generated_lesson: 30`
 (The generator updates this after each run. New lessons continue the next unchecked item, in order.)
