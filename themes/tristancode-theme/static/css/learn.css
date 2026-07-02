@@ -1,0 +1,146 @@
+/* Synced from daily-learning-puzzles — edit here, then run scripts/sync-web.sh.
+   Loaded site-wide by the theme's baseof.html; all rules are scoped to .learn-*. */
+
+/* ============================================
+   LEARN / PUZZLE PATH
+   ============================================ */
+.learn-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #888);
+  margin: 0 0 0.4rem;
+}
+
+.learn-btn {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  background: var(--accent, #2563eb);
+  color: #fff !important;
+  font-family: var(--font-sans, sans-serif);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.learn-btn:hover { background: var(--accent-hover, #1d4ed8); }
+.learn-btn:disabled { opacity: 0.6; cursor: default; }
+.learn-btn-lg { font-size: 1.05rem; padding: 0.8rem 1.4rem; }
+
+.learn-answer-actions { margin-top: 1.5rem; }
+.learn-reveal-prompt { color: var(--text-muted, #888); font-style: italic; }
+
+/* For multiple-choice puzzles, the solution link stays hidden until the
+   reader answers correctly; for reveal puzzles it is shown immediately. */
+.learn-answer[data-answer-type="mcq"] .learn-reveal { display: none; }
+.learn-answer[data-answer-type="mcq"] .learn-reveal.show { display: inline-block; }
+
+.learn-mcq {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  background: var(--bg-secondary, rgba(128,128,128,0.06));
+}
+.learn-mcq-q { font-weight: 600; margin: 0 0 0.8rem; }
+.learn-mcq-options { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.learn-mcq-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  background: var(--bg, #fff);
+  color: var(--text, #222);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.learn-mcq-opt:hover { border-color: var(--accent, #2563eb); }
+/* Some options are code — break long tokens instead of overflowing on narrow screens. */
+.learn-mcq-opt { overflow-wrap: anywhere; word-break: break-word; }
+.learn-mcq-opt.selected { border-color: var(--accent, #2563eb); }
+.learn-mcq-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.12); }
+.learn-mcq-opt.incorrect { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+.learn-mcq-feedback { margin: 0.8rem 0 0; font-weight: 500; }
+
+.learn-builds-on {
+  margin: 1.2rem 0 2rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--accent, #2563eb);
+  background: var(--accent-glow, rgba(128,128,128,0.05));
+  border-radius: 0 8px 8px 0;
+}
+.learn-builds-label { font-weight: 600; margin: 0 0 0.4rem; font-size: 0.9rem; }
+.learn-builds-on ul { margin: 0; padding-left: 1.1rem; }
+.learn-builds-concept { color: var(--text-muted, #888); }
+.learn-builds-note { font-size: 0.85rem; color: var(--text-muted, #888); margin: 0.6rem 0 0; }
+
+.learn-set-current-wrap { margin: 0 0 1.4rem; }
+.learn-set-current {
+  font-size: 0.82rem;
+  color: var(--text-muted, #888);
+  background: transparent;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-sans, sans-serif);
+  transition: border-color 0.15s, color 0.15s;
+}
+.learn-set-current:hover { border-color: var(--accent, #2563eb); color: var(--accent, #2563eb); }
+.learn-set-current:disabled { cursor: default; border-color: #22c55e; color: #22c55e; }
+
+.learn-backlink { margin: 0 0 1.5rem; }
+.learn-complete { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border, #ddd); }
+
+.learn-resume { margin: 1.5rem 0 1.5rem; }
+.learn-resume-note { color: var(--text-muted, #888); margin: 0.6rem 0 0; font-size: 0.9rem; }
+
+.learn-sync {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  background: var(--bg-secondary, rgba(128,128,128,0.06));
+}
+.learn-sync h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+.learn-sync p { margin: 0 0 0.8rem; font-size: 0.95rem; }
+.learn-sync-url { margin: 0 0 0.7rem; }
+.learn-sync-url input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: var(--text, #222);
+  background: var(--bg, #fff);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+}
+.learn-sync-note { color: var(--text-muted, #888); font-size: 0.85rem; margin: 0.8rem 0 0 !important; }
+
+.learn-archive h2 { font-size: 1.2rem; }
+.learn-archive-list { list-style: none; padding: 0; }
+.learn-archive-list li { padding: 0.45rem 0; border-bottom: 1px solid var(--chalk-rule, rgba(128,128,128,0.12)); }
+.learn-archive-n { font-family: var(--font-mono, monospace); color: var(--text-muted, #888); font-size: 0.85rem; }
+.learn-archive-concept { color: var(--text-muted, #888); font-size: 0.92rem; }
+.learn-archive-list li.done .learn-archive-n::after { content: " ✓"; color: #22c55e; }
+.learn-archive-list li.current > a { font-weight: 700; }
+
+/* --- Learn: phone tweaks --- */
+@media (max-width: 640px) {
+  .learn-btn-lg { display: block; text-align: center; font-size: 1rem; padding: 0.8rem 1rem; }
+  .learn-mcq { padding: 1rem; }
+  .learn-mcq-opt { padding: 0.7rem 0.8rem; }      /* a touch taller for tapping */
+  .learn-builds-on { padding: 0.8rem 0.9rem; }
+  .learn-sync { padding: 1rem; }
+  .learn-sync-url input { font-size: 0.78rem; }
+  .learn-sync-note { font-size: 0.8rem; }
+  /* Stack the lesson title and its concept on their own lines. */
+  .learn-archive-concept { display: block; margin-left: 1.7rem; }
+}

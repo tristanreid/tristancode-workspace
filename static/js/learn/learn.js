@@ -1,3 +1,4 @@
+// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. 
 /* Learn / puzzle-path client.
  *
  * Phase A: progress is stored in localStorage (per device).

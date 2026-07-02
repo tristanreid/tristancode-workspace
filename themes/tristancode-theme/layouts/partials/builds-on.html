@@ -1,3 +1,4 @@
+{{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
 {{/* Renders backlinks to the lessons this one builds on. Each lesson is standalone, so this is "go deeper", not "required reading". */}}
 {{ with .Params.builds_on }}
 {{ $puzzles := where $.Site.RegularPages "Params.role" "puzzle" }}

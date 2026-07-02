@@ -1,3 +1,4 @@
+// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. 
 // Tracks each learner's spot in the /learn/ puzzle path.
 //
 // Storage: Netlify Blobs (a built-in key/value store). One JSON record per token:
