@@ -17,8 +17,25 @@
 
   {{ partial "builds-on.html" . }}
 
+  {{ with .Params.resources }}
+  <aside class="learn-resources">
+    <p class="learn-resources-label">Go deeper</p>
+    <ul>
+      {{ range . }}
+      <li><a href="{{ .url }}" target="_blank" rel="noopener">{{ .title }}</a>{{ with .note }} — <span class="learn-resources-note">{{ . }}</span>{{ end }}</li>
+      {{ end }}
+    </ul>
+  </aside>
+  {{ end }}
+
   <section class="learn-complete">
-    <button type="button" class="learn-btn learn-mark-complete" data-lesson="{{ .Params.lesson_number }}">Mark complete &amp; go to next →</button>
+    <p class="learn-rate-label">How was this one? Any answer marks it complete and moves on — your rating shapes future lessons.</p>
+    <div class="learn-rate-group">
+      <button type="button" class="learn-rate" data-rating="easy" data-lesson="{{ .Params.lesson_number }}">Too easy</button>
+      <button type="button" class="learn-rate" data-rating="good" data-lesson="{{ .Params.lesson_number }}">About right</button>
+      <button type="button" class="learn-rate" data-rating="hard" data-lesson="{{ .Params.lesson_number }}">Struggled</button>
+      <button type="button" class="learn-rate" data-rating="fail" data-lesson="{{ .Params.lesson_number }}">Didn&rsquo;t get it</button>
+    </div>
     <p class="learn-complete-note" hidden></p>
   </section>
 

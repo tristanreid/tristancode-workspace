@@ -36,6 +36,34 @@
         <p class="learn-mcq-feedback" hidden></p>
       </div>
       {{ end }}
+    {{ else if eq $type "numeric" }}
+      {{ with .Params.numeric }}
+      <div class="learn-numeric" data-answer="{{ .answer }}" data-tolerance="{{ .tolerance | default 0 }}">
+        {{ with .question }}<p class="learn-numeric-q">{{ . }}</p>{{ end }}
+        <div class="learn-numeric-row">
+          <input type="text" inputmode="decimal" autocomplete="off" class="learn-numeric-input" aria-label="Your numeric answer" placeholder="Your answer">
+          {{ with .unit }}<span class="learn-numeric-unit">{{ . }}</span>{{ end }}
+          <button type="button" class="learn-btn learn-numeric-check">Check</button>
+        </div>
+        <p class="learn-numeric-feedback" hidden></p>
+      </div>
+      {{ end }}
+    {{ else if eq $type "estimate" }}
+      {{ with .Params.estimate }}
+      <div class="learn-estimate" data-answer="{{ .answer }}">
+        {{ with .prompt }}<p class="learn-estimate-q">{{ . }}</p>{{ end }}
+        <p class="learn-estimate-hint">Give your best guess plus a range you're 90% sure contains
+          the true value{{ with .unit }} (in {{ . }}){{ end }}. There's no wrong interval — the point
+          is finding out how well-calibrated you are.</p>
+        <div class="learn-estimate-grid">
+          <label>Low (5%)<input type="text" inputmode="decimal" autocomplete="off" class="learn-est-low"></label>
+          <label>Best guess<input type="text" inputmode="decimal" autocomplete="off" class="learn-est-point"></label>
+          <label>High (95%)<input type="text" inputmode="decimal" autocomplete="off" class="learn-est-high"></label>
+        </div>
+        <button type="button" class="learn-btn learn-estimate-lock">Lock it in</button>
+        <p class="learn-estimate-feedback" hidden></p>
+      </div>
+      {{ end }}
     {{ else }}
       <p class="learn-reveal-prompt">Work out your answer first — then check it.</p>
     {{ end }}

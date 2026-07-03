@@ -1,18 +1,30 @@
-// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. 
-// Tracks each learner's spot in the /learn/ puzzle path.
+// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh.
+// Tracks each learner's spot in the /learn/ puzzle path, plus answer outcomes.
 //
 // Storage: Netlify Blobs (a built-in key/value store). One JSON record per token:
 //   key = token (a long random id that lives in the bookmarkable ?u=<token> URL)
-//   val = { lastCompleted: <number>, updated: <iso8601> }
+//   val = { version: 2, lastCompleted: <number>, updated: <iso8601>, events: [...] }
+// v1 records ({ lastCompleted, updated }) are read compatibly and upgraded on
+// the next write.
 //
-// GET  /api/progress?token=T           -> { lastCompleted }
-// POST /api/progress  {token, completed}-> { lastCompleted }   (server keeps the max)
+// Events are small outcome records the client logs per answer interaction
+// (mcq first-try, numeric attempts, estimate hit/miss, difficulty rating).
+// The weekly generator reads them to adapt difficulty; see PROPOSAL.md Part 4.
 //
-// The token is a bearer credential: anyone with it can read/bump that one counter.
-// That's acceptable for low-stakes learning progress. Use a long random token.
+// GET  /api/progress?token=T            -> { lastCompleted }
+// GET  /api/progress?token=T&full=1     -> the whole record (for the routine)
+// POST /api/progress {token, completed} -> { lastCompleted }  (server keeps the max)
+// POST /api/progress {token, set}       -> { lastCompleted }  (explicit override)
+// POST /api/progress {token, event}     -> { lastCompleted }  (append an outcome event)
+//
+// The token is a bearer credential: anyone with it can read/write that one
+// record. That's acceptable for low-stakes learning progress. Use a long
+// random token.
 import { getStore } from '@netlify/blobs';
 
 const STORE = 'learn-progress';
+const MAX_EVENTS = 400; // oldest events drop off; per-tag aggregation is a later phase
+const MAX_EVENT_BYTES = 1024;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -26,9 +38,15 @@ const json = (obj, status = 200) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...CORS },
   });
 
+// Normalize whatever is stored (v1 or v2, or nothing) into a v2 record.
 async function readRecord(store, token) {
   const rec = await store.get(token, { type: 'json' });
-  return rec && typeof rec.lastCompleted === 'number' ? rec.lastCompleted : 0;
+  return {
+    version: 2,
+    lastCompleted: rec && typeof rec.lastCompleted === 'number' ? rec.lastCompleted : 0,
+    updated: (rec && rec.updated) || null,
+    events: rec && Array.isArray(rec.events) ? rec.events : [],
+  };
 }
 
 export default async (req) => {
@@ -40,9 +58,12 @@ export default async (req) => {
   const store = getStore({ name: STORE, consistency: 'strong' });
 
   if (req.method === 'GET') {
-    const token = new URL(req.url).searchParams.get('token');
+    const url = new URL(req.url);
+    const token = url.searchParams.get('token');
     if (!token) return json({ error: 'missing token' }, 400);
-    return json({ lastCompleted: await readRecord(store, token) });
+    const rec = await readRecord(store, token);
+    if (url.searchParams.get('full')) return json(rec);
+    return json({ lastCompleted: rec.lastCompleted });
   }
 
   if (req.method === 'POST') {
@@ -55,21 +76,41 @@ export default async (req) => {
     const token = body && body.token;
     if (!token) return json({ error: 'missing token' }, 400);
 
-    const current = await readRecord(store, token);
-    let next;
+    const rec = await readRecord(store, token);
+    let changed = false;
+
+    if (body.event !== undefined && body.event !== null) {
+      if (typeof body.event !== 'object' || Array.isArray(body.event)) {
+        return json({ error: 'invalid event' }, 400);
+      }
+      const evt = { ...body.event, ts: new Date().toISOString() };
+      if (JSON.stringify(evt).length > MAX_EVENT_BYTES) {
+        return json({ error: 'event too large' }, 400);
+      }
+      rec.events.push(evt);
+      if (rec.events.length > MAX_EVENTS) rec.events = rec.events.slice(-MAX_EVENTS);
+      changed = true;
+    }
+
     if (body.set !== undefined && body.set !== null) {
       // Explicit override (the "Start from this lesson" button) — may move down.
       const s = parseInt(body.set, 10);
       if (Number.isNaN(s)) return json({ error: 'invalid set' }, 400);
-      next = Math.max(0, s);
-    } else {
+      rec.lastCompleted = Math.max(0, s);
+      changed = true;
+    } else if (body.completed !== undefined && body.completed !== null) {
       // Normal advance ("Mark complete") — high-water mark, never regresses.
       const completed = parseInt(body.completed, 10);
-      if (Number.isNaN(completed)) return json({ error: 'missing completed or set' }, 400);
-      next = Math.max(current, completed);
+      if (Number.isNaN(completed)) return json({ error: 'invalid completed' }, 400);
+      rec.lastCompleted = Math.max(rec.lastCompleted, completed);
+      changed = true;
     }
-    await store.setJSON(token, { lastCompleted: next, updated: new Date().toISOString() });
-    return json({ lastCompleted: next });
+
+    if (!changed) return json({ error: 'missing completed, set, or event' }, 400);
+
+    rec.updated = new Date().toISOString();
+    await store.setJSON(token, rec);
+    return json({ lastCompleted: rec.lastCompleted });
   }
 
   return json({ error: 'method not allowed' }, 405);

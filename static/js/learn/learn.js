@@ -90,6 +90,26 @@
       .catch(function () { return v; });
   }
 
+  // --- outcome logging -----------------------------------------------------
+  // Fire-and-forget: each answer interaction posts a small event record that
+  // the weekly generator reads to adapt difficulty (see PROPOSAL.md Part 4).
+  // Without a sync token there is no server record to append to, so we skip.
+  function logEvent(evt) {
+    if (!useApi) return;
+    try {
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: TOKEN, event: evt })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
+  function pageLesson() {
+    var el = document.querySelector('article.learn-puzzle, article.learn-solution');
+    return el ? parseInt(el.getAttribute('data-lesson'), 10) : 0;
+  }
+
   function lessonByN(n) {
     for (var i = 0; i < lessons.length; i++) { if (lessons[i].n === n) return lessons[i]; }
     return null;
@@ -216,15 +236,22 @@
     var feedback = mcq.querySelector('.learn-mcq-feedback');
     var revealBtn = answerSection.querySelector('.learn-reveal');
     var opts = mcq.querySelectorAll('.learn-mcq-opt');
+    var mcqAttempts = 0;
+    var mcqLogged = false;
     for (var k = 0; k < opts.length; k++) {
       opts[k].addEventListener('click', function () {
         var idx = parseInt(this.getAttribute('data-index'), 10);
         for (var j = 0; j < opts.length; j++) { opts[j].classList.remove('selected'); }
         this.classList.add('selected');
+        if (!mcqLogged) mcqAttempts++;
         if (idx === correct) {
           this.classList.add('correct');
           if (feedback) { feedback.textContent = 'Correct. Read the full explanation on the solution page.'; feedback.hidden = false; }
           if (revealBtn) revealBtn.classList.add('show');
+          if (!mcqLogged) {
+            mcqLogged = true;
+            logEvent({ n: pageLesson(), kind: 'mcq', attempts: mcqAttempts, firstTry: mcqAttempts === 1 });
+          }
         } else {
           this.classList.remove('correct');
           this.classList.add('incorrect');
@@ -234,17 +261,116 @@
     }
   }
 
-  // --- solution page: mark complete and advance ---
-  var markBtn = document.querySelector('.learn-mark-complete');
-  if (markBtn) {
-    markBtn.addEventListener('click', function () {
-      var n = parseInt(markBtn.getAttribute('data-lesson'), 10);
-      markBtn.disabled = true;
-      markBtn.textContent = 'Saved ✓';
-      setComplete(n).then(function () {
-        var next = lessonByN(n + 1);
-        window.location.href = next ? next.url : learnHomeUrl();
-      });
+  // --- puzzle page: numeric answer (tolerance-checked) ---
+  var numeric = document.querySelector('.learn-numeric');
+  if (numeric && answerSection) {
+    var nAnswer = parseFloat(numeric.getAttribute('data-answer'));
+    var nTol = parseFloat(numeric.getAttribute('data-tolerance')) || 0;
+    var nInput = numeric.querySelector('.learn-numeric-input');
+    var nCheck = numeric.querySelector('.learn-numeric-check');
+    var nFeedback = numeric.querySelector('.learn-numeric-feedback');
+    var nReveal = answerSection.querySelector('.learn-reveal');
+    var nAttempts = 0;
+    var nDone = false;
+    var nUnlocked = false;
+
+    function numericFeedback(msg, cls) {
+      if (!nFeedback) return;
+      nFeedback.textContent = msg;
+      nFeedback.classList.remove('correct', 'incorrect');
+      if (cls) nFeedback.classList.add(cls);
+      nFeedback.hidden = false;
+    }
+
+    function checkNumeric() {
+      if (nDone) return;
+      var v = parseFloat(nInput.value.replace(/,/g, '').trim());
+      if (isNaN(v)) { numericFeedback('Enter a number first.', null); return; }
+      nAttempts++;
+      if (Math.abs(v - nAnswer) <= nTol) {
+        nDone = true;
+        numeric.classList.add('done');
+        numericFeedback('Correct. Read the full explanation on the solution page.', 'correct');
+        if (nReveal) nReveal.classList.add('show');
+        logEvent({ n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: true });
+      } else if (nAttempts >= 3 && !nUnlocked) {
+        // Numeric answers can't be brute-forced like mcq — after three honest
+        // misses, unlock the solution rather than leaving the reader stuck.
+        nUnlocked = true;
+        numericFeedback('Not quite. The solution is unlocked below — or keep trying.', 'incorrect');
+        if (nReveal) nReveal.classList.add('show');
+        logEvent({ n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: false });
+      } else {
+        numericFeedback('Not quite — check your reasoning and try again.', 'incorrect');
+      }
+    }
+
+    if (nCheck) nCheck.addEventListener('click', checkNumeric);
+    if (nInput) nInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); checkNumeric(); }
     });
+  }
+
+  // --- puzzle page: estimate (calibration) answer ---
+  var est = document.querySelector('.learn-estimate');
+  if (est && answerSection) {
+    var truth = parseFloat(est.getAttribute('data-answer'));
+    var eLow = est.querySelector('.learn-est-low');
+    var ePoint = est.querySelector('.learn-est-point');
+    var eHigh = est.querySelector('.learn-est-high');
+    var eLock = est.querySelector('.learn-estimate-lock');
+    var eFeedback = est.querySelector('.learn-estimate-feedback');
+    var eReveal = answerSection.querySelector('.learn-reveal');
+
+    function estFeedback(msg, cls) {
+      if (!eFeedback) return;
+      eFeedback.textContent = msg;
+      eFeedback.classList.remove('hit', 'miss');
+      if (cls) eFeedback.classList.add(cls);
+      eFeedback.hidden = false;
+    }
+
+    if (eLock) eLock.addEventListener('click', function () {
+      var low = parseFloat(eLow.value.replace(/,/g, '').trim());
+      var point = parseFloat(ePoint.value.replace(/,/g, '').trim());
+      var high = parseFloat(eHigh.value.replace(/,/g, '').trim());
+      if (isNaN(low) || isNaN(point) || isNaN(high)) { estFeedback('Fill in all three numbers first.', null); return; }
+      if (!(low <= point && point <= high)) { estFeedback('Your interval should satisfy low ≤ best guess ≤ high.', null); return; }
+      var hit = truth >= low && truth <= high;
+      est.classList.add('done');
+      eLock.disabled = true;
+      eLow.disabled = true; ePoint.disabled = true; eHigh.disabled = true;
+      estFeedback(
+        'True value: ' + truth + '. Your 90% interval [' + low + ', ' + high + '] ' +
+        (hit ? 'caught it ✓' : 'missed it — worth noticing whether your intervals run too narrow') +
+        '. The solution explains how to get there.',
+        hit ? 'hit' : 'miss'
+      );
+      if (eReveal) eReveal.classList.add('show');
+      logEvent({ n: pageLesson(), kind: 'estimate', point: point, low: low, high: high, truth: truth, hit: hit });
+    });
+  }
+
+  // --- solution page: rate difficulty, mark complete, advance ---
+  // Any rating marks the lesson complete; the rating itself steers the weekly
+  // generator (spaced review for "hard"/"fail", faster pacing for "easy").
+  var rateGroup = document.querySelector('.learn-rate-group');
+  if (rateGroup) {
+    var rateBtns = rateGroup.querySelectorAll('.learn-rate');
+    var rateNote = document.querySelector('.learn-complete-note');
+    for (var r = 0; r < rateBtns.length; r++) {
+      rateBtns[r].addEventListener('click', function () {
+        var n = parseInt(this.getAttribute('data-lesson'), 10);
+        var rating = this.getAttribute('data-rating');
+        for (var q = 0; q < rateBtns.length; q++) { rateBtns[q].disabled = true; }
+        this.classList.add('chosen');
+        if (rateNote) { rateNote.textContent = 'Saved ✓ — on to the next lesson…'; rateNote.hidden = false; }
+        logEvent({ n: n, kind: 'rating', rating: rating });
+        setComplete(n).then(function () {
+          var next = lessonByN(n + 1);
+          window.location.href = next ? next.url : learnHomeUrl();
+        });
+      });
+    }
   }
 })();

@@ -33,10 +33,15 @@
 .learn-answer-actions { margin-top: 1.5rem; }
 .learn-reveal-prompt { color: var(--text-muted, #888); font-style: italic; }
 
-/* For multiple-choice puzzles, the solution link stays hidden until the
-   reader answers correctly; for reveal puzzles it is shown immediately. */
-.learn-answer[data-answer-type="mcq"] .learn-reveal { display: none; }
-.learn-answer[data-answer-type="mcq"] .learn-reveal.show { display: inline-block; }
+/* For checked puzzles (mcq / numeric / estimate), the solution link stays
+   hidden until the reader answers (correctly, or locks in an estimate);
+   for reveal puzzles it is shown immediately. */
+.learn-answer[data-answer-type="mcq"] .learn-reveal,
+.learn-answer[data-answer-type="numeric"] .learn-reveal,
+.learn-answer[data-answer-type="estimate"] .learn-reveal { display: none; }
+.learn-answer[data-answer-type="mcq"] .learn-reveal.show,
+.learn-answer[data-answer-type="numeric"] .learn-reveal.show,
+.learn-answer[data-answer-type="estimate"] .learn-reveal.show { display: inline-block; }
 
 .learn-mcq {
   margin-top: 1.5rem;
@@ -69,6 +74,50 @@
 .learn-mcq-opt.incorrect { border-color: #ef4444; background: rgba(239,68,68,0.08); }
 .learn-mcq-feedback { margin: 0.8rem 0 0; font-weight: 500; }
 
+/* --- numeric answers --- */
+.learn-numeric,
+.learn-estimate {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  background: var(--bg-secondary, rgba(128,128,128,0.06));
+}
+.learn-numeric-q, .learn-estimate-q { font-weight: 600; margin: 0 0 0.8rem; }
+.learn-numeric-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.learn-numeric-input,
+.learn-estimate-grid input {
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.95rem;
+  color: var(--text, #222);
+  background: var(--bg, #fff);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  width: 10rem;
+  max-width: 100%;
+}
+.learn-numeric-unit { color: var(--text-muted, #888); }
+.learn-numeric-feedback, .learn-estimate-feedback { margin: 0.8rem 0 0; font-weight: 500; }
+.learn-numeric-feedback.correct, .learn-estimate-feedback.hit { color: #22c55e; }
+.learn-numeric-feedback.incorrect, .learn-estimate-feedback.miss { color: #ef4444; }
+.learn-numeric.done .learn-numeric-input,
+.learn-estimate.done input { opacity: 0.7; }
+
+/* --- estimate (calibration) answers --- */
+.learn-estimate-hint { color: var(--text-muted, #888); font-size: 0.9rem; margin: 0 0 0.9rem; }
+.learn-estimate-grid { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 0 0 0.9rem; }
+.learn-estimate-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  font-family: var(--font-sans, sans-serif);
+}
+.learn-estimate-grid input { width: 7.5rem; }
+
 .learn-builds-on {
   margin: 1.2rem 0 2rem;
   padding: 0.9rem 1.1rem;
@@ -98,6 +147,43 @@
 
 .learn-backlink { margin: 0 0 1.5rem; }
 .learn-complete { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border, #ddd); }
+
+/* --- one-tap difficulty rating (solution page) --- */
+.learn-rate-label { font-weight: 600; margin: 0 0 0.8rem; }
+.learn-rate-group { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.learn-rate {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  background: var(--bg, #fff);
+  color: var(--text, #222);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.learn-rate:hover { border-color: var(--accent, #2563eb); }
+.learn-rate:disabled { opacity: 0.5; cursor: default; }
+.learn-rate.chosen {
+  opacity: 1;
+  border-color: var(--accent, #2563eb);
+  background: var(--accent, #2563eb);
+  color: #fff;
+}
+.learn-complete-note { color: var(--text-muted, #888); margin: 0.8rem 0 0; }
+
+/* --- "Go deeper" resources (solution page) --- */
+.learn-resources {
+  margin: 1.2rem 0 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--accent, #2563eb);
+  background: var(--accent-glow, rgba(128,128,128,0.05));
+  border-radius: 0 8px 8px 0;
+}
+.learn-resources-label { font-weight: 600; margin: 0 0 0.4rem; font-size: 0.9rem; }
+.learn-resources ul { margin: 0; padding-left: 1.1rem; }
+.learn-resources-note { color: var(--text-muted, #888); }
 
 .learn-resume { margin: 1.5rem 0 1.5rem; }
 .learn-resume-note { color: var(--text-muted, #888); margin: 0.6rem 0 0; font-size: 0.9rem; }
@@ -138,6 +224,13 @@
   .learn-mcq { padding: 1rem; }
   .learn-mcq-opt { padding: 0.7rem 0.8rem; }      /* a touch taller for tapping */
   .learn-builds-on { padding: 0.8rem 0.9rem; }
+  .learn-numeric, .learn-estimate { padding: 1rem; }
+  .learn-numeric-input { width: 100%; }
+  .learn-estimate-grid { flex-direction: column; }
+  .learn-estimate-grid input { width: 100%; }
+  .learn-rate-group { flex-direction: column; }
+  .learn-rate { width: 100%; text-align: center; padding: 0.7rem 1rem; }
+  .learn-resources { padding: 0.8rem 0.9rem; }
   .learn-sync { padding: 1rem; }
   .learn-sync-url input { font-size: 0.78rem; }
   .learn-sync-note { font-size: 0.8rem; }
