@@ -1,14 +1,32 @@
 {{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
 {{ define "main" }}
+{{/* Track registry: order + display copy. Add an entry when a new track launches. */}}
+{{ $trackMeta := slice
+  (dict "id" "fp"    "name" "Functional & parallel thinking" "blurb" "Pure functions, recursion, folds, and the map/reduce/scan reasoning behind Spark and GPU programming.")
+  (dict "id" "bayes" "name" "Bayesian statistics"            "blurb" "Probability as plausibility: conditioning, Bayes' theorem, priors and posteriors, calibration.")
+}}
+{{ $puzzles := where .Site.RegularPages "Params.role" "puzzle" }}
+
 <section class="page-header">
   <h1>{{ .Title }}</h1>
   {{ with .Content }}<div class="page-description">{{ . }}</div>{{ end }}
 </section>
 
-<section class="learn-resume">
-  <a class="learn-btn learn-btn-lg" id="learn-resume-link" href="#" aria-live="polite">Loading your spot…</a>
-  <p class="learn-resume-note" id="learn-resume-note"></p>
+{{ range $trackMeta }}
+{{ $track := .id }}
+{{ $trackPuzzles := slice }}
+{{ range $puzzles }}{{ if eq $track (.Params.track | default "fp") }}{{ $trackPuzzles = $trackPuzzles | append . }}{{ end }}{{ end }}
+{{ if $trackPuzzles }}
+<section class="learn-track-card" data-learn-track="{{ $track }}">
+  <h2>{{ .name }}</h2>
+  <p class="learn-track-blurb">{{ .blurb }}</p>
+  <p class="learn-resume">
+    <a class="learn-btn learn-btn-lg learn-resume-link" href="#" aria-live="polite">Loading your spot…</a>
+  </p>
+  <p class="learn-resume-note"></p>
 </section>
+{{ end }}
+{{ end }}
 
 <section class="learn-sync" id="learn-sync" hidden>
   <!-- populated by learn.js: "create a bookmark" button, or the existing sync link -->
@@ -16,13 +34,21 @@
 
 <section class="learn-archive">
   <h2>All lessons</h2>
+  {{ range $trackMeta }}
+  {{ $track := .id }}
+  {{ $trackPuzzles := slice }}
+  {{ range $puzzles }}{{ if eq $track (.Params.track | default "fp") }}{{ $trackPuzzles = $trackPuzzles | append . }}{{ end }}{{ end }}
+  {{ if $trackPuzzles }}
+  <h3 class="learn-archive-track">{{ .name }}</h3>
   <ol class="learn-archive-list">
-    {{ range sort (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" }}
-    <li data-lesson="{{ .Params.lesson_number }}">
+    {{ range sort $trackPuzzles "Params.lesson_number" }}
+    <li data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">
       <a href="{{ .RelPermalink }}"><span class="learn-archive-n">{{ printf "%03d" (int .Params.lesson_number) }}</span> {{ .Title }}</a>{{ with .Params.concept }}<span class="learn-archive-concept"> — {{ . }}</span>{{ end }}
     </li>
     {{ end }}
   </ol>
+  {{ end }}
+  {{ end }}
 </section>
 
 {{ partial "learn-data.html" . }}

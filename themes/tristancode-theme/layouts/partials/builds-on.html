@@ -1,15 +1,18 @@
 {{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
-{{/* Renders backlinks to the lessons this one builds on. Each lesson is standalone, so this is "go deeper", not "required reading". */}}
+{{/* Renders backlinks to the lessons this one builds on (within the same track).
+     Each lesson is standalone, so this is "go deeper", not "required reading". */}}
 {{ with .Params.builds_on }}
+{{ $track := $.Params.track | default "fp" }}
 {{ $puzzles := where $.Site.RegularPages "Params.role" "puzzle" }}
 <nav class="learn-builds-on">
   <p class="learn-builds-label">Builds on earlier lessons:</p>
   <ul>
     {{ range . }}
-      {{ $n := . }}
-      {{ with where $puzzles "Params.lesson_number" $n }}
-        {{ $p := index . 0 }}
-        <li><a href="{{ $p.RelPermalink }}">Lesson {{ $n }}: {{ $p.Title }}</a>{{ with $p.Params.concept }} <span class="learn-builds-concept">— {{ . }}</span>{{ end }}</li>
+      {{ $n := int . }}
+      {{ range $puzzles }}
+        {{ if and (eq $track (.Params.track | default "fp")) (eq $n (int .Params.lesson_number)) }}
+        <li><a href="{{ .RelPermalink }}">Lesson {{ $n }}: {{ .Title }}</a>{{ with .Params.concept }} <span class="learn-builds-concept">— {{ . }}</span>{{ end }}</li>
+        {{ end }}
       {{ end }}
     {{ end }}
   </ul>

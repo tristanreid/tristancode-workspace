@@ -1,16 +1,36 @@
-// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. 
+// Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh.
 /* Learn / puzzle-path client.
  *
- * Phase A: progress is stored in localStorage (per device).
- * Phase B: swap getProgress() / setComplete() to call /api/progress with the
- *          resolved token — nothing else here needs to change.
+ * Multi-track: every lesson belongs to a track (fp, bayes, …). Progress —
+ * both the localStorage cache and the /api/progress record — is kept per
+ * track. Older single-track localStorage keys are read as the fp track.
  */
 (function () {
   var LEARN = window.LEARN || {};
-  var lessons = (LEARN.lessons || []).slice().sort(function (a, b) { return a.n - b.n; });
-  var maxN = lessons.length ? lessons[lessons.length - 1].n : 0;
+  var DEFAULT_TRACK = 'fp';
 
-  // --- token resolution (built now so the Phase B backend is a drop-in) ---
+  // lessons: [{n, title, url, track, solution}] — group per track, sorted by n.
+  var byTrack = {};
+  (LEARN.lessons || []).forEach(function (l) {
+    var t = l.track || DEFAULT_TRACK;
+    (byTrack[t] = byTrack[t] || []).push(l);
+  });
+  Object.keys(byTrack).forEach(function (t) {
+    byTrack[t].sort(function (a, b) { return a.n - b.n; });
+  });
+
+  function trackLessons(track) { return byTrack[track] || []; }
+  function maxN(track) {
+    var ls = trackLessons(track);
+    return ls.length ? ls[ls.length - 1].n : 0;
+  }
+  function lessonByN(track, n) {
+    var ls = trackLessons(track);
+    for (var i = 0; i < ls.length; i++) { if (ls[i].n === n) return ls[i]; }
+    return null;
+  }
+
+  // --- token resolution ---
   function resolveToken() {
     var t = null;
     try {
@@ -37,56 +57,62 @@
   var API = '/api/progress';
   var useApi = TOKEN && TOKEN !== 'local';
 
-  function progressKey() { return 'learn-progress:' + TOKEN; }
+  function progressKey(track) { return 'learn-progress:' + TOKEN + ':' + track; }
+  // Pre-multi-track key — progress stored before tracks existed belongs to fp.
+  function legacyKey() { return 'learn-progress:' + TOKEN; }
 
-  function readLocal() {
-    try { return parseInt(localStorage.getItem(progressKey()) || '0', 10) || 0; } catch (e) { return 0; }
+  function readLocal(track) {
+    try {
+      var v = localStorage.getItem(progressKey(track));
+      if (v === null && track === DEFAULT_TRACK) v = localStorage.getItem(legacyKey());
+      return parseInt(v || '0', 10) || 0;
+    } catch (e) { return 0; }
   }
-  function writeLocal(n) {
-    try { localStorage.setItem(progressKey(), String(n)); } catch (e) {}
+  function writeLocal(track, n) {
+    try { localStorage.setItem(progressKey(track), String(n)); } catch (e) {}
     return n;
   }
 
-  function getProgress() {
-    var cached = readLocal();
+  function getProgress(track) {
+    var cached = readLocal(track);
     if (!useApi) return Promise.resolve(cached);
-    return fetch(API + '?token=' + encodeURIComponent(TOKEN), { cache: 'no-store' })
+    return fetch(API + '?token=' + encodeURIComponent(TOKEN) + '&track=' + encodeURIComponent(track), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (d && typeof d.lastCompleted === 'number') {
           // Never lose progress made offline on this device.
-          return writeLocal(Math.max(d.lastCompleted, cached));
+          return writeLocal(track, Math.max(d.lastCompleted, cached));
         }
         return cached;
       })
       .catch(function () { return cached; });
   }
 
-  function setComplete(n) {
-    var next = writeLocal(Math.max(readLocal(), n)); // optimistic, instant on this device
+  function setComplete(track, n) {
+    var next = writeLocal(track, Math.max(readLocal(track), n)); // optimistic, instant on this device
     if (!useApi) return Promise.resolve(next);
     return fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: TOKEN, completed: n })
+      body: JSON.stringify({ token: TOKEN, track: track, completed: n })
     })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(d.lastCompleted) : next; })
+      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(track, d.lastCompleted) : next; })
       .catch(function () { return next; });
   }
 
   // Explicit override (the "Start from this lesson" button): set the pointer
   // to exactly `n` — may move it down, unlike setComplete's high-water advance.
-  function setPosition(n) {
-    var v = writeLocal(Math.max(0, n));
+  function setPosition(track, n) {
+    var v = writeLocal(track, Math.max(0, n));
     if (!useApi) return Promise.resolve(v);
     return fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: TOKEN, set: v })
+      body: JSON.stringify({ token: TOKEN, track: track, set: v })
     })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(d.lastCompleted) : v; })
+      .then(function (d) { return (d && typeof d.lastCompleted === 'number') ? writeLocal(track, d.lastCompleted) : v; })
       .catch(function () { return v; });
   }
 
@@ -94,56 +120,60 @@
   // Fire-and-forget: each answer interaction posts a small event record that
   // the weekly generator reads to adapt difficulty (see PROPOSAL.md Part 4).
   // Without a sync token there is no server record to append to, so we skip.
-  function logEvent(evt) {
+  function logEvent(track, evt) {
     if (!useApi) return;
     try {
       fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: TOKEN, event: evt })
+        body: JSON.stringify({ token: TOKEN, track: track, event: evt })
       }).catch(function () {});
     } catch (e) {}
   }
 
+  function pageArticle() {
+    return document.querySelector('article.learn-puzzle, article.learn-solution');
+  }
   function pageLesson() {
-    var el = document.querySelector('article.learn-puzzle, article.learn-solution');
+    var el = pageArticle();
     return el ? parseInt(el.getAttribute('data-lesson'), 10) : 0;
   }
-
-  function lessonByN(n) {
-    for (var i = 0; i < lessons.length; i++) { if (lessons[i].n === n) return lessons[i]; }
-    return null;
+  function pageTrack() {
+    var el = pageArticle();
+    return (el && el.getAttribute('data-track')) || DEFAULT_TRACK;
   }
 
   function learnHomeUrl() {
-    if (lessons.length) { return lessons[0].url.replace(/[^\/]*\/?$/, ''); }
-    return '/learn/';
+    return LEARN.home || '/learn/';
   }
 
-  // --- landing page: resume button, archive markers, sync bookmark ---
-  var resumeLink = document.getElementById('learn-resume-link');
+  // --- landing page: per-track resume cards, archive markers, sync bookmark ---
+  var trackCards = document.querySelectorAll('[data-learn-track]');
   var syncEl = document.getElementById('learn-sync');
 
-  function renderResume() {
-    if (!resumeLink) return;
-    getProgress().then(function (done) {
-      var note = document.getElementById('learn-resume-note');
-      var current = lessonByN(done + 1);
+  function renderCard(card) {
+    var track = card.getAttribute('data-learn-track');
+    var link = card.querySelector('.learn-resume-link');
+    var note = card.querySelector('.learn-resume-note');
+    if (!link) return;
+    getProgress(track).then(function (done) {
+      var current = lessonByN(track, done + 1);
+      var total = trackLessons(track).length;
       if (current) {
-        resumeLink.textContent = (done === 0 ? 'Start — Lesson ' : 'Resume — Lesson ') + current.n + ': ' + current.title + ' →';
-        resumeLink.href = current.url;
+        link.textContent = (done === 0 ? 'Start — Lesson ' : 'Resume — Lesson ') + current.n + ': ' + current.title + ' →';
+        link.href = current.url;
         if (note) {
           note.textContent = done === 0
-            ? 'You haven’t started yet. This is where you pick up on any device.'
-            : 'You’ve completed ' + done + ' lesson' + (done === 1 ? '' : 's') + '.';
+            ? 'You haven’t started this track yet.'
+            : 'You’ve completed ' + done + ' of ' + total + ' lessons.';
         }
       } else {
-        var last = lessonByN(maxN);
-        resumeLink.textContent = maxN ? ('You’re all caught up — review Lesson ' + maxN + ' →') : 'No lessons yet';
-        resumeLink.href = last ? last.url : '#';
+        var last = lessonByN(track, maxN(track));
+        link.textContent = last ? ('You’re all caught up — review Lesson ' + last.n + ' →') : 'No lessons yet';
+        link.href = last ? last.url : '#';
         if (note) note.textContent = 'New lessons are added automatically. Check back soon.';
       }
-      var items = document.querySelectorAll('.learn-archive-list li');
+      var items = document.querySelectorAll('.learn-archive-list li[data-track="' + track + '"]');
       for (var i = 0; i < items.length; i++) {
         var n = parseInt(items[i].getAttribute('data-lesson'), 10);
         items[i].classList.remove('done', 'current');
@@ -151,6 +181,10 @@
         else if (n === done + 1) items[i].classList.add('current');
       }
     });
+  }
+
+  function renderResume() {
+    for (var i = 0; i < trackCards.length; i++) renderCard(trackCards[i]);
   }
 
   // --- sync bookmark: a login-free way to carry progress across devices ---
@@ -200,18 +234,22 @@
   }
 
   function createSyncBookmark() {
-    var carried = readLocal(); // progress so far under the current (anonymous) token
+    // Progress made so far under the current (anonymous) token, per track.
+    var carried = {};
+    Object.keys(byTrack).forEach(function (t) { carried[t] = readLocal(t); });
     var newToken = genToken();
     try { localStorage.setItem('learn-token', newToken); } catch (e) {}
     TOKEN = newToken;
     useApi = true;
-    writeLocal(carried);              // copy progress under the new token's key
-    if (carried > 0) setComplete(carried); // seed the server so other devices see it
+    Object.keys(carried).forEach(function (t) {
+      writeLocal(t, carried[t]);                    // copy under the new token's key
+      if (carried[t] > 0) setComplete(t, carried[t]); // seed the server so other devices see it
+    });
     renderSync();
     renderResume();
   }
 
-  if (resumeLink || syncEl) {
+  if (trackCards.length || syncEl) {
     renderResume();
     renderSync();
   }
@@ -221,8 +259,9 @@
   if (setCurrentBtn) {
     setCurrentBtn.addEventListener('click', function () {
       var n = parseInt(setCurrentBtn.getAttribute('data-lesson'), 10);
+      var track = setCurrentBtn.getAttribute('data-track') || DEFAULT_TRACK;
       setCurrentBtn.disabled = true;
-      setPosition(n - 1).then(function () { // n-1 completed → lesson n becomes current
+      setPosition(track, n - 1).then(function () { // n-1 completed → lesson n becomes current
         setCurrentBtn.textContent = '✓ This is now your current lesson';
       });
     });
@@ -250,7 +289,7 @@
           if (revealBtn) revealBtn.classList.add('show');
           if (!mcqLogged) {
             mcqLogged = true;
-            logEvent({ n: pageLesson(), kind: 'mcq', attempts: mcqAttempts, firstTry: mcqAttempts === 1 });
+            logEvent(pageTrack(), { n: pageLesson(), kind: 'mcq', attempts: mcqAttempts, firstTry: mcqAttempts === 1 });
           }
         } else {
           this.classList.remove('correct');
@@ -292,14 +331,14 @@
         numeric.classList.add('done');
         numericFeedback('Correct. Read the full explanation on the solution page.', 'correct');
         if (nReveal) nReveal.classList.add('show');
-        logEvent({ n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: true });
+        logEvent(pageTrack(), { n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: true });
       } else if (nAttempts >= 3 && !nUnlocked) {
         // Numeric answers can't be brute-forced like mcq — after three honest
         // misses, unlock the solution rather than leaving the reader stuck.
         nUnlocked = true;
         numericFeedback('Not quite. The solution is unlocked below — or keep trying.', 'incorrect');
         if (nReveal) nReveal.classList.add('show');
-        logEvent({ n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: false });
+        logEvent(pageTrack(), { n: pageLesson(), kind: 'numeric', attempts: nAttempts, correct: false });
       } else {
         numericFeedback('Not quite — check your reasoning and try again.', 'incorrect');
       }
@@ -347,7 +386,7 @@
         hit ? 'hit' : 'miss'
       );
       if (eReveal) eReveal.classList.add('show');
-      logEvent({ n: pageLesson(), kind: 'estimate', point: point, low: low, high: high, truth: truth, hit: hit });
+      logEvent(pageTrack(), { n: pageLesson(), kind: 'estimate', point: point, low: low, high: high, truth: truth, hit: hit });
     });
   }
 
@@ -361,13 +400,14 @@
     for (var r = 0; r < rateBtns.length; r++) {
       rateBtns[r].addEventListener('click', function () {
         var n = parseInt(this.getAttribute('data-lesson'), 10);
+        var track = this.getAttribute('data-track') || DEFAULT_TRACK;
         var rating = this.getAttribute('data-rating');
         for (var q = 0; q < rateBtns.length; q++) { rateBtns[q].disabled = true; }
         this.classList.add('chosen');
         if (rateNote) { rateNote.textContent = 'Saved ✓ — on to the next lesson…'; rateNote.hidden = false; }
-        logEvent({ n: n, kind: 'rating', rating: rating });
-        setComplete(n).then(function () {
-          var next = lessonByN(n + 1);
+        logEvent(track, { n: n, kind: 'rating', rating: rating });
+        setComplete(track, n).then(function () {
+          var next = lessonByN(track, n + 1);
           window.location.href = next ? next.url : learnHomeUrl();
         });
       });

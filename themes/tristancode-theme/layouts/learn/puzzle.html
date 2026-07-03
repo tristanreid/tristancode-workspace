@@ -1,13 +1,14 @@
 {{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
 {{ define "main" }}
-<article class="post learn-puzzle" data-lesson="{{ .Params.lesson_number }}">
+{{ $track := .Params.track | default "fp" }}
+<article class="post learn-puzzle" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">
   <header class="post-header">
     <p class="learn-eyebrow">Lesson {{ .Params.lesson_number }}{{ with .Params.concept }} · {{ . }}{{ end }}</p>
     <h1>{{ .Title }}</h1>
   </header>
 
   <p class="learn-set-current-wrap">
-    <button type="button" class="learn-set-current" data-lesson="{{ .Params.lesson_number }}" title="Make this the lesson your Start/Resume button opens — handy for jumping ahead or going back to redo earlier lessons.">Start from this lesson</button>
+    <button type="button" class="learn-set-current" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}" title="Make this the lesson your Start/Resume button opens — handy for jumping ahead or going back to redo earlier lessons.">Start from this lesson</button>
   </p>
 
   {{ partial "builds-on.html" . }}
@@ -16,10 +17,11 @@
     {{ .Content }}
   </div>
 
-  {{/* Resolve this lesson's solution page */}}
+  {{/* Resolve this lesson's solution page (same track, same number) */}}
+  {{ $n := int .Params.lesson_number }}
   {{ $sol := "" }}
-  {{ with where (where .Site.RegularPages "Params.role" "solution") "Params.lesson_number" .Params.lesson_number }}
-    {{ $sol = (index . 0).RelPermalink }}
+  {{ range where .Site.RegularPages "Params.role" "solution" }}
+    {{ if and (eq ($track) (.Params.track | default "fp")) (eq $n (int .Params.lesson_number)) }}{{ $sol = .RelPermalink }}{{ end }}
   {{ end }}
 
   {{ $type := .Params.answer_type | default "reveal" }}

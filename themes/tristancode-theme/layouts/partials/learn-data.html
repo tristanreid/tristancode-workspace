@@ -1,14 +1,19 @@
 {{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
 {{/* Emits the ordered lesson index + config for learn.js. Included on every /learn/ page. */}}
+{{ $home := "/learn/" }}
+{{ with .Site.GetPage "/learn" }}{{ $home = .RelPermalink }}{{ end }}
 <script>
-window.LEARN = Object.assign(window.LEARN || {}, { buffer: 12 });
+window.LEARN = Object.assign(window.LEARN || {}, { buffer: 8, home: {{ $home }} });
 window.LEARN.lessons = [
 {{- $solutions := where .Site.RegularPages "Params.role" "solution" -}}
 {{- range sort (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" -}}
-  {{- $n := .Params.lesson_number -}}
+  {{- $n := int .Params.lesson_number -}}
+  {{- $track := .Params.track | default "fp" -}}
   {{- $sol := "" -}}
-  {{- with where $solutions "Params.lesson_number" $n -}}{{- $sol = (index . 0).RelPermalink -}}{{- end }}
-  { "n": {{ $n }}, "title": {{ .Title }}, "url": {{ .RelPermalink }}, "solution": {{ if $sol }}{{ $sol }}{{ else }}null{{ end }} },
+  {{- range $solutions -}}
+    {{- if and (eq $track (.Params.track | default "fp")) (eq $n (int .Params.lesson_number)) -}}{{- $sol = .RelPermalink -}}{{- end -}}
+  {{- end }}
+  { "n": {{ $n }}, "title": {{ .Title }}, "url": {{ .RelPermalink }}, "track": {{ $track }}, "solution": {{ if $sol }}{{ $sol }}{{ else }}null{{ end }} },
 {{- end }}
 ];
 </script>

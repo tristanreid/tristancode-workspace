@@ -188,6 +188,20 @@
 .learn-resume { margin: 1.5rem 0 1.5rem; }
 .learn-resume-note { color: var(--text-muted, #888); margin: 0.6rem 0 0; font-size: 0.9rem; }
 
+/* --- per-track cards on the landing page --- */
+.learn-track-card {
+  margin: 1.5rem 0;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  background: var(--bg-secondary, rgba(128,128,128,0.06));
+}
+.learn-track-card h2 { margin: 0 0 0.4rem; font-size: 1.15rem; }
+.learn-track-blurb { color: var(--text-muted, #888); font-size: 0.95rem; margin: 0 0 1rem; }
+.learn-track-card .learn-resume { margin: 0; }
+.learn-track-card .learn-resume-note { margin: 0.6rem 0 0; }
+.learn-archive-track { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+
 .learn-sync {
   margin: 1.5rem 0 2.5rem;
   padding: 1.1rem 1.3rem;

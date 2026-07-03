@@ -1,14 +1,18 @@
 {{/* Synced from daily-learning-puzzles — edit there, then run scripts/sync-web.sh. */}}
 {{ define "main" }}
-<article class="post learn-solution" data-lesson="{{ .Params.lesson_number }}">
+{{ $track := .Params.track | default "fp" }}
+<article class="post learn-solution" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">
   <header class="post-header">
     <p class="learn-eyebrow">Lesson {{ .Params.lesson_number }} · Solution{{ with .Params.concept }} · {{ . }}{{ end }}</p>
     <h1>{{ .Title }}</h1>
   </header>
 
-  {{/* Back to the puzzle */}}
-  {{ with where (where .Site.RegularPages "Params.role" "puzzle") "Params.lesson_number" .Params.lesson_number }}
-    <p class="learn-backlink"><a href="{{ (index . 0).RelPermalink }}">← Back to the puzzle</a></p>
+  {{/* Back to the puzzle (same track, same number) */}}
+  {{ $n := int .Params.lesson_number }}
+  {{ range where .Site.RegularPages "Params.role" "puzzle" }}
+    {{ if and (eq ($track) (.Params.track | default "fp")) (eq $n (int .Params.lesson_number)) }}
+    <p class="learn-backlink"><a href="{{ .RelPermalink }}">← Back to the puzzle</a></p>
+    {{ end }}
   {{ end }}
 
   <div class="post-content">
@@ -31,10 +35,10 @@
   <section class="learn-complete">
     <p class="learn-rate-label">How was this one? Any answer marks it complete and moves on — your rating shapes future lessons.</p>
     <div class="learn-rate-group">
-      <button type="button" class="learn-rate" data-rating="easy" data-lesson="{{ .Params.lesson_number }}">Too easy</button>
-      <button type="button" class="learn-rate" data-rating="good" data-lesson="{{ .Params.lesson_number }}">About right</button>
-      <button type="button" class="learn-rate" data-rating="hard" data-lesson="{{ .Params.lesson_number }}">Struggled</button>
-      <button type="button" class="learn-rate" data-rating="fail" data-lesson="{{ .Params.lesson_number }}">Didn&rsquo;t get it</button>
+      <button type="button" class="learn-rate" data-rating="easy" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">Too easy</button>
+      <button type="button" class="learn-rate" data-rating="good" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">About right</button>
+      <button type="button" class="learn-rate" data-rating="hard" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">Struggled</button>
+      <button type="button" class="learn-rate" data-rating="fail" data-lesson="{{ .Params.lesson_number }}" data-track="{{ $track }}">Didn&rsquo;t get it</button>
     </div>
     <p class="learn-complete-note" hidden></p>
   </section>
