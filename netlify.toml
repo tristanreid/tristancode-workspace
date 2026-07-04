@@ -16,16 +16,19 @@
 
 # Note: HTTP→HTTPS redirect is handled automatically by Netlify
 
-# Custom headers for caching and security
+# Custom headers for caching and security.
+# CSS/JS must revalidate on every load (cheap ETag 304s): these files change
+# with deploys but keep the same URL, and a long max-age strands returning
+# browsers on stale copies — old learn.js + new HTML broke /learn/ silently.
 [[headers]]
   for = "/*.css"
   [headers.values]
-    Cache-Control = "public, max-age=864000"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/*.js"
   [headers.values]
-    Cache-Control = "public, max-age=864000"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/*.png"

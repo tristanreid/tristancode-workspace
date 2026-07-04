@@ -25,8 +25,8 @@
   <!-- Hide page until correct theme CSS loads (prevents flash of unstyled content) -->
   <style>html:not(.theme-ready) { visibility: hidden; }</style>
   <link rel="stylesheet" id="theme-stylesheet">
-  <link rel="stylesheet" href="{{ "css/shared.css" | relURL }}">
-  <link rel="stylesheet" href="{{ "css/learn.css" | relURL }}">
+  <link rel="stylesheet" href="{{ "css/shared.css" | relURL }}?v=2">
+  <link rel="stylesheet" href="{{ "css/learn.css" | relURL }}?v=2">
   {{ with .OutputFormats.Get "RSS" }}
     <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" href="{{ .Permalink }}">
   {{ end }}
