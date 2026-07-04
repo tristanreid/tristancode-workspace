@@ -2,8 +2,10 @@
 {{ define "main" }}
 {{/* Track registry: order + display copy. Add an entry when a new track launches. */}}
 {{ $trackMeta := slice
-  (dict "id" "fp"    "name" "Functional & parallel thinking" "blurb" "Pure functions, recursion, folds, and the map/reduce/scan reasoning behind Spark and GPU programming.")
-  (dict "id" "bayes" "name" "Bayesian statistics"            "blurb" "Probability as plausibility: conditioning, Bayes' theorem, priors and posteriors, calibration.")
+  (dict "id" "fp"    "name" "Functional & parallel thinking"        "blurb" "Pure functions, recursion, folds, and the map/reduce/scan reasoning behind Spark and GPU programming.")
+  (dict "id" "bayes" "name" "Bayesian statistics"                   "blurb" "Probability as plausibility: conditioning, Bayes' theorem, priors and posteriors, calibration.")
+  (dict "id" "cog"   "name" "Cognitive science & AI architectures"  "blurb" "How minds work and how AI systems have modeled them: production systems, Hearsay-II blackboards, ACT-R and SOAR, through to modern agent harnesses.")
+  (dict "id" "ml"    "name" "Machine learning"                      "blurb" "Concepts and failure modes: fitting, overfitting, evaluation discipline, trees, neural nets, attention — and when the baseline wins.")
 }}
 {{ $puzzles := where .Site.RegularPages "Params.role" "puzzle" }}
 
