@@ -5,7 +5,6 @@ weight: 10
 series: "Small Experiments"
 series_weight: 100
 skin: generative
-draft: true
 ---
 
 ![The finished book: spiral-bound, waterproof, one overview page up front](/small_experiments/img/trip_book_cover.jpg)
