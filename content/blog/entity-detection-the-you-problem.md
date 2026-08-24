@@ -15,7 +15,7 @@ If you've been following the [Tries series](/blog/trie-what-is-a-trie/), you alr
 
 But performance was the easy part. The hard part is knowing which matches are *real*.
 
-I presented on these challenges at a [Netflix Data Engineering Tech Talk](https://www.youtube.com/watch?v=F4N8AmScZ-w) ([slides](https://docs.google.com/presentation/d/1ulPiI7bV1lq_d3Dj07j2qQDKst7AgUmoIFHSoQYv1FA/)). This series explores the entity detection system that came out of that work — the design decisions, the scoring model, and the architecture that makes it scale.
+I presented on these challenges at a Netflix Data Engineering Tech Talk ([slides](https://docs.google.com/presentation/d/1-563hFAYUX7s9kEgz6cqcbpcUUwWTJcZ9syoZjJ9rvM/preview)). This series explores the entity detection system that came out of that work — the design decisions, the scoring model, and the architecture that makes it scale.
 
 ---
 
