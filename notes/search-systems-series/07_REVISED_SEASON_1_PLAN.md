@@ -1,9 +1,37 @@
 # Revised Season 1 Plan (2026-08-24)
 
-**Status:** editorial revision after reconciling the original proposal against the
-live site. Supersedes the Season 1 list in `01_SERIES_STRATEGY.md` and demotes
-Seasons 2–3. Written with Tristan; reflects his three concerns: redundancy,
+**Status:** SEASON 1 COMPLETE — all 8 posts published 2026-08-24 under the series
+name *From Rows to Retrieval*. Supersedes the Season 1 list in `01_SERIES_STRATEGY.md`
+and demotes Seasons 2–3. Written with Tristan; reflects his three concerns: redundancy,
 discovery, and avoiding generic posts that don't carry his POV.
+
+## Published (in series order)
+
+| # | Post | Slug |
+|---|---|---|
+| 1 | The Search Index Is Not the Source of Truth | `search-index-not-source-of-truth` |
+| 2 | Zero-Downtime Elasticsearch Rebuilds with Versioned Indexes and Aliases | `zero-downtime-index-rebuilds-aliases` |
+| 3 | A URL Is a Locator, Not an Identity | `url-is-a-locator-not-an-identity` |
+| 4 | Freshness, Failure, and the Document You Serve | `freshness-failure-and-the-document-you-serve` |
+| 5 | Embeddings Don't Know Which Rock You Mean | `embeddings-dont-know-which-rock` |
+| 6 | A Knowledge Graph Without a Graph Database | `knowledge-graph-without-a-graph-database` |
+| 7 | Chunking Is Information Architecture | `chunking-is-information-architecture` |
+| 8 | From One-Off Index Jobs to a Paved-Road Library | `paved-road-indexing-library` |
+
+Seven themed light/dark SVG pairs live in `static/images/search-series/`. The series is
+listed on the `/start-here/` map. Note post 5 replaced the planned "Entity Resolution
+Without an LLM" after a redundancy check found the existing *Entity Detection* series
+already covered Wikipedia-denominator distinctiveness and cross-entity corroboration.
+
+## Open questions carried forward
+
+- The weighted vs. unweighted chunk-vector comparison (post 7) is stated as unresolved;
+  if evaluation evidence ever surfaces, it's worth a follow-up.
+- PageRank in the document index (post 6) was produced elsewhere and deliberately not
+  described.
+- Season 2 candidate, per post 7's closing: the strongest half of the old Season 4
+  ("RAG without shortcuts") — document vs passage retrieval, hybrid candidate generation,
+  reranking, citations as lineage, retrieval/generation evaluation.
 
 ## The filter applied
 
