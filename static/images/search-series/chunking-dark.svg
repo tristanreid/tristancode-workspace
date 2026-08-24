@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 430" width="790" height="430" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-ch-d" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(91,140,255,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-ch-d" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-ch-d)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(91,140,255,0.12)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="790" height="430" fill="#14141c"/>
+  <rect width="790" height="430" fill="url(#grid-lg-ch-d)"/>
+
+  <text x="395" y="28" text-anchor="middle" font-size="11" fill="#9a9aac" letter-spacing="0.06em">THE SAME SENTENCE, TWO CHUNKERS</text>
+
+  <!-- LEFT: fixed window -->
+  <rect x="25" y="44" width="350" height="250" rx="8" fill="#1a1e2a" stroke="#3f4553"/>
+  <text x="45" y="70" font-size="12" fill="#e8e8f0" font-weight="600">Fixed 500-character window</text>
+
+  <rect x="45" y="84" width="310" height="120" rx="5" fill="#2a1a1a" stroke="#c07070" stroke-dasharray="4 3"/>
+  <g font-size="10" fill="#b8bcc8" font-family="ui-monospace, monospace">
+    <text x="58" y="106">to fifty percent of traffic. It</text>
+    <text x="58" y="124">increased by 17%.</text>
+    <text x="58" y="150">| mobile  | 4.1% |</text>
+    <text x="58" y="168">| desktop | 2.8% |</text>
+    <text x="58" y="190">### Caveats</text>
+  </g>
+
+  <g font-size="10" fill="#e08080">
+    <text x="45" y="226">✗ starts mid-sentence</text>
+    <text x="45" y="246">✗ no heading — 17% of what?</text>
+    <text x="45" y="266">✗ table rows split from their header</text>
+    <text x="45" y="286">✗ next section begins inside the chunk</text>
+  </g>
+
+  <!-- RIGHT: structure-aware -->
+  <rect x="415" y="44" width="350" height="250" rx="8" fill="#1a1e2a" stroke="#3f4553"/>
+  <text x="435" y="70" font-size="12" fill="#e8e8f0" font-weight="600">Structure-aware, heading path kept</text>
+
+  <rect x="435" y="84" width="310" height="120" rx="5" fill="#1a2440" stroke="#5b8cff"/>
+  <rect x="435" y="84" width="310" height="30" rx="5" fill="#22315a"/>
+  <text x="448" y="104" font-size="10" fill="#93b4ff" font-family="ui-monospace, monospace">Q3 Results &gt; Mobile Signup</text>
+  <g font-size="10" fill="#b8bcc8" font-family="ui-monospace, monospace">
+    <text x="448" y="134">We shortened the form from nine</text>
+    <text x="448" y="152">fields to four. The change shipped</text>
+    <text x="448" y="170">to half of traffic.</text>
+    <text x="448" y="192">It increased by 17%.</text>
+  </g>
+
+  <g font-size="10" fill="#7fc494">
+    <text x="435" y="226">✓ complete thought, whole sentences</text>
+    <text x="435" y="246">✓ inherits the heading path</text>
+    <text x="435" y="266">✓ tables stay with their header row</text>
+    <text x="435" y="286">✓ one section, one unit of evidence</text>
+  </g>
+
+  <!-- consequence -->
+  <rect x="25" y="316" width="740" height="72" rx="8" fill="#1a1e2a" stroke="#5b8cff"/>
+  <text x="45" y="342" font-size="11" fill="#9a9aac" letter-spacing="0.05em">THE QUESTION: “HOW MUCH DID MOBILE SIGNUP IMPROVE?”</text>
+  <text x="45" y="366" font-size="11.5" fill="#e8e8f0">Only the right-hand chunk can answer it. The left-hand chunk contains the number and no way to know</text>
+  <text x="45" y="382" font-size="11.5" fill="#e8e8f0">what it measures — so it can never be retrieved for that question, or cited as evidence for it.</text>
+
+  <text x="25" y="416" font-size="10" fill="#9a9aac" font-style="italic">The unit you index is the unit that can be found, ranked, and cited. Chunking decides what answers are reachable at all.</text>
+</svg>
