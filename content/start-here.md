@@ -12,6 +12,10 @@ to the best first post; every post links onward from there.
 
 How machines find things in text — from the data structures up.
 
+- **[From Rows to Retrieval](/blog/search-index-not-source-of-truth/)** —
+  building search systems at scale: indexes as projections, zero-downtime
+  rebuilds, canonical identity, freshness policy, entity resolution, graph
+  features, chunking, and the platform library that makes it routine.
 - **[Tries: Multi-Pattern Text Search](/blog/trie-what-is-a-trie/)** — one
   data structure, six posts: scanning, autocomplete, compression, Spark,
   visualization.

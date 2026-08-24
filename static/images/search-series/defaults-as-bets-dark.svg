@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 372" width="790" height="372" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-db-d" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(91,140,255,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-db-d" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-db-d)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(91,140,255,0.12)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="790" height="372" fill="#14141c"/>
+  <rect width="790" height="372" fill="url(#grid-lg-db-d)"/>
+
+  <text x="25" y="28" font-size="11" fill="#9a9aac" font-weight="600" letter-spacing="0.06em">EVERY SAFE DEFAULT IS A BET ABOUT A WORKLOAD</text>
+
+  <!-- header -->
+  <g font-size="9.5" fill="#9a9aac" letter-spacing="0.05em">
+    <text x="38" y="56">THE DEFAULT</text>
+    <text x="268" y="56">THE BET IT ENCODES</text>
+    <text x="536" y="56">WHEN THE BET IS WRONG</text>
+  </g>
+  <line x1="25" y1="64" x2="765" y2="64" stroke="#3f4553"/>
+
+  <!-- row 1 -->
+  <rect x="25" y="70" width="740" height="66" fill="#1a1e2a"/>
+  <text x="38" y="96" font-size="11" fill="#e8e8f0" font-weight="600" font-family="ui-monospace, monospace">shards = N</text>
+  <text x="38" y="116" font-size="10" fill="#9a9aac">a standard shard count</text>
+  <text x="268" y="96" font-size="10.5" fill="#b8bcc8">Every index here is roughly</text>
+  <text x="268" y="112" font-size="10.5" fill="#b8bcc8">the same order of magnitude.</text>
+  <text x="536" y="96" font-size="10.5" fill="#e08080">A tiny lookup index pays pure</text>
+  <text x="536" y="112" font-size="10.5" fill="#e08080">overhead; a huge one can't spread.</text>
+
+  <!-- row 2 -->
+  <rect x="25" y="140" width="740" height="66" fill="#171a24"/>
+  <text x="38" y="166" font-size="11" fill="#e8e8f0" font-weight="600" font-family="ui-monospace, monospace">repartition(K)</text>
+  <text x="38" y="186" font-size="10" fill="#9a9aac">fixed writer parallelism</text>
+  <text x="268" y="166" font-size="10.5" fill="#b8bcc8">K parallel writers is a safe</text>
+  <text x="268" y="182" font-size="10.5" fill="#b8bcc8">amount of pressure to apply.</text>
+  <text x="536" y="166" font-size="10.5" fill="#e08080">Buries a smaller cluster; starves</text>
+  <text x="536" y="182" font-size="10.5" fill="#e08080">a job that could go far wider.</text>
+
+  <!-- row 3 -->
+  <rect x="25" y="210" width="740" height="66" fill="#1a1e2a"/>
+  <text x="38" y="236" font-size="11" fill="#e8e8f0" font-weight="600" font-family="ui-monospace, monospace">replicas = 0</text>
+  <text x="38" y="256" font-size="10" fill="#9a9aac">refresh off while loading</text>
+  <text x="268" y="236" font-size="10.5" fill="#b8bcc8">The old index is still serving,</text>
+  <text x="268" y="252" font-size="10.5" fill="#b8bcc8">so this build is disposable.</text>
+  <text x="536" y="236" font-size="10.5" fill="#e08080">There is no old index — a first</text>
+  <text x="536" y="252" font-size="10.5" fill="#e08080">build has nothing to fall back to.</text>
+
+  <!-- row 4 -->
+  <rect x="25" y="280" width="740" height="66" fill="#171a24"/>
+  <text x="38" y="306" font-size="11" fill="#e8e8f0" font-weight="600" font-family="ui-monospace, monospace">delete old</text>
+  <text x="38" y="326" font-size="10" fill="#9a9aac">automatic cleanup</text>
+  <text x="268" y="306" font-size="10.5" fill="#b8bcc8">Index names are trustworthy</text>
+  <text x="268" y="322" font-size="10.5" fill="#b8bcc8">and only we create them.</text>
+  <text x="536" y="306" font-size="10.5" fill="#e08080">Someone's hand-made index matches</text>
+  <text x="536" y="322" font-size="10.5" fill="#e08080">the pattern — and is now gone.</text>
+
+  <line x1="25" y1="346" x2="765" y2="346" stroke="#3f4553"/>
+  <text x="25" y="366" font-size="10" fill="#9a9aac" font-style="italic">A default isn't wisdom or debt — it's wisdom that becomes debt the moment it outlives the workload it was chosen for.</text>
+</svg>

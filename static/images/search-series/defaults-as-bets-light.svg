@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 372" width="790" height="372" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-db-l" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(37,99,235,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-db-l" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-db-l)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(37,99,235,0.08)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="790" height="372" fill="#ffffff"/>
+  <rect width="790" height="372" fill="url(#grid-lg-db-l)"/>
+
+  <text x="25" y="28" font-size="11" fill="#6a6a78" font-weight="600" letter-spacing="0.06em">EVERY SAFE DEFAULT IS A BET ABOUT A WORKLOAD</text>
+
+  <!-- header -->
+  <g font-size="9.5" fill="#6a6a78" letter-spacing="0.05em">
+    <text x="38" y="56">THE DEFAULT</text>
+    <text x="268" y="56">THE BET IT ENCODES</text>
+    <text x="536" y="56">WHEN THE BET IS WRONG</text>
+  </g>
+  <line x1="25" y1="64" x2="765" y2="64" stroke="#9aa0b4"/>
+
+  <!-- row 1 -->
+  <rect x="25" y="70" width="740" height="66" fill="#f6f8fc"/>
+  <text x="38" y="96" font-size="11" fill="#1a1a24" font-weight="600" font-family="ui-monospace, monospace">shards = N</text>
+  <text x="38" y="116" font-size="10" fill="#6a6a78">a standard shard count</text>
+  <text x="268" y="96" font-size="10.5" fill="#4a4a5a">Every index here is roughly</text>
+  <text x="268" y="112" font-size="10.5" fill="#4a4a5a">the same order of magnitude.</text>
+  <text x="536" y="96" font-size="10.5" fill="#a04040">A tiny lookup index pays pure</text>
+  <text x="536" y="112" font-size="10.5" fill="#a04040">overhead; a huge one can't spread.</text>
+
+  <!-- row 2 -->
+  <rect x="25" y="140" width="740" height="66" fill="#fbfcfe"/>
+  <text x="38" y="166" font-size="11" fill="#1a1a24" font-weight="600" font-family="ui-monospace, monospace">repartition(K)</text>
+  <text x="38" y="186" font-size="10" fill="#6a6a78">fixed writer parallelism</text>
+  <text x="268" y="166" font-size="10.5" fill="#4a4a5a">K parallel writers is a safe</text>
+  <text x="268" y="182" font-size="10.5" fill="#4a4a5a">amount of pressure to apply.</text>
+  <text x="536" y="166" font-size="10.5" fill="#a04040">Buries a smaller cluster; starves</text>
+  <text x="536" y="182" font-size="10.5" fill="#a04040">a job that could go far wider.</text>
+
+  <!-- row 3 -->
+  <rect x="25" y="210" width="740" height="66" fill="#f6f8fc"/>
+  <text x="38" y="236" font-size="11" fill="#1a1a24" font-weight="600" font-family="ui-monospace, monospace">replicas = 0</text>
+  <text x="38" y="256" font-size="10" fill="#6a6a78">refresh off while loading</text>
+  <text x="268" y="236" font-size="10.5" fill="#4a4a5a">The old index is still serving,</text>
+  <text x="268" y="252" font-size="10.5" fill="#4a4a5a">so this build is disposable.</text>
+  <text x="536" y="236" font-size="10.5" fill="#a04040">There is no old index — a first</text>
+  <text x="536" y="252" font-size="10.5" fill="#a04040">build has nothing to fall back to.</text>
+
+  <!-- row 4 -->
+  <rect x="25" y="280" width="740" height="66" fill="#fbfcfe"/>
+  <text x="38" y="306" font-size="11" fill="#1a1a24" font-weight="600" font-family="ui-monospace, monospace">delete old</text>
+  <text x="38" y="326" font-size="10" fill="#6a6a78">automatic cleanup</text>
+  <text x="268" y="306" font-size="10.5" fill="#4a4a5a">Index names are trustworthy</text>
+  <text x="268" y="322" font-size="10.5" fill="#4a4a5a">and only we create them.</text>
+  <text x="536" y="306" font-size="10.5" fill="#a04040">Someone's hand-made index matches</text>
+  <text x="536" y="322" font-size="10.5" fill="#a04040">the pattern — and is now gone.</text>
+
+  <line x1="25" y1="346" x2="765" y2="346" stroke="#9aa0b4"/>
+  <text x="25" y="366" font-size="10" fill="#6a6a78" font-style="italic">A default isn't wisdom or debt — it's wisdom that becomes debt the moment it outlives the workload it was chosen for.</text>
+</svg>
