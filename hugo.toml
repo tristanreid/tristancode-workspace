@@ -22,6 +22,10 @@ theme = 'tristancode-theme'
     name = "Blog"
     url = "/blog/"
     weight = 1
+  [[menu.main]]
+    name = "Start Here"
+    url = "/start-here/"
+    weight = 2
 
 [outputs]
   home = ["HTML", "RSS"]

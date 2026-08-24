@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 440" width="790" height="440" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-proj-d" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(91,140,255,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-proj-d" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-proj-d)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(91,140,255,0.12)" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow-proj-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#9aa0b4" stroke-width="1.2"/>
+    </marker>
+    <marker id="arrow-proj-active-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#5b8cff" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <rect width="790" height="440" fill="#14141c"/>
+  <rect width="790" height="440" fill="url(#grid-lg-proj-d)"/>
+
+  <!-- Sources column -->
+  <g font-size="12" fill="#e8e8f0">
+    <rect x="20" y="60" width="130" height="40" rx="6" fill="#1e2230" stroke="#9aa0b4"/>
+    <text x="85" y="84" text-anchor="middle">Operational records</text>
+    <rect x="20" y="130" width="130" height="40" rx="6" fill="#1e2230" stroke="#9aa0b4"/>
+    <text x="85" y="154" text-anchor="middle">Document APIs</text>
+    <rect x="20" y="200" width="130" height="40" rx="6" fill="#1e2230" stroke="#9aa0b4"/>
+    <text x="85" y="224" text-anchor="middle">Event logs</text>
+  </g>
+
+  <!-- Truth box -->
+  <rect x="230" y="120" width="130" height="60" rx="6" fill="#1a2440" stroke="#5b8cff" stroke-width="1.5"/>
+  <text x="295" y="145" text-anchor="middle" font-size="13" fill="#e8e8f0" font-weight="600">Canonical truth</text>
+  <text x="295" y="163" text-anchor="middle" font-size="11" fill="#9a9aac">(normalized, slow)</text>
+
+  <!-- Source arrows -->
+  <path d="M150,80 C190,80 195,135 228,142" fill="none" stroke="#9aa0b4" stroke-width="1.2" marker-end="url(#arrow-proj-d)"/>
+  <path d="M150,150 L228,150" fill="none" stroke="#9aa0b4" stroke-width="1.2" marker-end="url(#arrow-proj-d)"/>
+  <path d="M150,220 C190,220 195,165 228,158" fill="none" stroke="#9aa0b4" stroke-width="1.2" marker-end="url(#arrow-proj-d)"/>
+
+  <!-- Projection boxes -->
+  <g font-size="12" fill="#e8e8f0">
+    <rect x="440" y="20" width="150" height="40" rx="6" fill="#1e2230" stroke="#5b8cff"/>
+    <text x="515" y="44" text-anchor="middle">Relational rows</text>
+    <rect x="440" y="105" width="150" height="40" rx="6" fill="#1e2230" stroke="#5b8cff"/>
+    <text x="515" y="129" text-anchor="middle">OLAP cube</text>
+    <rect x="440" y="190" width="150" height="40" rx="6" fill="#1e2230" stroke="#5b8cff"/>
+    <text x="515" y="214" text-anchor="middle">Inverted index</text>
+    <rect x="440" y="275" width="150" height="40" rx="6" fill="#1e2230" stroke="#5b8cff"/>
+    <text x="515" y="299" text-anchor="middle">Graph features</text>
+    <rect x="440" y="360" width="150" height="40" rx="6" fill="#1e2230" stroke="#5b8cff"/>
+    <text x="515" y="384" text-anchor="middle">Vector index</text>
+  </g>
+
+  <!-- Truth -> projection arrows -->
+  <path d="M360,135 C400,120 405,60 438,42" fill="none" stroke="#5b8cff" stroke-width="1.2" marker-end="url(#arrow-proj-active-d)"/>
+  <path d="M360,145 C400,140 405,128 438,126" fill="none" stroke="#5b8cff" stroke-width="1.2" marker-end="url(#arrow-proj-active-d)"/>
+  <path d="M360,155 C400,160 405,206 438,209" fill="none" stroke="#5b8cff" stroke-width="1.2" marker-end="url(#arrow-proj-active-d)"/>
+  <path d="M360,165 C400,180 405,285 438,294" fill="none" stroke="#5b8cff" stroke-width="1.2" marker-end="url(#arrow-proj-active-d)"/>
+  <path d="M360,172 C400,195 405,368 438,378" fill="none" stroke="#5b8cff" stroke-width="1.2" marker-end="url(#arrow-proj-active-d)"/>
+
+  <!-- Questions answered -->
+  <g font-size="11" fill="#9a9aac">
+    <text x="600" y="44">→ point lookups, transactions</text>
+    <text x="600" y="129">→ aggregation, slicing</text>
+    <text x="600" y="214">→ ranked text retrieval</text>
+    <text x="600" y="299">→ relationships, authority</text>
+    <text x="600" y="384">→ semantic similarity</text>
+  </g>
+
+  <!-- Column labels -->
+  <g font-size="11" fill="#9a9aac" font-weight="600" letter-spacing="0.08em">
+    <text x="85" y="40" text-anchor="middle">SOURCES</text>
+    <text x="295" y="105" text-anchor="middle">ONE WORLD</text>
+    <text x="515" y="12" text-anchor="middle" alignment-baseline="hanging">PROJECTIONS · MANY ANSWERS</text>
+  </g>
+</svg>
