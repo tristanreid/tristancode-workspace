@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 340" width="790" height="340" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-url-l" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(37,99,235,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-url-l" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-url-l)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(37,99,235,0.08)" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow-url-l" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#9aa0b4" stroke-width="1.1"/>
+    </marker>
+    <marker id="arrow-url-active-l" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#2563eb" stroke-width="1.4"/>
+    </marker>
+  </defs>
+
+  <rect width="790" height="340" fill="#ffffff"/>
+  <rect width="790" height="340" fill="url(#grid-lg-url-l)"/>
+
+  <!-- Column headers -->
+  <g font-size="10" fill="#6a6a78" font-weight="600" letter-spacing="0.08em">
+    <text x="20" y="28">OBSERVED IN THE WILD</text>
+    <text x="330" y="28">CANONICALIZATION</text>
+    <text x="580" y="28">ONE IDENTITY</text>
+  </g>
+
+  <!-- Raw URLs -->
+  <g font-size="9" fill="#4a4a5a" font-family="ui-monospace, monospace">
+    <rect x="18" y="52" width="262" height="26" rx="4" fill="#fafafa" stroke="#d8d8e0"/>
+    <text x="28" y="69">docs.example.test/document/d/ABC/edit</text>
+    <rect x="18" y="88" width="262" height="26" rx="4" fill="#fafafa" stroke="#d8d8e0"/>
+    <text x="28" y="105">docs.example.test/document/d/ABC/view?tab=n</text>
+    <rect x="18" y="124" width="262" height="26" rx="4" fill="#fafafa" stroke="#d8d8e0"/>
+    <text x="28" y="141">drive.example.test/open?id=ABC</text>
+    <rect x="18" y="160" width="262" height="26" rx="4" fill="#fafafa" stroke="#d8d8e0"/>
+    <text x="28" y="177">go.example.test/launch-plan</text>
+    <rect x="18" y="196" width="262" height="26" rx="4" fill="#fafafa" stroke="#d8d8e0"/>
+    <text x="28" y="213">redirect.example.test/?url=%2Fd%2FABC</text>
+    <rect x="18" y="232" width="262" height="26" rx="4" fill="#fff5f5" stroke="#e0a0a0"/>
+    <text x="28" y="249" fill="#a04040">docs.example.test/document/d/ABC/edit).</text>
+  </g>
+  <text x="28" y="272" font-size="9" fill="#a04040" font-style="italic">…the last one was copied out of a sentence</text>
+
+  <!-- Converging arrows -->
+  <g fill="none" stroke="#9aa0b4" stroke-width="1.1">
+    <path d="M284,65 C310,65 305,120 326,140" marker-end="url(#arrow-url-l)"/>
+    <path d="M284,101 C310,101 305,128 326,144" marker-end="url(#arrow-url-l)"/>
+    <path d="M284,137 L326,147" marker-end="url(#arrow-url-l)"/>
+    <path d="M284,173 C310,173 305,166 326,157" marker-end="url(#arrow-url-l)"/>
+    <path d="M284,209 C310,209 305,178 326,162" marker-end="url(#arrow-url-l)"/>
+    <path d="M284,245 C310,245 305,190 326,168" marker-end="url(#arrow-url-l)"/>
+  </g>
+
+  <!-- Pipeline box -->
+  <rect x="330" y="60" width="200" height="190" rx="8" fill="#f6f8fc" stroke="#2563eb"/>
+  <g font-size="10.5" fill="#1a1a24">
+    <text x="346" y="86">1 · strip syntax noise</text>
+    <text x="346" y="112">2 · validate the form</text>
+    <text x="346" y="138">3 · unwrap redirects</text>
+    <text x="346" y="164">4 · follow short links</text>
+    <text x="346" y="190">5 · classify resource type</text>
+    <text x="346" y="216">6 · extract type-specific ID</text>
+    <text x="346" y="242" fill="#2563eb">7 · keep the original</text>
+  </g>
+
+  <!-- Arrow to identity -->
+  <path d="M534,150 L556,150" fill="none" stroke="#2563eb" stroke-width="1.4" marker-end="url(#arrow-url-active-l)"/>
+
+  <!-- Canonical record -->
+  <rect x="564" y="96" width="202" height="108" rx="8" fill="#eef3fe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="578" y="122" font-size="10" fill="#6a6a78" letter-spacing="0.06em">RESOURCE_ID</text>
+  <text x="578" y="142" font-size="11.5" fill="#1a1a24" font-family="ui-monospace, monospace">hosted-document:ABC</text>
+  <line x1="578" y1="156" x2="752" y2="156" stroke="#c8d4f0"/>
+  <text x="578" y="174" font-size="10" fill="#6a6a78">+ canonical_url</text>
+  <text x="578" y="192" font-size="10" fill="#6a6a78">+ observed_urls · redirect_chain</text>
+
+  <text x="20" y="316" font-size="10" fill="#6a6a78" font-style="italic">A URL records how a resource was reached. Identity is what you derive from it — and the rule differs by resource type.</text>
+</svg>

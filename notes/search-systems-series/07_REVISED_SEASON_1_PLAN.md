@@ -72,11 +72,29 @@ write — and its links into existing series.
   read after a failure, later intentionally excluding a document whose latest
   read failed. Policy-and-trust lesson no generic writer has.
 
-### 5. Entity Resolution Without an LLM *(deep dive)*
-- **POV hook:** deterministic matching + corpus statistics doing the job in
-  production; "respect for deterministic methods" stance made concrete.
-- **Links to:** Entity Detection series directly (this is its production-scale
-  sequel); Tries (matching machinery); HLL (corpus statistics at scale).
+### 5. ~~Entity Resolution Without an LLM~~ → **Embeddings Don't Know Which Rock You Mean**
+- **REPLACED 2026-08-24.** The original scope is *already published* on the
+  site and would have been near-duplicate. `entity-detection-scoring-matches`
+  covers Signal 1 (distinctiveness scored against Wikipedia document
+  frequency, TF-IDF style, with the You/Dark numbers) and Signal 4
+  (cross-entity corroboration — show + cast member). `entity-detection-the-you-problem`
+  covers the common-title problem. Writing "deterministic entity resolution"
+  again would repeat Tristan's own best work.
+- **The additive angle instead:** *entities vs. embeddings* — the comparison
+  the existing series never makes, and the half of his 2023 Netflix talk the
+  blog never covered. Claim: embeddings give you semantic neighborhood;
+  entity resolution gives you a **decision** — a discrete, joinable,
+  auditable ID you can filter, facet, govern, and build graph edges from.
+  A vector cannot be filtered on, counted, or corrected.
+- **POV hook:** "respect for deterministic methods in an LLM-heavy era" made
+  concrete and current; plus the correctability argument (a wrong rule can be
+  fixed; a wrong embedding can only be retrained around).
+- **Fresh example:** "The Rock" — unused anywhere on the site, and better
+  than the existing You/Dark cases because it's ambiguous across entity
+  *types* (person, film, landmark).
+- **Links to:** Entity Detection series for all mechanics (do NOT re-teach
+  them — 2–3 sentences and a link); Exploring High-Dimensional Data for what
+  embeddings actually are; post 1 for the projection framing.
 
 ### 6. A Knowledge Graph Without a Graph Database *(architectural)*
 - **POV hook:** bounded traversal + link-derived features computed in batch,

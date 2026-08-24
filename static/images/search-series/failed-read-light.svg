@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 440" width="790" height="440" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <pattern id="grid-sm-fr-l" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(37,99,235,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid-lg-fr-l" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#grid-sm-fr-l)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(37,99,235,0.08)" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow-fr-l" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#6a6a78" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <rect width="790" height="440" fill="#ffffff"/>
+  <rect width="790" height="440" fill="url(#grid-lg-fr-l)"/>
+
+  <!-- The event -->
+  <rect x="310" y="24" width="170" height="36" rx="18" fill="#fff5f5" stroke="#c05050" stroke-width="1.5"/>
+  <text x="395" y="47" text-anchor="middle" font-size="12.5" fill="#a04040" font-family="ui-monospace, monospace">fetch failed</text>
+  <text x="395" y="78" text-anchor="middle" font-size="10" fill="#6a6a78" letter-spacing="0.06em">THE SAME EVENT, TWO MEANINGS</text>
+
+  <path d="M330,62 C260,62 220,80 205,96" fill="none" stroke="#6a6a78" stroke-width="1.2" marker-end="url(#arrow-fr-l)"/>
+  <path d="M460,62 C530,62 570,80 585,96" fill="none" stroke="#6a6a78" stroke-width="1.2" marker-end="url(#arrow-fr-l)"/>
+
+  <!-- LEFT CARD -->
+  <rect x="25" y="102" width="350" height="308" rx="8" fill="#f6f8fc" stroke="#9aa0b4"/>
+  <text x="45" y="130" font-size="12" fill="#1a1a24" font-weight="600">When reads fail all the time</text>
+  <g font-size="10.5" fill="#4a4a5a">
+    <text x="45" y="158">· API rate limits break fetches constantly</text>
+    <text x="45" y="180">· Small, senior audience with broad access</text>
+    <text x="45" y="202">· Strict criteria to enter the corpus</text>
+  </g>
+  <line x1="45" y1="220" x2="355" y2="220" stroke="#d8d8e0"/>
+  <text x="45" y="244" font-size="10" fill="#6a6a78" letter-spacing="0.05em">A FAILURE TELLS YOU ABOUT…</text>
+  <text x="45" y="266" font-size="12" fill="#1a1a24">your infrastructure</text>
+  <text x="45" y="288" font-size="10.5" fill="#4a4a5a">Noise. It says nothing about the document,</text>
+  <text x="45" y="304" font-size="10.5" fill="#4a4a5a">which already passed a high bar to get in.</text>
+  <rect x="45" y="322" width="310" height="66" rx="6" fill="#eef3fe" stroke="#2563eb"/>
+  <text x="60" y="344" font-size="10" fill="#6a6a78" letter-spacing="0.05em">POLICY</text>
+  <text x="60" y="366" font-size="12" fill="#1a1a24" font-weight="600">Keep serving the last good version</text>
+  <text x="60" y="381" font-size="10.5" fill="#4a4a5a">Err toward inclusion.</text>
+
+  <!-- RIGHT CARD -->
+  <rect x="415" y="102" width="350" height="308" rx="8" fill="#f6f8fc" stroke="#9aa0b4"/>
+  <text x="435" y="130" font-size="12" fill="#1a1a24" font-weight="600">When reads almost always succeed</text>
+  <g font-size="10.5" fill="#4a4a5a">
+    <text x="435" y="158">· Rate limits fixed; fetches are reliable</text>
+    <text x="435" y="180">· Company-wide audience, mixed access</text>
+    <text x="435" y="202">· Broad criteria to enter the corpus</text>
+  </g>
+  <line x1="435" y1="220" x2="745" y2="220" stroke="#d8d8e0"/>
+  <text x="435" y="244" font-size="10" fill="#6a6a78" letter-spacing="0.05em">A FAILURE TELLS YOU ABOUT…</text>
+  <text x="435" y="266" font-size="12" fill="#1a1a24">the document</text>
+  <text x="435" y="288" font-size="10.5" fill="#4a4a5a">Signal. Deleted, moved, or access revoked —</text>
+  <text x="435" y="304" font-size="10.5" fill="#4a4a5a">and nothing vouched for it being here.</text>
+  <rect x="435" y="322" width="310" height="66" rx="6" fill="#fff5f5" stroke="#c05050"/>
+  <text x="450" y="344" font-size="10" fill="#6a6a78" letter-spacing="0.05em">POLICY</text>
+  <text x="450" y="366" font-size="12" fill="#1a1a24" font-weight="600">Drop it from the served corpus</text>
+  <text x="450" y="381" font-size="10.5" fill="#4a4a5a">Make exclusion easy and reliable.</text>
+
+  <text x="25" y="430" font-size="10" fill="#6a6a78" font-style="italic">The event never changed. What changed was how much a failure could tell you — and who was on the other side of the results page.</text>
+</svg>
