@@ -1,49 +1,68 @@
 ---
-title: "What Do You Expect Next, Honestly?"
-description: "Squaring the posterior mean isn't the same as predicting two future trials. The posterior predictive distribution is honest about lingering uncertainty in p."
+title: "Four Times the Trials, Half the Spread"
+description: "A posterior's spread shrinks with more data — but not as fast as 'doubling trials quarters the variance' suggests. Check the shortcut against the real number."
 lesson_number: 17
 track: bayes
-concept: "Posterior predictive: what do you expect next?"
+concept: "Posterior SD scales as 1/sqrt(n), not 1/n"
 stage: 2
 layout: puzzle
 role: puzzle
 answer_type: numeric
-builds_on: [12, 15, 16]
+builds_on: [15]
 skin: chalkboard
 numeric:
-  question: "What is the exact probability the next TWO trials are both successes, given the Beta(9, 5) posterior?"
-  answer: 0.429
-  tolerance: 0.005
+  question: "How many MORE trials (beyond the current 20) are needed to cut the posterior's standard deviation in half?"
+  answer: 60
+  tolerance: 6
+  unit: "additional trials"
 ---
 
-Lesson 16 left you holding a posterior, **Beta(9, 5)**, mean ≈ 0.643 — your current belief about the
-true success rate `p` for some process (say, a coin, or a conversion rate). A natural next question:
-if you had to predict actual future data, not just describe your belief about `p`, what would you
-say?
+**First, a quick retrieval check — a different concept, new setting.**
 
-**Posterior predictive distribution**: the probability of an *observable future outcome*, averaged
-over everything the posterior currently believes about `p`. It's the honest answer to "what do you
-expect to see next?" — honest because it doesn't pretend `p` is known; it accounts for your
-remaining uncertainty about `p` itself.
+A hiring test has this property: P(pass | qualified candidate) = 90%. It's not a perfect test though
+— P(pass | unqualified candidate) = 25% (some unqualified people get lucky). Suppose 20% of applicants
+are actually qualified (the base rate). A candidate passes. What's P(qualified | passed)? Compute it —
+then compare it to the bare 90% number a recruiter might quote from memory. They're not the same
+question.
 
-**The trap**: the tempting shortcut is to plug in a single number — the posterior mean, 0.643 — and
-treat it as if it *were* `p`, then compute ordinary probabilities from there. Under that shortcut,
-"both of the next two trials succeed" would be estimated as `0.643 × 0.643 ≈ 0.413`.
+*(Worked out in the solution.)*
 
-That shortcut is wrong, because it throws away the fact that `p` itself is still uncertain. The
-honest calculation integrates over the *whole* posterior distribution for `p`, not just its mean.
-For a beta posterior `Beta(a, b)`, the exact probability that the next two independent trials are
-both successes is:
+---
 
-```
-P(next two both succeed) = [ a / (a+b) ] × [ (a+1) / (a+b+1) ]
-```
+Lesson 15 gave you the mechanics: `Beta(α, β)` behaves like `α` virtual successes and `β` virtual
+failures. Lesson 16's colleague scenario aside, here's a different, extremely common wrong shortcut
+about the *same* beta-binomial machinery — this time about how fast a posterior's uncertainty
+shrinks.
 
-(This comes from asking the question one trial at a time: the first trial succeeds with probability
-equal to the posterior mean `a/(a+b)`; *given* that success, the posterior itself updates to
-`Beta(a+1, b)` — exactly like Lesson 15's update rule — before you ask about the second trial. You're
-chaining two posterior means, not squaring one.)
+**Terms (standalone):**
 
-**Your task:** using `a = 9`, `b = 5`, compute the exact probability that the next two trials are
-both successes. Give your answer to three decimal places, and compare it to the naive
-"square-the-mean" shortcut above.
+- **Posterior standard deviation (SD)**: how spread out the posterior distribution is — a small SD
+  means you're fairly confident about the true rate `p`; a large SD means substantial remaining
+  uncertainty. It's the square root of the **variance**.
+- **Pseudo-count weight**: as in Lesson 15, `α + β` is the total "trial count" behind a
+  `Beta(α, β)` posterior — real trials plus the prior's virtual ones. Priors don't have to be
+  specified with whole-number pseudo-counts: a prior stated as "centered at 33%, with the weight of
+  20 trials" means `α = 0.33 × 20 = 6.6` and `β = 0.67 × 20 = 13.4` — fractional pseudo-counts are
+  completely normal once a prior is defined by a *centre* and a *weight* rather than raw counts.
+- **The approximation this lesson uses**: for a beta posterior with mean `p` and total weight `n`
+  (`n = α + β`), the variance is well approximated by `p(1−p) / n`. (The exact formula has an extra
+  `+1` in the denominator that matters little once `n` isn't tiny; this track uses the simpler form
+  throughout, same as the exact-enough convention from Lesson 15's "how much data to overturn a
+  prior" estimate.)
+
+**A colleague's shortcut.** You currently hold the posterior `Beta(6.6, 13.4)` — built from a prior
+centered at `p = 0.33` with the weight of 20 trials (so `n = α + β = 20`). Your colleague says:
+*"Variance has the trial count squared in the denominator, so if you want to cut the standard
+deviation in half, just double the trials — 20 more should do it."*
+
+**Part 1 — Check the shortcut directly.** Using the approximation `variance ≈ p(1−p)/n`, compute the
+posterior's SD right now (at `n = 20`), and then compute what the SD would be if the trial count
+merely **doubled** to `n = 40` (same posterior mean `p = 0.33` throughout, as if new data kept
+arriving at the same underlying rate). Did doubling `n` actually halve the SD?
+
+**Part 2 — Find the trial count that genuinely halves the SD.** Using the same approximation, solve
+for the total trial count `n'` at which the SD is exactly half of its value at `n = 20`. (Hint:
+`variance ∝ 1/n`, so `SD ∝ 1/√n` — work out what has to happen to `n` for `√n` to double.)
+
+**Part 3 — The numeric answer above.** How many *additional* trials beyond the current 20 does that
+require? That's the number to submit.

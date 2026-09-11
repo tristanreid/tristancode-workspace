@@ -1,53 +1,71 @@
 ---
-title: "Solution: When the Closed Form Runs Out"
-description: "Option 3 — a bimodal belief force-fit into a Beta(2,2) shape. The closed-form update then answers a question about the wrong prior."
+title: "Solution: One Update, Two Distributions"
+description: "184 ms — the prior is worth only 4 virtual measurements against 16 real ones, so the posterior lands much closer to the data than to the prior."
 lesson_number: 20
 track: bayes
-concept: "When conjugacy breaks and why that's fine (grid thinking preview)"
+concept: "Conjugacy: beta-binomial and normal-normal"
 stage: 3
 layout: solution
 role: solution
-builds_on: [19]
+builds_on: [15]
 skin: chalkboard
 resources:
-  - title: "Think Bayes 2 — Chapter 3, Estimation"
-    url: https://allendowney.github.io/ThinkBayes2/chap03.html
-    note: "grid approximation worked from scratch, no conjugacy required"
+  - title: "Seeing Theory — Bayesian Inference"
+    url: https://seeingtheory.brown.edu/bayesian-inference/index.html
+    note: "interactive posterior visualization; the same shrink-and-shift behavior, any conjugate family"
 ---
 
-**Option 3.** Setups 1, 2, and 4 all use a prior that genuinely *is* the shape it's paired with —
-Beta with Bernoulli/binomial, Normal with Normal — so the closed-form update is exact and correct.
-Setup 3 uses the same `Beta(2, 2)` arithmetic, but admits up front that the real belief being
-represented is **bimodal** (two humps — "probably low, or probably high, but probably not the
-single-humped middle that Beta(2,2) actually describes"). A Beta(2, 2) is single-peaked at 0.5 by
-construction; it *cannot* represent "I think it's either around 0.2 or around 0.8, unlikely to be near
-0.5" no matter how you tune its two parameters. Feeding it into the closed-form update produces a
-perfectly valid posterior — for the wrong prior. The arithmetic doesn't know it's being lied to.
+**Retrieval check answer.** P(alarm) = 0.98×0.01 + 0.05×0.99 = 0.0098 + 0.0495 = 0.0593.
+P(defective | alarmed) = 0.0098 / 0.0593 ≈ **0.165** (about 16.5%) — most alarms are false alarms, the
+same base-rate story as Lesson 7, on a factory line instead of a clinic.
 
-**Why this matters more than it sounds like it should.** Conjugacy is seductive precisely because
-it's so convenient: pick a prior *because* it's conjugate, rather than because it's what you
-actually believe, and the update stays easy — while quietly drifting away from representing your
-real uncertainty. The rule to hold onto: **conjugacy is a property of a prior-likelihood pair, not
-a blank check to approximate any belief with whatever family makes the math clean.**
+---
 
-**What you do instead: grid approximation.** When the true prior doesn't match any conjugate family
-(bimodal, oddly skewed, bounded in a strange way, built from a mix of expert opinions — anything),
-you can still get an exact-enough posterior *numerically*, no closed form required:
+**Part 1 — Virtual sample size: `n₀ = 400/100 = 4`.** This prior is worth only 4 virtual
+measurements — weak, compared to 16 real ones (4× as much real evidence as prior evidence). Expect the
+posterior to land much closer to the data's 180 ms than to the prior's 200 ms.
 
-1. Lay out a fine grid of candidate values for the parameter (say, `p = 0.00, 0.01, 0.02, ..., 1.00`).
-2. Assign each grid point a prior weight matching your *actual* belief (read it off your hand-drawn
-   curve, however lumpy).
-3. For each grid point, multiply by the likelihood of the observed data at that value of `p`
-   (the same binomial/normal/whatever likelihood formula you've been using all along).
-4. Normalize (divide by the sum) so the weights sum to 1 — that's your posterior, one number per
-   grid point, as a lookup table instead of a formula.
+**Part 2 — Posterior mean: 184 ms.**
 
-No conjugate family required — this works for *any* prior shape, at the cost of doing the sum by
-brute force instead of algebra. It's less elegant than a closed form, and it's also strictly more
-general: closed-form updates are the special case where the brute-force grid sum happens to have a
-tidy algebraic shortcut.
+```
+prior precision = 1/100 = 0.01
+data precision   = 16/400 = 0.04
+posterior precision = 0.01 + 0.04 = 0.05
 
-**Where this goes:** Stage 5 builds grid approximation properly, by hand, as "the honest workhorse"
-for exactly this situation. For now, the lesson to keep is narrower: before reaching for a conjugate
-shortcut, check that the shortcut's shape is actually the belief you hold — not just the belief
-that's easiest to compute with.
+posterior mean = (200 × 0.01 + 180 × 0.04) / 0.05
+               = (2 + 7.2) / 0.05
+               = 9.2 / 0.05
+               = 184
+```
+
+184 ms is 4× closer to the data (180) than to the prior (200) — distance 4 from the data, distance 16
+from the prior, a 4:1 split, exactly matching the 4:1 ratio of data precision to prior precision
+(`0.04 : 0.01`). This is the *precision-weighted average* doing exactly what its name says: whichever
+side carries more precision (equivalently, more "weight" in the beta-binomial sense) pulls the
+posterior more of the way toward itself.
+
+**Part 3 — With `n = 100`: posterior mean ≈ 180.77 ms.**
+
+```
+data precision = 100/400 = 0.25
+posterior precision = 0.01 + 0.25 = 0.26
+posterior mean = (200×0.01 + 180×0.25) / 0.26 = (2 + 45)/0.26 = 47/0.26 ≈ 180.77
+```
+
+With 100 real measurements, data precision (0.25) dwarfs the prior's fixed 0.01 — the posterior lands
+almost exactly on the data's 180, barely nudged by the prior at all. This is **washing out the
+prior** (Lesson 14) in its precision-weighted form: any finite prior's pull is a fixed, bounded
+quantity, while data precision grows without bound as `n` grows, so enough real data eventually
+swamps any reasonable prior — the same phenomenon, in a completely different distribution family.
+
+**Why this is conjugacy, concretely.** Neither computation touched an integral. You added two
+precisions and took a weighted average of two means, and the algebra of normal distributions
+*guarantees* the result is itself normal. That's what "conjugate" buys you: a prior family paired
+with a matching likelihood family such that the posterior stays in the same family, collapsing the
+update to arithmetic on that family's own parameters. Beta-binomial adds *counts* (`α`, `β`);
+normal-normal adds *precisions* and takes a weighted mean. Different parameters, same underlying
+shape: combine what you believed with what you saw, weighted by how much each side is worth trusting.
+
+**Where this goes:** conjugate pairs like these two are the convenient exception, not the rule — most
+real priors and likelihoods you'd actually want to combine don't have a tidy closed form at all. Next
+lesson previews exactly what breaks conjugacy, and what you do once the closed form runs out.

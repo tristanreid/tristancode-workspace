@@ -1,103 +1,97 @@
 ---
-title: "Solution: What Happens Next — Continuation-Passing Style"
-description: "CPS moves 'what happens next' out of the implicit call stack and into an explicit, ordinary function value — which is exactly why every CPS call can be a tail call."
+title: "Solution: Tail Calls — What an Accumulator Actually Buys You"
+description: "sum_plain needs 40 simultaneous stack frames for a 40-element list; a TCO'd sum_acc needs 1, regardless of length — 39 frames saved. Python has no TCO, so the accumulator form alone doesn't save it from RecursionError."
 lesson_number: 33
 track: fp
 aliases: ["/learn/0033-solution/"]
-concept: "Continuation-passing style (CPS)"
-stage: 6
+concept: "Tail calls & accumulators"
+stage: 5
 layout: solution
 role: solution
-builds_on: [17, 31]
+builds_on: [6, 12, 32]
 skin: chalkboard
 ---
 
-### Part 1 — `square_cps` and the chained continuation
+### Warm-up recall answer
 
-```python
-def square_cps(x, k):
-    k(x * x)
-
-square_cps(4, lambda result: print(result + 1))
-# prints 17
-```
-
-Trace it: `square_cps(4, k)` computes `4 * 4 = 16`, then calls `k(16)`. The continuation
-`lambda result: print(result + 1)` receives `16`, computes `16 + 1 = 17`, and calls `print(17)`.
-Nothing was ever `return`ed for the "real" answer — the entire computation, including the final
-side effect, happened by a chain of continuation calls. `k` *is* "everything that happens after
-`square_cps` produces its answer," made into a value you can see and pass around.
+`Rectangle(4, 5)` matches the `Rectangle(w, h) → w*h` branch: `4 * 5 = 20`. **20.**
 
 ---
 
-### Part 2 — Chaining `add1_cps` into `square_cps`
+### Part 1 — `sum_plain` on 40 elements: 40 frames
 
-```python
-def add1_cps(x, k):
-    k(x + 1)
-
-def square_cps(x, k):
-    k(x * x)
-
-add1_cps(3, lambda r1: square_cps(r1, lambda r2: print(r2)))
-# prints 16
-```
-
-Trace it: `add1_cps(3, k1)` where `k1 = lambda r1: square_cps(r1, k2)`. It computes `3 + 1 = 4`,
-then calls `k1(4)`. That runs `square_cps(4, k2)` where `k2 = lambda r2: print(r2)`. `square_cps`
-computes `4 * 4 = 16`, then calls `k2(16)`, which prints `16`.
-
-The key structural point: `add1_cps`'s continuation `k1` is not "print the answer" — it's "*take my
-answer and feed it into `square_cps`*." Composing two CPS functions means nesting continuations:
-the first function's continuation is a lambda that calls the second function, passing along
-*its own* continuation as the innermost one. This is the general recipe for chaining any sequence
-of CPS calls — each step's continuation is "call the next step, with the continuation for the step
-after that."
+Each call peels off one element and defers its `+` until the recursive call on the remaining
+`39, 38, …, 1, 0`-element sublist returns. The base case (`lst` empty) is the 41st call but returns
+immediately without recursing further — the *deepest simultaneous* stack, counting the original call
+as depth 1, is the 40 calls that are each still waiting on their pending `+`: calls for the
+40-element list down through the 1-element list. **40 frames.**
 
 ---
 
-### Part 3 — Where "what happens next" lives, and the consequence
+### Part 2 — `sum_acc` under TCO: 1 frame
 
-In direct style, "what happens next" after `f(x)` returns lives in the **call stack**: it's the
-sequence of pending stack frames, each holding a fragment of unfinished work (`+ 1`, `print(...)`,
-etc.), invisible to the program itself — you can't inspect it, save it, or pass it somewhere else.
-It's *implicit* machinery the runtime manages for you.
+Every call to `sum_acc` is in tail position — `return sum_acc(lst[1:], acc + lst[0])` has nothing
+pending after the call. A TCO runtime recognizes this and reuses the *same* frame for every
+recursive call instead of pushing a new one, since the old frame's locals are dead the instant the
+tail call is made. Stack usage stays at **1 frame**, whether the list has 40 elements or 4 million —
+this is exactly why languages that guarantee TCO can treat tail recursion as a genuine substitute
+for a loop.
 
-In CPS, that exact same information — "what happens next" — is **reified as an ordinary function
-value**, `k`. It's no longer hidden runtime bookkeeping; it's data. You can:
+---
 
-- **Pass it as an argument** (which is the whole point — every CPS function takes `k` explicitly).
-- **Store it** in a variable, a data structure, even return it from a function.
-- **Call it more than once**, or not at all — direct style's stack frame is consumed exactly once,
-  automatically, when a function returns. A continuation, being an ordinary function, can be called
-  zero, one, or many times by whoever holds it. (Calling a continuation twice runs "the rest of the
-  program" twice — this is the mechanism behind some advanced control-flow constructs like
-  backtracking and generators, in languages that expose continuations directly.)
+### Part 3 — The graded answer: 39
 
-The practical, immediate consequence for *this* track: because every CPS function's body ends in
-exactly one call — to `k`, or to another CPS function carrying `k` forward — **every call in CPS
-code is automatically in tail position** (Lesson 31's definition: nothing pending after the call).
-You get Lesson 31's tail-call discipline for free, by construction, rather than by remembering to
-add an accumulator by hand. That's the connection Stage 6 opens with: CPS doesn't just organize
-control flow explicitly — it's a systematic technique for writing exclusively tail-recursive code.
+`40 (sum_plain) − 1 (sum_acc under TCO) = 39` frames saved, for the 40-element case specifically.
+The savings scale with the list — a 4-million-element list would save roughly 4 million frames, not
+because `sum_acc` got smarter, but because tail position plus TCO turns "one frame per call" into
+"one frame, period."
+
+---
+
+### Part 4 — Python still has no TCO
+
+**No** — rewriting `sum_plain` into `sum_acc` does **not** save you from `RecursionError` in Python
+specifically, because the *rewrite alone* only creates the tail-call *opportunity*; it takes a
+runtime that actually recognizes and optimizes tail calls to cash it in. Python's interpreter pushes
+a genuine stack frame for every call, tail or not — `sum_acc` on a 10,000-element list still needs
+roughly 10,000 real frames in Python, blowing past the ~1000-frame default limit exactly as
+`sum_plain` would (perhaps even doing so, since both are equally "non-tail-call-optimized" from
+Python's point of view — the accumulator's *shape* is TCO-friendly, but Python never checks).
+
+To actually sum a 10,000-element list in Python without recursion-depth trouble, you'd rewrite the
+recursion as an explicit loop:
+
+```python
+def sum_loop(lst):
+    acc = 0
+    for x in lst:
+        acc += x
+    return acc
+```
+
+This is, not coincidentally, *exactly* what TCO does mechanically to `sum_acc` under the hood in a
+language that supports it — reuse one frame, update `acc` in place, repeat. In Python, you have to
+perform that transformation yourself, by hand, as a loop, because the interpreter won't do it for
+you.
 
 ---
 
 ### The pattern
 
-| | Direct style | CPS |
-|---|---|---|
-| Result delivery | `return` to an implicit caller | explicit call to `k` |
-| "What happens next" | implicit, on the call stack | explicit function value, passed as data |
-| Call position | may or may not be tail position | **always** tail position |
-| Can inspect/store/reuse "next step"? | no | yes — it's just a value |
+**The accumulator pattern (Lesson 12) makes a function tail-recursive; TCO is what a runtime has to
+do to actually turn "tail-recursive" into "constant stack space."** They are two separate things —
+one is how you write the code, the other is a runtime guarantee some languages make and others
+(Python, notably) don't. Writing tail-recursive code in a non-TCO language is not wasted effort — it
+documents the loop-like structure clearly and it's a trivial mechanical step to a `while`/`for` loop
+— but it does not, by itself, save you from a stack limit in that language.
 
-**Rule**: CPS trades implicit control flow (the call stack) for an explicit one (continuations
-passed as arguments) — the same information exists either way, but making it a first-class value is
-what enables both "every call is a tail call" and, more broadly, treating control flow itself as
-data you can manipulate.
+**Stage 5 complete.** You've now covered eager vs. lazy evaluation, building infinite structures with
+laziness, why an eager self-referential definition can run away instead of terminating, and what
+tail position and TCO actually buy you in stack space. One thread is still open for a future batch:
+*sharing vs. recomputation* — what happens when a pure, perfectly correct recursive definition
+still does wildly redundant work, and how memoization fixes it without touching correctness at all.
 
-**Where this goes:** next lesson pushes on the tail-call connection directly — how a CPS-transformed
-program, with every call in tail position, can be mechanically run as a plain loop (a
-*trampoline*), turning Stage 6's control-flow trick into a genuine, practical stack-safety
-technique, and setting up early exit / escape via continuations after that.
+**Also coming**: Stage 6 opens with continuation-passing style (CPS) — an explicit way of writing
+"what happens next" as an ordinary value instead of leaving it implicit in the call stack, which
+turns out to make *every* call a tail call by construction, closing the loop on today's lesson from
+a completely different angle.

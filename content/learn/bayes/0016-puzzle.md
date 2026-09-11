@@ -1,68 +1,72 @@
 ---
-title: "How Much Does One More Observation Move You?"
-description: "The same single new data point moves a young posterior a lot and a mature one barely at all. Estimate before you compute — this is a calibration puzzle."
+title: "The Ordering Doesn't Vanish, It Cancels"
+description: "A likelihood ratio between two hypotheses isn't about which sequence is 'more special' — it's a ratio, and the ordering count cancels out of it exactly."
 lesson_number: 16
 track: bayes
-concept: "Watching the posterior sharpen; how much one observation moves you"
+concept: "Binomial likelihood as a ratio between hypotheses"
 stage: 2
 layout: puzzle
 role: puzzle
-answer_type: estimate
-builds_on: [11, 15]
+answer_type: numeric
+builds_on: [9, 13]
 skin: chalkboard
-estimate:
-  prompt: "Start from Lesson 15's posterior, Beta(9, 5) (mean ≈ 0.643, built from a Beta(2,2) prior plus 7 successes / 3 failures). You observe ONE more trial: a success. What's the new posterior mean, as a decimal?"
-  answer: 0.667
-  unit: ""
+numeric:
+  question: "Likelihood ratio for p = 0.75 vs p = 0.5, given 6 heads in 8 flips. Answer to 3 decimal places."
+  answer: 2.848
+  tolerance: 0.01
 ---
 
-Lesson 15 gave you the mechanics: posterior = Beta(α + k, β + n−k), addition of counts. This lesson
-asks you to build intuition for the *shape* of that update as data accumulates one point at a time
-— specifically, how much a single new observation is capable of moving an already-updated
-posterior.
+**First, a quick retrieval check — a concept from a few weeks back, in a new setting.**
 
-**Terms (standalone):**
+An outage-triage bot flags deploys as "likely cause" of an incident. Historically, 2% of all deploys
+ever cause an outage (the base rate). When a deploy really did cause the outage, the bot flags it 95%
+of the time. When a deploy is innocent, the bot still flags it 10% of the time (false alarms happen).
+The bot flags today's deploy. What's P(this deploy actually caused the outage | flagged)? Work it out
+before reading on — Lesson 7's base-rate machinery, just relocated.
 
-- **Sharpening**: as more data accumulates, a beta posterior's variance shrinks — it becomes more
-  concentrated (taller, narrower) around its mean. A posterior with `α + β = 1000` is "sharper"
-  (more confident, lower variance) than one with `α + β = 4`, even if both happen to have the same
-  mean.
-- **Diminishing sensitivity**: the more total weight (`α + β`, real + virtual trials) a posterior
-  already carries, the less a *single additional* observation can move its mean. Going from 0
-  trials to 1 trial can swing a mean from "unknown" to "100% or 0%." Going from 1,000 trials to
-  1,001 barely moves it at all — one more data point is now a tiny fraction of the total evidence.
-
-### Part 1 — Estimate (above): one more success on top of Beta(9, 5)
-
-Give your best guess for the new posterior mean after adding one success to Beta(9, 5), plus a 90%
-interval you're confident contains the true value. Think about it via the addition-of-counts rule
-before computing exactly — the point of this puzzle is to calibrate your *intuition* for how far
-one data point moves a mean that already represents 14 units of evidence.
+*(Answer, worked out, is in the solution — don't skip checking it.)*
 
 ---
 
-### Part 2 — Same single success, on a much younger posterior
+Lesson 13 introduced the **binomial likelihood**: for a fixed candidate rate `p`, how probable was
+the data you saw. It also introduced `C(n, k)` — the count of orderings that produce `k` heads out
+of `n` flips — as part of the formula:
 
-Now imagine the *same* single new success, but observed against a much weaker starting point:
-**Beta(1, 1)** (the uniform prior, zero virtual trials — genuine ignorance). What's the new
-posterior mean after that one success lands on Beta(1, 1)? Compute it exactly.
+> P(k heads in n flips | p) = C(n, k) · p^k · (1−p)^(n−k)
 
----
+Today's puzzle targets a specific, very common failure mode with that formula: using it to compare
+**two competing hypotheses about `p`**, on the **same observed data**.
 
-### Part 3 — Compare the two movements
+**A colleague's claim.** You flip a coin 8 times and see this exact sequence:
+`H H T H H H T H` — 6 heads, 2 tails, in that specific order. You suspect the coin might be biased
+toward heads (`p = 0.75`) rather than fair (`p = 0.5`). Your colleague says: *"We saw one unique,
+specific sequence of flips. Every unique sequence of 8 flips is equally probable, so the number of
+orderings — that `C(8, 6)` term — doesn't actually matter here. Just compare `0.75` to `0.5` directly
+and forget the combinatorics."*
 
-- Beta(9, 5) → one success → Beta(10, 5): mean goes from 9/14 ≈ 0.643 to 10/15 ≈ ?
-- Beta(1, 1) → one success → Beta(2, 1): mean goes from 1/2 = 0.5 to 2/3 ≈ ?
+**Is the colleague right?** Work through these two checks before computing the main answer:
 
-Compute both new means exactly, then state each *movement* (new mean − old mean). Which posterior
-moved further from a single identical observation, and explain why in terms of total weight
-(`α + β`) *before* the new data point arrived.
+**Check A — same composition, different order.** Take two *different* orderings that both have 6
+heads and 2 tails — say `H H T H H H T H` and `H T H H H H T H`. Under `p = 0.75`, is
+P(first exact sequence) equal to P(second exact sequence)? (They have the same number of heads, just
+rearranged.)
 
----
+**Check B — different composition.** Now take a sequence with 6 heads, 2 tails, and compare it to a
+*different* specific sequence with only 2 heads, 6 tails — same length (8 flips), different
+composition. Under `p = 0.75`, is P(the 6-heads sequence) equal to P(the 2-heads sequence)? Compute
+the ratio between them.
 
-### Part 4 — General rule
+Your colleague's claim ("every unique sequence is equally probable") is really a claim about Check B,
+generalized incorrectly from something true about Check A. Sort out which check supports the claim
+and which one refutes it.
 
-Based on Parts 1–3, write a one-sentence rule for how much a single new observation can move a beta
-posterior's mean, as a function of the posterior's total weight (`α + β`) before that observation.
-(You don't need a formula — a clear qualitative statement is enough, though if you want the exact
-form: the maximum possible movement from one observation is on the order of `1 / (α + β + 1)`.)
+**Now the main question.** Compute the **likelihood ratio** comparing `p = 0.75` against `p = 0.5`,
+for the observed data (6 heads, 2 tails, in the specific order given):
+
+> LR = P(data | p = 0.75) / P(data | p = 0.5)
+
+Do this two ways: (1) using the *specific-sequence* probability (no `C(n,k)` at all — just
+`p^6(1−p)^2` for each hypothesis), and (2) using the *count-of-heads* probability (with `C(8,6)` in
+both numerator and denominator). Confirm both ways give the same ratio, and see exactly why `C(8,6)`
+was never doing any work in a ratio between hypotheses, even though it mattered enormously in Check B
+above.

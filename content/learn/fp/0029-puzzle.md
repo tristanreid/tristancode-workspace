@@ -1,114 +1,99 @@
 ---
-title: "Infinite Streams via Laziness"
-description: "A stream is a list whose tail is a thunk. You can define an infinite stream and take as many elements as you want — the rest are never computed. Build ones, naturals, stream_map, and the infinite sieve of Eratosthenes."
+title: "Fold ∘ Unfold: Never Build the Tree At All"
+description: "Build-then-consume is a clean mental model, but you don't have to actually build. Fuse tree_unfold and the depth fold into one recursive function that computes depth directly from a range."
 lesson_number: 29
 track: fp
 aliases: ["/learn/0029-puzzle/"]
-concept: "Infinite streams"
-stage: 5
+concept: "Fold ∘ Unfold (fusion)"
+stage: 4
 layout: puzzle
 role: puzzle
-answer_type: reveal
-builds_on: [28]
+answer_type: numeric
+builds_on: [23, 25, 28]
 skin: chalkboard
+numeric:
+  question: "Write depth_of_range(lo, hi) as a single fused recursive function (no tree ever built) that computes the depth tree_unfold + the Lesson 23 depth fold would produce for the balanced BST over [lo, hi]. What is depth_of_range(1, 20)?"
+  answer: 4
+  tolerance: 0
+  unit: "edges (depth)"
 ---
 
-In a lazy language, you can define an infinite list and it works fine — elements are computed on demand. In Python (eager), you simulate this by making the *tail* of each list node a **thunk**: a zero-argument lambda that, when called, produces the next node.
+**Warm-up recall (Lesson 14).** Building `map` from scratch means applying a function to every
+element of a list and collecting the results, in order, into a new list. Apply "add 5" as a map over
+`[10, 20, 30]`, then sum the mapped result. What number do you get? Keep it; the solution confirms
+it.
 
-**Terms:**
+---
 
-- **Stream** (lazy list): `Stream = Nil | Cons(head: A, tail: () → Stream[A])`. The tail is a thunk, not an evaluated stream.
-- **Infinite stream**: a `Cons` whose tail thunk always produces another `Cons` — it has no `Nil`. You can take finitely many elements; you never evaluate the whole thing.
-- **Thunk** (standalone, from Lesson 28): a zero-argument lambda: `lambda: <expr>`. The expression runs only when you call `thunk()`.
-- **`take(n, stream)`**: return the first `n` elements as an eager Python list.
+**Terms (standalone):**
+
+- **Tree unfold** (Lesson 28): `tree_unfold(seed, pred, value, left_seed, right_seed)` builds a
+  `Tree` from a seed, branching into two child seeds per step.
+- **Tree fold** (Lesson 23): `tree_fold(leaf_val, node_fn, t)` consumes a `Tree` into a value,
+  replacing `Leaf` with `leaf_val` and `Node(v,l,r)` with `node_fn(v, fold(l), fold(r))`.
+- **Fusion**: combining an unfold immediately followed by a fold into a single recursive function
+  that never materializes the intermediate structure. Lesson 25 did this for lists (`sum_range`
+  fused a list `unfold` with a `foldl`); today does it for trees.
+
+### Why fusion works
+
+`tree_unfold` then `tree_fold` looks like two passes: build the whole tree, then walk it. But look
+at what each piece of `tree_fold` actually needs when the tree in question was *just* produced by
+`tree_unfold` from a seed:
+
+- `tree_fold`'s `Leaf` case fires exactly when `tree_unfold`'s `pred(seed)` was true.
+- `tree_fold`'s `Node(v, l, r)` case needs `v` (which is exactly `value(seed)`) and the folded
+  results of the two children — which, if you never build the tree, are just **recursive calls of
+  the fused function on `left_seed(seed)` and `right_seed(seed)`**.
+
+So the unfold's branching structure and the fold's combining logic can be interleaved into one
+function that goes straight from seed to final answer:
 
 ```python
-class Nil: pass
-
-class Cons:
-    def __init__(self, head, tail_thunk):
-        self.head = head
-        self.tail_thunk = tail_thunk   # () → Stream
-
-def take(n, stream):
-    if n == 0 or isinstance(stream, Nil):
-        return []
-    return [stream.head] + take(n - 1, stream.tail_thunk())
+def fused(seed):
+    if pred(seed):
+        return leaf_val
+    v = value(seed)
+    return node_fn(v, fused(left_seed(seed)), fused(right_seed(seed)))
 ```
 
-Example — a finite stream of `[1, 2, 3]`:
+No `Tree` object is ever constructed. `fused` *is* `tree_unfold` and `tree_fold` composed, with the
+tree itself compiled away.
+
+---
+
+### Part 1 — Fuse `depth` for the range-seed tree
+
+Lesson 28's range-seed `tree_unfold` used:
 
 ```python
-s = Cons(1, lambda: Cons(2, lambda: Cons(3, lambda: Nil())))
-take(3, s)   # → [1, 2, 3]
-take(5, s)   # → [1, 2, 3]   (Nil stops it early)
+pred        = lambda s: s[0] > s[1]
+value       = lambda s: (s[0] + s[1]) // 2
+left_seed   = lambda s: (s[0], (s[0] + s[1]) // 2 - 1)
+right_seed  = lambda s: ((s[0] + s[1]) // 2 + 1, s[1])
 ```
 
----
-
-### Part 1 — `ones`: the infinite stream of 1s
-
-Write `ones()` — a function that returns an infinite stream of 1s — such that:
-
-```python
-take(5, ones())   # → [1, 1, 1, 1, 1]
-take(0, ones())   # → []
-```
-
-Hint: the tail thunk calls `ones()` again. At what point does the recursion stop?
+And Lesson 23's depth fold used `leaf_val = -1`, `node_fn(v, l, r) = 1 + max(l, r)`. Substitute both
+into the `fused` template above to get a single function `depth_of_range(lo, hi)` that computes tree
+depth directly from a range — no tree, no separate fold pass.
 
 ---
 
-### Part 2 — `naturals(start)`: the infinite natural numbers
+### Part 2 — Sanity-check against Lesson 28
 
-Write `naturals(start)` so that `take(5, naturals(0))` → `[0, 1, 2, 3, 4]`.
-
-The current value is `start`; the tail should produce `naturals(start + 1)`. Where does `start + 1` live — in the closure or as an argument?
-
----
-
-### Part 3 — `stream_map(f, stream)`: lazy transformation
-
-Write `stream_map(f, stream)` that applies `f` to every element of the stream *lazily*. The result is a new `Stream` where each element is `f` applied to the corresponding input element. No elements beyond those demanded by the caller should be computed.
-
-```python
-doubled = stream_map(lambda x: x * 2, naturals(1))
-take(5, doubled)   # → [2, 4, 6, 8, 10]
-```
-
-The tail of the result must itself be a thunk.
+You already know, from Lesson 28's numeric answer, what depth the `(1, 10)` balanced BST has. Run
+your fused function (on paper) on `depth_of_range(1, 10)`. Does it match?
 
 ---
 
-### Part 4 — The infinite Sieve of Eratosthenes
+### Part 3 — The graded question (above)
 
-The sieve generates all primes: start from `naturals(2)`; the head is a prime; filter out all its multiples from the tail; recurse on the filtered tail.
-
-```python
-def stream_filter(pred, stream):
-    if isinstance(stream, Nil):
-        return Nil()
-    if pred(stream.head):
-        return Cons(stream.head, lambda: stream_filter(pred, stream.tail_thunk()))
-    return stream_filter(pred, stream.tail_thunk())
-
-def sieve(stream):
-    p = stream.head
-    return Cons(p, lambda: sieve(stream_filter(lambda x: x % p != 0,
-                                               stream.tail_thunk())))
-
-primes = sieve(naturals(2))
-take(7, primes)   # → [2, 3, 5, 7, 11, 13, 17]
-```
-
-Trace `take(3, sieve(naturals(2)))` step by step. At each step, name:
-- what the current stream's head is
-- what filters are stacked on the tail
+Compute `depth_of_range(1, 20)` using your fused function. Enter the result in the numeric box.
 
 ---
 
-### Part 5 — Why the thunk stops the infinite loop
+### Part 4 — What was preserved, what was lost
 
-`ones()` calls itself in its tail thunk. That is a self-referential definition. In Part 1 you saw it doesn't crash — but a naive version without the thunk would crash immediately (Lesson 30 covers this in depth).
-
-For now: without running any code, explain why `Cons(1, lambda: ones())` doesn't trigger infinite recursion at construction time, even though `ones()` appears inside.
+Compare the two-stage version (`tree_fold(..., tree_unfold(...))`) to the fused version. What is
+identical between them (result, time complexity)? What capability does the two-stage version have
+that the fused version gives up — and where have you seen this exact tradeoff before?

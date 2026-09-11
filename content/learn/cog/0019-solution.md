@@ -1,109 +1,70 @@
 ---
-title: "Solution: The Chess Master's Memory Isn't What You Think It Is"
-description: "The master's advantage nearly vanishes on random boards — proof expertise is pattern recognition (chunking of meaningful configurations), not superior raw memory."
+title: "Solution: Good Enough, On Purpose"
+description: "Expected value of one more look is 0.2 hours against a 0.5-hour cost — searching further is a losing bet, and stopping there is satisficing working correctly, not settling."
 lesson_number: 19
 track: cog
-concept: "Expertise as chunking + retrieval (de Groot's chess studies, Chase & Simon)"
-stage: 4
+concept: "Satisficing (Simon): why real agents don't optimize"
+stage: 5
 layout: solution
 role: solution
-builds_on: [2, 18]
+builds_on: [6]
 skin: chalkboard
 resources:
-  - title: "Chase & Simon (1973) — 'Perception in Chess'"
-    url: https://www.sciencedirect.com/science/article/abs/pii/0010028573900042
-    note: "the classic paper establishing the real-vs-random chess board experiment"
+  - title: "Stanford Encyclopedia of Philosophy — Bounded Rationality"
+    url: https://plato.stanford.edu/entries/bounded-rationality/
+    note: "a rigorous overview of Simon's argument and its descendants in economics and AI"
 ---
 
-### MCQ answer: (1) — the advantage nearly disappeared
-
-On randomized boards, masters recalled only slightly more pieces than novices — both groups
-performed at roughly the same, much-lower level they'd shown on real positions being reproduced by
-weaker players. The dramatic 20-vs-a-handful gap from the real-game condition collapsed almost
-entirely. This is the single most important result in the whole line of research: it directly rules
-out "masters just have better visual/spatial memory in general" (option 0), which predicts the
-advantage should persist regardless of what's on the board. It also rules out "masters are
-especially good at memorizing arbitrary information" (option 2) — precisely the opposite happened.
-And there's no evidence of masters being actively *harmed* by randomness (option 3) — they simply
-lost their edge, performing close to novice level.
+**Retrieval check answer.** The fact-checking desk has the forcing property, not the CI pipeline's
+adequacy: a later tip needs to be able to send the desk back to re-verify an already-published claim,
+and there's no way to know in advance which order tips, sources, and drafts will need to revise each
+other in. A fixed tips → verify → publish pipeline would either lock in early mistakes (publish before
+a later tip could have corrected it) or need an ever-growing tangle of "go back and recheck" edges
+bolted onto a structure that was supposed to be one-way — lesson 7's tell that the architecture wants
+to be a blackboard.
 
 ---
 
-### Part 2 — Why this is the decisive piece of evidence
+### The computation
 
-If masters had *also* dramatically outperformed novices on random boards, the field would have had
-to conclude something like "masters simply have superior visual memory capacity" — a general
-cognitive advantage unrelated to chess knowledge specifically, which wouldn't explain why that
-advantage is *specific to chess experts on chess boards* rather than a domain-general superpower
-that should show up on any visual memory task.
+Expected value of researching one more candidate = P(better) × (value if better) + P(not better) ×
+(value if not) = 0.10 × 2 hours + 0.90 × 0 hours = **0.2 hours**.
 
-What actually happened — the advantage nearly vanishing — means, mechanistically: the master's
-recall advantage on real boards wasn't coming from holding more raw *pieces* in memory. It was
-coming from the board being decomposable into a small number of **meaningful, previously-learned
-configurations** (a castled king with its pawn shield, a common opening structure, a recognizable
-tactical setup) — each configuration retrieved and stored as *one* chunk rather than as several
-independent pieces. Randomizing the position destroys every one of those learned patterns — the
-same 20-odd pieces are still there, but none of them form a recognizable chunk anymore, so a master
-is forced to fall back on memorizing raw, ungrouped pieces one at a time, same as anyone else,
-bumping into the same ~7±2-chunk working memory limit that constrains everyone (Lesson 2). The
-"expertise" was in the *chunking apparatus* built by years of exposure to meaningful chess
-positions, not in memory capacity itself.
+Compare to the cost of researching it: **0.5 hours**. The expected payoff (0.2 hours) is *less* than
+the cost of getting it (0.5 hours) — continuing to search has **negative expected net value**. The
+rational move, by Simon's logic, is to **satisfice**: stop, and go with the candidate already in hand.
 
----
+**This is not "settling for less than the best."** It's the correct application of the exact
+value-versus-cost logic lesson 6's agenda scoring used for a queue of pending actions, applied here to
+a single stopping decision: an action (searching further) is only worth taking if its expected value
+exceeds its cost, and 0.2 < 0.5 means it doesn't. An agent that kept searching anyway — chasing a
+"best possible" option regardless of what one more look actually costs and is expected to return —
+would be the one behaving irrationally, not the one that stopped.
 
-### Part 3 — Predicting the pattern in another domain
+**Why Simon insisted this is the normal case, not an exception.** True optimization requires knowing
+the entire option space and its exact values up front, or having unlimited time and computation to find
+out — a condition that essentially never holds for a real decision-maker with limited information,
+limited time, and limited compute (Simon's **bounded rationality**). Once search itself has a cost and
+the space of options is only partially known, "keep searching until you've found the provable best" is
+not the rigorous choice, it's the choice that ignores the cost of finding out. Satisficing — set an
+aspiration level, take the first thing that clears it, stop — is what a resource-limited agent does
+when it's reasoning *correctly* about its own limits, not a shortcut it takes when it can't be bothered
+to reason properly.
 
-Take a **radiologist reading X-rays**. Meaningful condition: a real, clinically-realistic X-ray
-(even a normal one, or one with a genuine pathology) — full of recognizable anatomical
-configurations and pathology patterns a trained radiologist has seen thousands of times.
-Randomized/scrambled condition: the same image, cut into small tiles and shuffled into a spatially
-incoherent arrangement, or a synthetic image with anatomically impossible structure. Prediction, by
-direct analogy to Chase & Simon: an experienced radiologist should recall/reconstruct far more detail
-from a brief glance at the *real* X-ray than a novice — but on the scrambled version, that advantage
-should nearly vanish, both groups reduced to memorizing disconnected visual fragments. A result
-matching this pattern would confirm radiological expertise is pattern-recognition/chunking of
-*meaningful anatomical and pathological configurations*, not a generically sharper visual memory —
-mirroring the chess result exactly.
+**Where the aspiration level itself comes from, briefly:** it isn't fixed — Simon's own studies (and
+later work on this) found people and organizations adjust their aspiration level based on how the
+search is going: a string of disappointing options lowers it (a candidate that looked mediocre an hour
+ago starts looking acceptable), a string of good ones raises it. The threshold in this puzzle (2 hours
+of expected benefit, 10% chance) was handed to you as a given; in practice it's itself something an
+agent estimates and revises as it searches, adding one more layer of bounded, imperfect reasoning on
+top of the stopping rule itself.
 
----
+**For your harness:** an agent looping "call one more tool, check one more source, generate one more
+candidate" needs exactly this stopping rule — continuing only pays if the expected marginal
+information or quality gain exceeds the cost of the next call, in tokens, latency, or dollars. An agent
+with no such rule either stops too early (arbitrary turn limits) or never stops (optimizing against an
+option space it can't fully see) — satisficing is the principled middle, not a compromise between them.
 
-### Part 4 — Chunking analogue and its "random board" test in an agent harness
-
-A candidate mechanism: a model trained on enormous amounts of real code learns to represent common,
-meaningful code structures (a standard error-handling pattern, an idiomatic loop, a familiar API
-usage pattern) as compressed, recognizable units in its internal representations — analogous to a
-chess chunk — rather than processing each token as an independent, unrelated symbol. This would
-show up behaviorally as a coding-capable model handling realistic, idiomatically-structured code far
-more fluently (understanding it faster, with fewer tokens of "working memory" effectively needed to
-track it, making fewer errors summarizing or modifying it) than equally-long but structurally
-scrambled code (e.g., the same tokens reordered to be syntactically broken, or a codebase with
-variable names and structure deliberately randomized to destroy familiar patterns while preserving
-raw token count).
-
-The "random board" control test: give the same model a task on two matched inputs — one
-realistic/idiomatic, one with equivalent length and vocabulary but scrambled structure (broken
-idioms, unfamiliar naming, non-standard organization) — and compare performance. If the model's
-advantage on the realistic input nearly vanishes on the scrambled one (same as Chase & Simon's
-masters), that's evidence the model's apparent "skill" is pattern-based compression of *meaningful*
-structure, not brute memorization or a generic capacity advantage that should be indifferent to
-whether the input is realistic.
-
----
-
-### The pattern
-
-| Condition | Master's recall | Novice's recall | Gap |
-|---|---|---|---|
-| Real game position | High (~20+ pieces, via chunks) | Low (~4-7 pieces) | Large |
-| Randomized position | Low (~4-7 pieces, no chunks available) | Low (~4-7 pieces) | **Nearly zero** |
-
-**Rule**: expertise, tested this way, turns out to be pattern recognition built from extensive
-domain exposure — chunking meaningful configurations into fewer, larger retrievable units — not a
-generic upgrade to memory capacity. The signature test is exactly this real-vs-randomized
-comparison: destroy the meaningful structure, and the expert's advantage should collapse if the
-skill really is chunking-based.
-
-**Where this goes:** next lesson asks a harder question about this same body of research — given
-that expertise clearly *can* be built through practice, why doesn't sheer quantity of practice
-reliably produce it? Deliberate practice, its specific requirements, and the real limits on transfer
-between domains.
+**Where this goes:** satisficing explains when agents *stop* searching. Next lesson turns to the
+opposite failure — the shortcuts agents (human ones, specifically) take *while* searching, and one
+that can make an option look more probable than a fact it's logically a subset of.

@@ -1,84 +1,59 @@
 ---
-title: "Why Your 100th Repetition Barely Feels Faster Than Your 90th"
-description: "Practice doesn't make you faster at a constant rate — it makes you faster by a predictable, shrinking amount each time. Compute the curve."
+title: "Change One Requirement, Flip the Architecture"
+description: "'The sequence is predefined' is not the deciding property — branching pipelines have that too. Change one requirement in a CI pipeline and find the property that actually flips the answer."
 lesson_number: 18
 track: cog
-concept: "The power law of practice; what gets faster and what doesn't"
-stage: 4
+concept: "Blackboard vs. pipeline: mutual revision, not predefined order"
+stage: 1
 layout: puzzle
 role: puzzle
-answer_type: numeric
-builds_on: [10, 17]
+answer_type: reveal
+builds_on: [4, 5, 6, 7]
 skin: chalkboard
-numeric:
-  question: "Power law of practice: T_N = T_1 / √N (time on trial N, given time on trial 1). If T_1 = 12 seconds, what is T_16, in seconds?"
-  answer: 3
-  tolerance: 0.1
-  unit: "seconds"
 ---
 
-Lesson 17 established procedural memory as a system that improves with repetition, distinct from
-declarative memory. This lesson gives that improvement a precise mathematical shape — one of the
-most robust quantitative regularities in all of cognitive psychology.
-
-**Terms (standalone):**
-
-- **The power law of practice**: the empirical finding that performance time on a task decreases
-  with practice according to a **power function** of the number of trials: `T_N = T_1 × N^(−α)`,
-  where `T_N` is the time to perform the task on trial `N`, `T_1` is the time on the very first
-  trial, and `α` (alpha) is a task-specific learning-rate constant (typically between roughly 0.2
-  and 0.6 for real tasks). This holds astonishingly well across an enormous range of tasks — from
-  cigar rolling to mental arithmetic to typing to playing Tetris — and across a huge range of `N`,
-  from a handful of trials to tens of thousands.
-- **Diminishing returns**: the direct consequence of the power-law shape — the *absolute* speedup
-  from one additional trial shrinks as `N` grows. Going from trial 1 to trial 2 buys a large
-  reduction in time; going from trial 1,000 to trial 1,001 buys almost nothing, even though the
-  *relative* improvement per doubling of practice stays roughly constant (that constant-relative,
-  shrinking-absolute pattern is the hallmark of any power law).
-- **Log-log linearity**: if you plot `log(T_N)` against `log(N)`, a power-law relationship produces
-  a **straight line** — this is the classic diagnostic researchers use to confirm a power law is the
-  right fit to practice data (as opposed to, say, an exponential curve, which would instead look
-  straight on a plot with only the y-axis logged).
-- **Why ACT-R predicts this, not just observes it** (connecting to Lesson 10): ACT-R's base-level
-  activation formula for a chunk includes a term that sums decayed contributions from every past use
-  of that chunk, and that summation — worked out mathematically — produces power-law-shaped learning
-  curves as a direct consequence, not a separately bolted-on rule. The power law of practice isn't
-  just an empirical pattern ACT-R was built to match after the fact; it falls out of the same
-  activation mechanism used for ordinary memory retrieval.
-
-### Part 1 — Numeric (above): compute a point on the curve
-
-Using the simplified form `T_N = T_1 / √N` (i.e., `α = 0.5`), with `T_1 = 12` seconds: what is
-`T_16`, the time on the 16th trial?
+**Retrieval check (from lesson 9, new setting).** A barista knows "oat milk steams best a little
+cooler than dairy, or it splits" — a fact she could say out loud to a trainee. She also has a habit,
+built from thousands of repetitions, of angling the steam wand at a slightly different position for
+oat milk without consciously deciding to — she'd struggle to narrate the exact angle if asked. Lesson
+9 split memory into **declarative** ("knowing that" — stated facts, retrievable chunks) and
+**procedural** ("knowing how" — IF–THEN production rules that fire without being consciously stated).
+Which of the barista's two pieces of knowledge is procedural? Answer before reading on.
 
 ---
 
-### Part 2 — Diminishing returns, made concrete
+### The deciding property, restated
 
-Using the same formula (`T_1 = 12`, `α = 0.5`), compute `T_4`, `T_16`, `T_64`, and `T_256` — each is
-16× the trial count of the previous. Look at the *absolute drop* in time between each consecutive
-pair (`T_4 → T_16`, `T_16 → T_64`, `T_64 → T_256`). Does each 16×-more-practice step buy the same
-absolute time savings, or does the savings shrink? Describe the pattern.
+Lesson 7 defined a **pipeline** (or its more general form, a fixed **message-passing** graph): stages
+whose outputs, once produced, are final — nothing downstream ever revises what an earlier stage
+decided. A **blackboard** is for problems where hypotheses at different levels must **mutually
+revise** each other, in an order you can't fix in advance — a later finding can send you back to
+change an earlier verdict, which can itself trigger further revision, with no way to know beforehand
+how many rounds that takes or in what sequence.
 
----
+Here's the trap this property gets confused with, worth naming explicitly: **"the sequence of steps
+is predefined" is not the deciding property.** A pipeline stage's *outcome* can absolutely branch
+control flow — route to a retry path, skip a downstream stage, choose between two next stages based on
+a result — and it is still a pipeline, because branching is still a **DAG**: every edge still points
+only forward, no node's *own verdict* is ever revisited once made, only which forward path gets taken
+next. Branching answers "what happens next," not "does the past get rewritten." **Revision** is a
+different act entirely: an earlier node's conclusion gets *overwritten* by something a later node
+found, and that earlier node's new conclusion can, in turn, prompt yet another revision anywhere else
+that depended on it.
 
-### Part 3 — Reveal: what does NOT follow this curve indefinitely?
+### The system
 
-The power-law improvement in *time* cannot continue forever down toward zero — there's a floor.
-Name at least one concrete lower bound on how fast a human can perform a real skilled task (e.g.
-typing, a sport, playing an instrument), and explain what kind of limit it is (motor/physical,
-perceptual, or something else) — i.e., what stops the power law from predicting an impossible
-result at very large `N`.
+A CI pipeline: **lint → type-check → tests → deploy-approval**. Each stage can branch on its result —
+a failing test routes to a "flaky-test retry" sub-path; a lint failure blocks deploy-approval outright.
+No stage's own verdict is ever revisited once it runs; branching just picks which forward path to take.
 
----
+**Question 1.** Is this a pipeline or a blackboard? Name the specific property that decides it — not
+"the order is fixed," since branching already complicates that framing, but the actual test from the
+paragraph above.
 
-### Part 4 — Connect to modern AI training
-
-**Neural network training** (relevant to the ml track, and worth naming here since cognitive
-architectures and modern ML both show power-law learning curves) also famously shows power-law-like
-relationships between performance and training data / compute / model size — the so-called "neural
-scaling laws." Given this lesson's diminishing-returns logic, what does a power-law relationship
-between training compute and model performance imply about the cost of squeezing out each
-*additional* increment of performance, as a system gets more capable? Why might that matter for
-deciding when more training compute stops being worth it, versus other investments (better data,
-better architecture)?
+**Question 2.** Now change exactly one requirement: a test flagged as "flaky" turns out to fail in a
+pattern that strongly suggests a **race condition** — and the team wants the *linter* to re-examine the
+files involved in that test with a different, stricter rule set enabled specifically for concurrency
+issues, potentially changing a file the linter had already passed. Does the architecture change? If
+so, to what, and why — name the exact property from above that now applies, and explain specifically
+why this is different in kind from the branching the original pipeline already had.

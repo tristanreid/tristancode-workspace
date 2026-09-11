@@ -1,42 +1,69 @@
 ---
-title: "When the Closed Form Runs Out"
-description: "Conjugacy depends on the prior's SHAPE matching a special family, not just on the likelihood being a nice one. Spot the case that breaks it."
+title: "One Update, Two Distributions"
+description: "Beta-binomial isn't the only conjugate pair. Normal-normal updates the same way in spirit, adding precision instead of counts."
 lesson_number: 20
 track: bayes
-concept: "When conjugacy breaks and why that's fine (grid thinking preview)"
+concept: "Conjugacy: beta-binomial and normal-normal"
 stage: 3
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: [19]
+answer_type: numeric
+builds_on: [15]
 skin: chalkboard
-mcq:
-  question: "Which of these four setups does NOT have a closed-form (conjugate) posterior update?"
-  options:
-    - "Prior Beta(2, 2) + likelihood: 12 Bernoulli trials (some successes, some failures)"
-    - "Prior Normal(mean=0, variance=4) + likelihood: 5 normal measurements with known variance"
-    - "Prior Beta(2, 2) + likelihood: 12 Bernoulli trials — but you drew your actual prior belief as a hand-sketched curve with two separate humps, and only approximated it as Beta(2,2) because that was convenient"
-    - "Prior Beta(5, 1) + likelihood: 30 Bernoulli trials (some successes, some failures)"
-  correct: 2
+numeric:
+  question: "Posterior mean response time, in milliseconds, after combining the prior with the new measurements below?"
+  answer: 184
+  tolerance: 1
+  unit: "ms"
 ---
 
-Lessons 15 and 19 gave you two conjugate pairs: **beta prior + binomial likelihood**, and **normal
-prior + normal likelihood (known variance)**. Both let you skip integration entirely — you just
-update a couple of parameters with arithmetic, and the posterior is guaranteed to land in the same
-family you started in.
+**First, a quick retrieval check — different concept, new setting.**
 
-It's tempting to conclude "as long as the data is Bernoulli/binomial, I get a closed form." That's
-not quite the rule. **Conjugacy is a property of the *pair* — a specific prior family matched to a
-specific likelihood family — not a property of the likelihood alone.** If your actual prior belief
-doesn't genuinely belong to the matching family (it just happens to have been *approximated* by one
-for convenience), the guarantee doesn't transfer to what you actually believed.
+A factory sensor should catch defective units. Historically, 1% of units are defective (base rate).
+The sensor alarms on 98% of actual defects, but also false-alarms on 5% of good units. It alarms on
+today's unit. What's P(actually defective | alarmed)? Same machinery as Lesson 6, a different noun
+than the diagnosis it was first taught with.
 
-**Four setups below.** In three of them, the prior you're using really is the distribution you
-believe, and it's from the family that's conjugate to the likelihood — so the update is exact
-arithmetic, closed form, done. In one of them, the "prior" being fed into the update is a
-convenient stand-in for a belief that doesn't actually have that shape (it's bimodal — two separate
-humps of plausibility, maybe because you think the true rate is either "low" or "high" but probably
-not in between). Using the closed-form update on that one silently answers a slightly different
-question than the one you actually meant to ask.
+*(Worked out in the solution.)*
 
-Which one is it?
+---
+
+Every update in Stage 2 used the same machinery: beta prior, binomial-flavored data, add counts. That
+pairing — a prior family that, combined with a specific likelihood, produces a posterior in the
+*same* family — is called **conjugacy**. Beta-binomial is one conjugate pair. It isn't the only one.
+
+**A second conjugate pair: normal-normal.** When your prior belief about an unknown mean is itself a
+normal distribution, and your data is normally distributed with a *known* variance, the posterior is
+*also* normal, with a closed form — no integration required, exactly like beta-binomial.
+
+The closed form, in terms of **precision** (precision = `1 / variance`; a bigger number means a
+tighter, more confident distribution):
+
+```
+posterior precision = prior precision + data precision
+posterior mean = (prior_mean × prior_precision + sample_mean × data_precision) / posterior precision
+```
+
+where `data precision = n / σ²` (`n` new observations, each with known per-observation variance `σ²`).
+It's a precision-weighted average of the prior mean and the sample mean — the same spirit as
+beta-binomial's "more weight resists being moved," just phrased in variance instead of counts.
+
+**Your scenario.** You're estimating the true average response time of an API endpoint.
+
+- **Prior belief:** mean = **200 ms**, variance = **100** (so prior precision = `1/100 = 0.01`).
+- **New data:** `n = 16` fresh measurements, sample mean = **180 ms**. Individual measurements are
+  known (from long operational history) to have variance `σ² = 400` — so data precision =
+  `n / σ² = 16 / 400 = 0.04`.
+
+**Part 1 — Virtual sample size.** Beta-binomial's prior "weight" was `α + β` virtual trials, directly
+comparable to real trials. Normal-normal has an analogous idea: a prior with variance `σ0²` behaves
+like it's worth `n₀ = σ² / σ0²` virtual observations of the *same* per-observation noise as the real
+data. Compute `n₀` for this prior. Is 16 real measurements a lot or a little, compared to that?
+
+**Part 2 — Compute the posterior mean (the numeric answer above).** Use the precision formula above.
+Should the posterior land closer to 200 (the prior) or 180 (the data), and by how much, given the two
+precisions involved?
+
+**Part 3 — More data.** Suppose instead you'd collected `n = 100` measurements at the same sample mean
+of 180 ms. Recompute the posterior mean. Which way does it move relative to Part 2's answer, and why —
+in terms of the same washing-out-the-prior idea from Lesson 14?

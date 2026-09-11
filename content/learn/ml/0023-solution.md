@@ -1,58 +1,67 @@
 ---
-title: "Solution: The Nearest Neighbor Is Lying to You"
-description: "Raw Euclidean distance is dominated by whichever feature has the largest numeric range — here, review count swamps rating entirely, returning a 'nearest neighbor' that's obviously the wrong match."
+title: "Solution: The Metric Went Up. The Goal Didn't."
+description: "resolution_time got 29.2% worse while the tracked metric improved 91.7% — the two numbers moving in opposite directions is Goodhart's law, not a data error."
 lesson_number: 23
 track: ml
-concept: "Nearest neighbors: uses and traps (hubness, scale, stale embeddings)"
-stage: 5
+concept: "Goodhart's law: optimizing the metric vs. the goal"
+stage: 7
 layout: solution
 role: solution
-builds_on: [22]
+builds_on: [12]
 skin: chalkboard
 resources:
-  - title: "scikit-learn — Importance of Feature Scaling"
-    url: https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
-    note: "worked example of exactly this failure mode, with code"
+  - title: "Google's ML Crash Course"
+    url: https://developers.google.com/machine-learning/crash-course
+    note: "practical framing of proxy metrics and objective misalignment in production ML"
 ---
 
-**The answer is 50** (distance Q→X ≈ 50.07, rounds to 50).
+**Retrieval check.** The two features carry overlapping information; a model only needs one good way
+to make a split, so whichever gets used first at each split earns most of the importance credit,
+leaving its correlated twin looking nearly useless. `ip_reputation_score` is **not** proven
+irrelevant — it's just redundant with a feature that happened to get picked first. Same mechanism,
+new pair of features.
 
-**The arithmetic.**
+**Main answer: +29.2%.** `(620 − 480) / 480 = 140 / 480 ≈ 0.2917 → 29.2%` worse. Meanwhile TTFR
+improved `(240 − 20) / 240 ≈ 91.7%`. One number moved dramatically in the "good" direction; the thing
+it was supposed to be a stand-in for moved substantially in the *bad* direction, at the same time,
+from the same underlying change in agent behavior.
 
-Q→X: $\Delta\text{reviews} = 50$, $\Delta\text{rating} = 2.7$.
-$\sqrt{50^2 + 2.7^2} = \sqrt{2500 + 7.29} = \sqrt{2507.29} \approx 50.07$
+**The mechanism, precisely.** TTFR was never the goal — it was a **proxy**, chosen because "replies
+fast" and "actually helps customers" were correlated *under normal conditions*, where agents weren't
+specifically trying to game the number. Turning TTFR into a scored target changed the conditions:
+now there's an incentive to find the cheapest possible way to make TTFR small, and an instant canned
+auto-reply is exactly that — it satisfies the letter of "responded quickly" while doing zero work
+toward the goal the metric was supposed to represent. Every minute an agent spends drafting that
+instant reply is also a minute *not* spent working the actual queue, which is the direct mechanical
+reason `resolution_time` got worse, not just stayed flat — optimizing the proxy actively traded away
+resources from the real goal.
 
-Q→Y: $\Delta\text{reviews} = 800$, $\Delta\text{rating} = 0.1$.
-$\sqrt{800^2 + 0.1^2} = \sqrt{640000 + 0.01} \approx 800.00$
+**Why this isn't a data-quality problem, and can't be caught by more careful measurement of TTFR.**
+The TTFR number is completely accurate — replies really did go out in 20 minutes on average. There's
+no bug to fix in how it's computed. The failure is structural: *any* proxy metric, once it becomes a
+target that people (or a model) actively optimize against, is at risk of having the gap between "the
+proxy" and "the goal" widen exactly where the optimization pressure is strongest. The fix isn't a
+better TTFR calculation — it's tracking the actual goal (`resolution_time`, CSAT) alongside the proxy,
+and treating any divergence between them as the real signal, not treating the proxy's improvement as
+success on its own.
 
-Distance to X (≈50) is smaller than distance to Y (≈800), so a nearest-neighbor search returns **X**
-as the closer match to Q.
+**Why this is the same shape as overfitting to a validation set, generalized.** Stage 3's evaluation
+lessons all warned against trusting a number a model reports about itself without checking what
+produced it. Goodharting is that same warning applied to *any* fixed measurement, model metrics
+included: a model selected, tuned, or early-stopped purely by chasing one validation number, over
+enough iterations, can start fitting quirks of that specific validation set rather than the
+underlying task — validation-set overfitting is Goodhart's law, applied by a person (or an automated
+search) to their own evaluation pipeline. And it's exactly what the bayes track's calibration logging
+habit inoculates against: checking a stated confidence against actual outcomes, rather than trusting
+the stated number, refuses to let the measure quietly substitute for the goal.
 
-**And that's the trap.** X is a poorly-reviewed product (2.1 stars vs. Q's 4.8) that happens to share
-a similar review count. Y is a nearly-identical-quality product (4.7 stars vs. 4.8) that just has fewer
-reviews. By any reasonable notion of "similar product," Y is the better match — but raw Euclidean
-distance confidently returned X, because `reviews` spans a range of hundreds to thousands while
-`rating` only spans 1.0 to 5.0. A 50-review gap and a 2.7-star gap get added as if they were
-comparable-sized quantities, when they aren't remotely comparable — the review-count axis mechanically
-dominates every distance calculation regardless of what the rating axis is doing. This is the **scale
-trap**: unscaled features with different numeric ranges don't get equal say in the distance, the
-largest-range feature does almost all the deciding. The fix is to standardize each feature (subtract
-the mean, divide by the standard deviation, or otherwise put every axis on a comparable scale) *before*
-computing distance — not a change to the distance formula, a change to what you feed it.
+**Where it shows up in ML pipelines specifically.** Any model trained against a *proxy* label — clicks
+as a stand-in for "this content was actually useful," watch time as a stand-in for "the user is
+satisfied" — is exposed to the same failure once the model's own outputs start shaping what data gets
+collected next (a feedback loop): the model gets better and better at maximizing the proxy, and the
+gap between the proxy and the real goal can widen invisibly, because the only number anyone's
+watching is the one going up.
 
-**Two more traps in the same family, worth knowing by name:**
-
-- **Hubness.** In high-dimensional embedding spaces, a small number of points tend to show up as the
-  "nearest neighbor" of an unusually large number of other points — not because they're genuinely
-  similar to all of them, but as a geometric side-effect of high dimensionality (distances concentrate,
-  and some points end up closer to *everything* than they should be). A recommendation system built on
-  raw nearest-neighbor lookups can end up recommending the same handful of "hub" items to almost
-  everyone.
-- **Stale embeddings.** An embedding model trained last quarter placed items in a space shaped by that
-  quarter's data and that model's weights. New items added since then, or a retrained model version, can
-  produce vectors that aren't directly comparable to the old ones — "nearest neighbor" silently mixes
-  old-geometry and new-geometry points as if they lived in the same space, when they don't.
-
-**Where this goes:** distance and nearest-neighbor lookup are also exactly the mechanism underneath
-attention — a query vector finding the most relevant key vectors is a *soft*, differentiable version of
-the same nearest-neighbor idea, up next.
+**Where this goes:** the final lesson in this run hands you a live incident report and asks you to
+diagnose which of leakage, imbalance, calibration, and Goodharting — separately or in combination —
+actually explains what happened, using nothing but the evidence in front of you.

@@ -1,121 +1,110 @@
 ---
-title: "Fold ∘ Unfold: Build Then Consume"
-description: "Many algorithms secretly unfold a structure and then fold it. Recognizing this decomposition — and knowing when to fuse the stages — is a key design skill. Work through factorial, merge sort, and the parallel reduction surprise."
+title: "A Seed With Two Jobs: Digits Most-Significant-First"
+description: "range and iterate got away with a simple seed. Producing base-b digits in reading order needs the seed to carry a second piece of control state — the current place value — alongside the value being unfolded."
 lesson_number: 27
 track: fp
 aliases: ["/learn/0027-puzzle/"]
-concept: "Fold ∘ Unfold"
+concept: "Unfold with a control-carrying seed"
 stage: 4
 layout: puzzle
 role: puzzle
-answer_type: reveal
-builds_on: [15, 25]
+answer_type: numeric
+builds_on: [25]
 skin: chalkboard
+numeric:
+  question: "unfold_digits(2024, 16) produces the base-16 digits of 2024, most-significant first. What is the most significant digit, written as a decimal number 0-15?"
+  answer: 7
+  tolerance: 0
+  unit: "hex digit (0-15)"
 ---
 
-The previous two lessons gave you `unfold` (Lesson 25) and `tree_unfold` (Lesson 26). This lesson asks: what happens when you *compose* them with a fold?
-
-Many algorithms decompose into two stages you may not have noticed:
-
-1. **Unfold** — expand a seed into an intermediate structure.
-2. **Fold** — consume the structure to produce a result.
-
-This composition (fold ∘ unfold) is called a **hylomorphism** — a word you don't need to memorize, but a pattern you will recognize repeatedly.
-
-**Terms:**
-
-- **Hylomorphism**: fold ∘ unfold. Build an intermediate structure from a seed, then immediately consume it. The intermediate structure need never exist as a concrete value.
-- **List unfold** (standalone, from Lesson 25): `unfold(seed, pred, element, step) → List`.
-- **foldl** (standalone, from Lesson 15): `foldl(init, f, list) → value`. Processes a list left-to-right, accumulating a result.
+**Warm-up recall (Lesson 11).** Flattening a nested list means recursing into any element that is
+itself a list, and collecting every non-list value into one flat sequence. Flatten
+`[[1, 2], [3, [4, 5]], 6]` completely. How many elements are in the flattened result? Keep the
+number; the solution confirms it.
 
 ---
 
-### Part 1 — Identify the hidden stages
+**Terms (standalone, from Lesson 25):**
 
-For each computation below, identify the implicit unfold (what is the seed? what is the intermediate structure?) and the implicit fold (what is `init`? what is the combinator `f`?).
+- **Unfold** (`unfold(seed, pred, element, step)`): the dual of fold. Starting from a **seed**
+  (the initial state), it stops when `pred(seed)` is true; otherwise it emits `element(seed)` and
+  recurses on `step(seed)`.
+- **Seed**: the evolving state the unfold carries from step to step. In Lesson 25's `iterate`, the
+  seed was a tuple `(value, count)` — the value being transformed *and* a countdown that had nothing
+  to do with the output itself. That countdown is **control state**: information the unfold needs
+  to know when to stop or how to proceed, distinct from the values it's emitting.
 
-**(a) `factorial(n)` = 1 × 2 × 3 × … × n**
+### The problem: digits, most-significant first
 
-The intermediate structure is a list of integers. What generates the list? What folds it?
+You want `digits(187, 10) → [1, 8, 7]` — the base-10 digits of 187, in reading order.
 
-**(b) `max_of_range(a, b)` = max of the integers a, a+1, …, b−1**
+The obvious unfold peels off the *least*-significant digit first: `element(s) = s % 10`,
+`step(s) = s // 10`, `pred(s) = s == 0`. On seed `187` that produces `[7, 8, 1]` — backwards. You
+could reverse the list afterward, but that defeats the point of an unfold, which is supposed to
+produce elements in the order you want them, one at a time, without a second pass.
 
-Same question.
+### The fix: the seed carries the place value too
 
-**(c) The merge step in merge sort**
-
-Given two already-sorted lists `left` and `right`, the merge *consumes* them — no unfold. Is there a fold stage? What is it folding, and what does `init` look like here?
-
----
-
-### Part 2 — Mechanical fusion
-
-A hylomorphism can always be fused into a single recursive function. Here is the template:
+To emit the most significant digit *first*, you need to know, before you extract anything, what
+power of the base that first digit sits at. So the seed becomes a pair:
+`(remaining_value, place_value)`, where `place_value` is the largest power of the base that is
+`≤ remaining_value` (e.g. for 187 in base 10, that's 100).
 
 ```python
-def hylo(seed, pred, element, step, init, combine):
-    """
-    unfold parameters: pred, element, step (from Lesson 25)
-    fold   parameters: init, combine
-    """
-    if pred(seed):
-        return init
-    return combine(element(seed), hylo(step(seed), pred, element, step, init, combine))
-```
-
-Note: `combine` receives `(element, rest_result)` — the current element and the already-folded result from the remaining seeds. This is right-fold ordering; for left-fold order you'd need an accumulator, but right-fold suffices here.
-
-Write `factorial(n)` as a call to `hylo` — without building an intermediate list.
-
----
-
-### Part 3 — When to keep the stages separate
-
-The fusion in Part 2 always produces the *same result*, but you often want the two-stage version. Give one concrete reason to prefer the **two-stage** version, and one concrete reason to prefer the **fused** version.
-
----
-
-### Part 4 — MCQ: what shape is this?
-
-```python
-def mystery(tree):
-    nodes = tree_fold(
-        [],
-        lambda v, l_nodes, r_nodes: l_nodes + [v] + r_nodes,
-        tree
+def unfold_digits(n, b):
+    place = largest_power_leq(n, b)     # e.g. largest_power_leq(187, 10) == 100
+    return unfold(
+        (n, place),
+        lambda s: s[1] == 0,             # stop once place value has been divided past 1
+        lambda s: s[0] // s[1],          # element: how many whole `place`s fit in what's left
+        lambda s: (s[0] % s[1], s[1] // b)   # step: remove that digit's contribution, shrink place
     )
-    return foldl(0, lambda acc, x: acc + x, nodes)
 ```
 
-Recall: `tree_fold(leaf_val, node_fn, tree)` from Lesson 23 — `leaf_val` is what a `Leaf` produces; `node_fn(v, left_result, right_result)` combines a node value with the already-folded subtree results.
+Trace on `unfold_digits(187, 10)`:
 
-Which statement best describes `mystery`?
+```
+seed=(187,100) → element=187//100=1,  next=(187%100,100//10)=(87,10)
+seed=(87,10)   → element=87//10=8,    next=(87%10,10//10)=(7,1)
+seed=(7,1)     → element=7//1=7,      next=(7%1,1//10)=(0,0)
+seed=(0,0)     → pred fires (place==0) → stop
 
-(a) A list fold followed by a tree unfold.
-(b) A tree fold (unfold stage) followed by a list fold (consume stage) — a hylomorphism where the intermediate is a list of all node values.
-(c) A direct tree traversal with no intermediate structure.
-(d) A tree unfold followed by a tree fold.
+result: [1, 8, 7]  ✓ most-significant first, no reversal
+```
+
+The seed is doing **two jobs at once**: `remaining_value` is what still needs to be broken into
+digits, and `place_value` is pure control state — it never appears in the output, but it's what
+tells `element` how to read the next digit and `pred` when to stop.
 
 ---
 
-### Part 5 — The parallel surprise
+### Part 1 — Find the starting place value
 
-Sequential `foldl` is inherently sequential: each step depends on the previous accumulator. But sum-via-foldl and sum-via-tree-fold give the same answer.
+`largest_power_leq(n, b)` isn't given to you as a primitive — write it (recursively or with a loop):
+it finds the largest `b^k` that is `≤ n`. What is `largest_power_leq(2024, 16)`? (Check: is
+`16^2 = 256 ≤ 2024`? Is `16^3 = 4096 ≤ 2024`?)
 
-Here is `sum_list` done two ways:
+---
 
-```python
-# Sequential: foldl processes left-to-right; each step waits for the previous
-sum_seq  = foldl(0, lambda acc, x: acc + x, [1, 2, 3, 4])
+### Part 2 — Trace `unfold_digits(2024, 16)`
 
-# Parallel:   build a balanced tree, fold it — left and right subtrees are independent
-tree = tree_unfold([1,2,3,4], lambda xs: len(xs)==0,
-                   lambda xs: xs[len(xs)//2],
-                   lambda xs: xs[:len(xs)//2],
-                   lambda xs: xs[len(xs)//2+1:])
-sum_par = tree_fold(0, lambda v, l, r: v + l + r, tree)
-```
+Using the seed pair `(2024, place)` from Part 1, trace the unfold step by step the way the worked
+example above does for `187`. How many digits does it produce in total?
 
-Both compute 10. The difference is the *dependency graph*: `sum_seq` is a chain (each node waits); `sum_par` is a tree (depth log n, fully parallel).
+---
 
-**Question**: what property of addition allows us to re-order the computation this way without changing the answer? (One word is enough — but explain why it matters here.)
+### Part 3 — The graded question (above)
+
+What is the **first** (most significant) element the unfold emits — i.e. the leading hex digit of
+2024 — written as a plain decimal number from 0 to 15? Enter it in the numeric box.
+
+---
+
+### Part 4 — Why this generalizes
+
+The same "seed carries control state beyond the output value" trick shows up any time an unfold's
+next step depends on *where you are in the process*, not just on *what value you're about to emit*.
+Name one other situation where a seed would need to carry extra control state like this (a
+pagination cursor, or unpacking a run-length-encoded sequence, both work — don't just say
+"digits" again).

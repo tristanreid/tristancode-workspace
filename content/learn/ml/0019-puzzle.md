@@ -1,49 +1,52 @@
 ---
-title: "Backpropagation, By Hand, on the Smallest Possible Network"
-description: "One input, one hidden unit, one output. Compute the gradient of the loss with respect to the first-layer weight, chaining derivatives the way backprop does."
+title: "Building the Calibration Curve From Scratch"
+description: "Lesson 16 handed you a pre-counted bucket. This time you build the bins yourself from raw (score, label) pairs — and the top bin is badly overconfident."
 lesson_number: 19
 track: ml
-concept: "Backpropagation: the chain rule, organized well"
-stage: 4
+concept: "Calibration: building the curve by hand from raw (score, label) pairs"
+stage: 3
 layout: puzzle
 role: puzzle
 answer_type: numeric
-builds_on: [6, 18]
+builds_on: [10, 16]
 skin: chalkboard
 numeric:
-  question: "What is d(loss)/d(w1), rounded to three decimal places?"
-  answer: 0.115
-  tolerance: 0.005
+  question: "For the highest-score bin, what is (mean predicted score − mean actual churn rate), in percentage points?"
+  answer: 37.5
+  tolerance: 0.5
+  unit: "pp"
 ---
 
-Lesson 18 showed why depth matters — composing a hidden layer with an output layer buys you bent
-decision boundaries a single linear model can't draw. **Backpropagation** is the algorithm that
-makes composed layers *trainable*: it computes how much each weight, at every layer, should change
-to reduce the loss — by applying the chain rule systematically, once, and reusing intermediate
-results rather than recomputing them from scratch for every weight.
+**Quick retrieval, before the main puzzle** (lesson 10's idea, new numbers): you average 9
+independent tree predictions, each with variance 81 (same squared units). Using
+`Var(average of n independent estimators) = σ²/n`, what's the variance of the 9-tree average? Hold
+your answer; the solution confirms it.
 
-**The smallest possible network.** One input `x`, one hidden unit with a sigmoid activation, one
-linear output unit, one target value to match:
+Now the main event. Lesson 16 handed you a **bucket** — 300 customers, all scored roughly "0.9,"
+210 of them actually churned — and asked you to compute the gap. That bucket didn't come from
+nowhere: someone had to take a spreadsheet of individual `(score, label)` pairs, decide on bin
+edges, and group every row into the bin its score falls in. This lesson has you do exactly that
+step yourself, on a smaller scale, so the process isn't a black box next time you meet 10 billion
+of these pairs instead of 12.
 
-```
-x = 1
-w1 = 0.5, b1 = 0                  →  z1 = w1·x + b1 = 0.5
-h  = sigmoid(z1) = 1/(1+e^-0.5) ≈ 0.6225     (the hidden unit's output)
-w2 = 2                            →  y_hat = w2 · h ≈ 1.245   (the network's prediction)
-y  = 1                            (the true target)
-loss = 0.5 · (y_hat − y)²  ≈ 0.030            (squared error, halved for a clean derivative)
-```
+**The raw data.** A churn model scores 12 customers this month. `label = 1` means the customer
+churned; `0` means they didn't.
 
-**The chain-rule pieces you need** (this IS backpropagation — each one is a small, local derivative,
-and you multiply them along the path from the loss back to `w1`):
+| score | label | score | label | score | label |
+|---|---|---|---|---|---|
+| 0.10 | 0 | 0.40 | 1 | 0.80 | 1 |
+| 0.20 | 0 | 0.50 | 0 | 0.85 | 0 |
+| 0.20 | 1 | 0.50 | 1 | 0.90 | 1 |
+| 0.30 | 0 | 0.60 | 0 | 0.95 | 0 |
 
-```
-d(loss)/d(y_hat) = (y_hat − y)                    ["how wrong is the prediction, and which way"]
-d(y_hat)/d(h)    = w2                             ["how much does h move y_hat"]
-d(h)/d(z1)       = h · (1 − h)                    ["sigmoid's own derivative, in terms of its output"]
-d(z1)/d(w1)      = x                              ["how much does w1 move z1"]
-```
+**The bins.** Group every pair into one of three ranges by its score: **Bin 1** `[0, 0.4)`,
+**Bin 2** `[0.4, 0.7)`, **Bin 3** `[0.7, 1.0]`. Within a bin, a **calibration curve** point is two
+numbers: the **mean predicted score** (average the score column) and the **mean actual outcome**
+(average the label column — since labels are 0/1, this is exactly the fraction that churned). A
+perfectly calibrated bin has those two numbers equal: if the model says "about 0.85" on average, and
+this bin's customers churned 85% of the time, the model was honest here.
 
-**Your task:** chain these four local derivatives together to compute `d(loss)/d(w1)` — the amount
-the loss would change per unit change in `w1`. This single number is exactly what an optimizer (like
-gradient descent, from Lesson 6) would use to update `w1`. Round your answer to three decimal places.
+**Your task.** Sort all 12 pairs into their three bins. For **Bin 3** (the highest-score bin),
+compute the mean predicted score and the mean actual churn rate, then report the gap
+(predicted − actual) in percentage points. A positive number means overconfident; a negative number
+means underconfident.

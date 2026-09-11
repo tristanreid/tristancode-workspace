@@ -1,101 +1,68 @@
 ---
-title: "Solution: Why This Puzzle System Quizzes You Instead of Just Explaining"
-description: "Student B wins — retrieval practice beats re-reading because reconstructing a trace under effort strengthens it more than passive re-exposure, which is why this whole track is built on reveal-before-explain."
+title: "Solution: The Winner With Nothing Left to Win"
+description: "K2 wins at 0.18 once value enters the score — and why raising the cost of a repeated action was never going to fix a missing-value bug."
 lesson_number: 14
 track: cog
-concept: "Encoding vs retrieval; recognition vs recall; retrieval practice"
-stage: 3
+concept: "Blackboard control: agenda scoring needs a value term"
+stage: 1
 layout: solution
 role: solution
-builds_on: [2, 10]
+builds_on: [4, 5, 6]
 skin: chalkboard
 resources:
-  - title: "Roediger & Karpicke (2006) — 'Test-Enhanced Learning'"
-    url: https://psycnet.apa.org/record/2006-01527-011
-    note: "the foundational testing-effect study this lesson draws on (abstract free; full text often available via university access)"
+  - title: "Hayes-Roth (1985) — A Blackboard Architecture for Control (Artificial Intelligence journal)"
+    url: https://www.sciencedirect.com/science/article/pii/0004370285900633
+    note: "the BB1 paper — control knowledge, including scoring policy, as first-class and revisable"
 ---
 
-### MCQ answer: (B) — Student B, via the testing effect
-
-Student B scores substantially higher a week later, despite (or rather *because of*) the harder,
-more effortful, error-prone study method. This is one of the most robust and counterintuitive
-findings in memory research: **effortful retrieval beats passive re-exposure**, even when re-reading
-*feels* more productive in the moment (fluency during re-reading creates an illusion of mastery that
-doesn't survive a delay). Option (A) describes the intuitive-but-wrong belief most people actually
-hold about how to study. Option (C) is wrong because study *method*, not just study *time*, drives
-retention differences this large. Option (D) is a category error — re-reading is encoding the same
-material again, not retrieval; there's no cue-dependent reconstruction happening.
-
----
-
-### Part 2 — The mechanism
-
-Re-reading strengthens a trace passively — the material is right there, no reconstruction effort
-required, so the memory system doesn't have to do much *work* to "access" it. Retrieval, by
-contrast, forces the system to reconstruct the trace from partial cues, under uncertainty, without
-the answer present — and that act of successful reconstruction appears to leave the retrieval
-*pathway* itself strengthened, not just the stored content.
-
-Connecting to ACT-R's activation formula (Lesson 10): each successful retrieval functions like an
-additional "use" event that boosts a chunk's base-level activation, exactly the way each past use of
-a chunk in ACT-R's decay model raises its activation and slows its future decay. Re-reading exposes
-you to the *content* again but doesn't necessarily route through the same effortful activation
-pathway that a genuine retrieval attempt does — it's closer to being handed the chunk than to
-strengthening the retrieval machinery that finds it. The effort of retrieval isn't incidental
-friction to be minimized — the friction *is* what does the strengthening. This is sometimes called
-the "desirable difficulty" principle: some kinds of difficulty during learning actively improve
-long-term retention, even though they slow down and feel worse in the moment.
+**Retrieval check answer.** R1 fires first (2 conditions match, most specific): heater → on. Now R2
+matches (2 conditions: heater=on, fan=off) and R3 also matches (1 condition: room=cold) — R2 wins on
+specificity, fires: fan → on. Now only R3 matches (room is still cold — the thermostat doesn't fix
+the room, just the equipment) — R3 fires: log-reading. Now WM is `{room: cold, heater: on, fan: on}`
+plus the log entry, and only R3's condition (`room=cold`) still holds, but R3 already fired and adds
+nothing new to the world — if your production system treats "already logged" as consumed, nothing
+new matches and the cycle halts after **3 firings**. (If R3 can refire indefinitely because nothing
+ever changes `room`, you've just found the exact pathology this lesson is about: a matched rule with
+positive credibility that has nothing left to contribute.)
 
 ---
 
-### Part 3 — Why `reveal` (recall) over pure `mcq` (recognition)
+### The main computation
 
-Recognition is easier because the answer is sitting among the options — you're doing a familiarity
-judgment, not a full reconstruction. That's exactly why recognition-only practice is a *weaker*
-form of retrieval practice: less effort, less reconstruction, less of the "desirable difficulty"
-that Part 2 identified as the active ingredient. `reveal` puzzles ("write this function," "sketch
-this design," "trace this execution") force genuine reconstruction from scratch before any options
-or hints appear — the harder, recall-flavored retrieval mode that the testing-effect research
-consistently finds produces more durable learning. `mcq` still has real value in this track (faster
-to answer, useful for judgment/prediction questions, unambiguous to score, appropriate when the
-"right" format is genuinely a discrimination among possibilities rather than free construction) —
-but a track optimizing purely for retention would lean recall-heavy, and that's a real design
-tension worth naming rather than hiding.
+Priority = credibility × value ÷ cost:
 
----
+- K1: 0.95 × 0.005 ÷ 1 = **0.00475**
+- K2: 0.60 × 0.60 ÷ 2 = **0.18** ← winner
+- K3: 0.50 × 0.20 ÷ 1.5 ≈ **0.0667**
 
-### Part 4 — Design implication for an agent's memory system
+K2 — extending into the uncovered two seconds of signal — wins once value enters the score, by a wide
+margin. K1, the previous runaway winner, collapses to essentially zero: it's still cheap and still
+reliable, but reliably cheap at doing almost nothing is worth almost nothing.
 
-If information already sits in an agent's context window, retrieving it is closer to
-**recognition** — a cheap lookup, no reconstruction, and (per this lesson's logic) it likely
-doesn't do anything to strengthen a longer-term memory store the way genuine recall would. If an
-agent instead has to query a separate memory store or reconstruct a fact via its own generation
-process (no direct excerpt sitting in context), that's closer to **recall** — and if the
-psychology maps onto the engineering at all, that kind of retrieval is the one worth deliberately
-routing important information through if you want a memory system that gets more reliable with
-repeated use, not just one that's fast when the answer happens to already be present. Concretely:
-a design that always stuffs everything into context (maximal recognition, minimal recall) might be
-fast per-query but never builds the equivalent of a strengthened retrieval pathway — everything
-stays exactly as easy or hard to "remember" as it was on day one, because nothing is ever actually
-being reconstructed under effort.
+**Why "raise the cost of repetition" was the wrong diagnosis.** That patch treats the *symptom*
+(the same action keeps winning) as the *disease*. But nothing about K1 winning repeatedly is
+inherently wrong — a KSAR *should* win repeatedly if it keeps producing real value (imagine K1 were
+instead extending a growing island outward, which lesson 6 correctly rewarded turn after turn). The
+actual defect is scoring an action's *plausibility and price* while never asking what it would
+*change*. A cost penalty on repetition would eventually suppress K1 whether or not it still had value
+left — and would do nothing for K3, or for a fourth KS whose action costs nothing at all but still
+touches an island that's already saturated. Fixing cost patches one symptom, per action, temporarily.
+Fixing value fixes the actual scoring function, for every action, permanently.
 
----
+**The general shape of the bug:** any score built only from *how likely* and *how cheap* an action is
+will happily spend forever on cheap, reliable, zero-marginal-value work — a lint pass on a file with
+no lint errors left, a retry loop on a request that already succeeded, a "double-check" step on a
+result nothing else disputes. The fix is never "penalize doing it again"; it's "reward what doing it
+*again* would actually change." Coverage of the unaddressed and expected improvement to the best
+current interpretation are two concrete forms that value term can take — credibility and cost never
+capture either one, no matter how you tune them.
 
-### The pattern
+**For your harness:** an orchestrator that ranks pending tool calls by "how likely to succeed × how
+cheap" will converge on re-running your cheapest, most reliable tool against whatever it's already
+solved, while genuinely unexplored parts of the problem sit untouched — the fix isn't a repetition
+penalty (which just delays the same failure), it's scoring tools by the expected information or
+progress a call would add, given what's already known.
 
-| | Recognition (`mcq`-like) | Recall (`reveal`-like) |
-|---|---|---|
-| Cue | Answer present among options | No answer present |
-| Effort | Lower — familiarity judgment | Higher — full reconstruction |
-| Retention benefit | Real but weaker | Stronger (testing effect) |
-| Agent-harness analogue | Info already in context window | Info reconstructed from a separate store |
-
-**Rule**: encoding gets information in; retrieval gets it back out — but retrieval isn't a neutral
-readout operation. Effortful, cue-free retrieval (recall) strengthens the underlying memory trace
-more than passive re-exposure or easy recognition does, which is why deliberate retrieval practice
-(testing yourself) beats re-reading as a study strategy, and why this track leads with puzzles
-before explanations rather than the reverse.
-
-**Where this goes:** next lesson goes underneath retrieval itself — **spreading activation and
-priming**, the mechanism (first formalized in Lesson 10's ACT-R activation) by which retrieving one
-memory makes *related* memories easier to retrieve too, even before you consciously try.
+**Where this goes:** next lesson takes on the twin misdiagnosis in ACT-R's activation math — treating
+a decay *exponent* as though it were a per-use counter — with the same cure: read the formula's terms
+for what they actually are, not for what intuition assumes they must be.

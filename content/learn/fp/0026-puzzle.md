@@ -1,116 +1,103 @@
 ---
-title: "Tree Unfold: Building Trees Top-Down"
-description: "Where tree_fold consumes a tree by replacing constructors, tree_unfold builds a tree by recursively expanding a seed. Derive perfect binary trees and balanced BSTs as pure unfold calls."
+title: "When Bool Isn't Enough: Enriching a Tree Fold"
+description: "A property like 'is this a valid BST' looks like a yes/no question, but Bool can't carry it through a fold. Enrich the result type — with a distinct empty-case value — and the bug disappears."
 lesson_number: 26
 track: fp
 aliases: ["/learn/0026-puzzle/"]
-concept: "Tree unfold"
-stage: 4
+concept: "Fold with an enriched result type"
+stage: 3
 layout: puzzle
 role: puzzle
-answer_type: reveal
-builds_on: [21, 25]
+answer_type: numeric
+builds_on: [21, 23]
 skin: chalkboard
+numeric:
+  question: "Given the tree below, how many node values violate the true binary-search-tree invariant once you account for every ancestor's constraint (not just each node's immediate parent)?"
+  answer: 1
+  tolerance: 0
+  unit: "node(s)"
 ---
 
-In Lessons 21–23 you wrote functions that *consumed* trees. In Lesson 25 you saw that a list unfold generates a list from a seed, branching linearly. The **tree unfold** (also: anamorphism for trees) does the same but branches at each step — one seed produces two child seeds.
+**Warm-up recall (Lesson 18).** `reduce(init, f, list)` folds a list into one value by repeatedly
+applying `f(acc, x)`, left to right, starting from `init`. Using `reduce`, compute the *product* of
+`[2, 3, 4, 5]` (not the sum — that's the new setting here). Keep your number; the solution confirms
+it before moving on.
 
-**Terms (standalone):**
+---
 
-- **Binary tree**: `Tree = Leaf | Node(value: Int, left: Tree, right: Tree)`. A `Leaf` carries no value and no children.
-- **Tree unfold** (anamorphism): generates a `Tree` from a seed by recursively splitting the seed into a value and two child seeds, stopping when a predicate fires.
-- **Perfect binary tree** of depth d: every leaf is at the same depth; a tree of depth 0 is `Leaf`; a tree of depth 1 is `Node(v, Leaf, Leaf)`.
-- **BST (binary search tree)**: every value in a node's left subtree is less than the node's value; every value in the right subtree is greater.
+**Terms (standalone, from Lessons 21 and 23):**
+
+- **Binary tree**: `Tree = Leaf | Node(value: Int, left: Tree, right: Tree)` — either empty, or a
+  value with two subtrees.
+- **Tree fold** (`tree_fold(leaf_val, node_fn, t)`): replaces every `Leaf` with `leaf_val` and every
+  `Node(v, l, r)` with `node_fn(v, fold(l), fold(r))`, working bottom-up. The result type `R` is
+  whatever type `leaf_val` and `node_fn` produce — it can be `Int`, `Tree`, `String`, or anything
+  else.
+
+A **binary search tree (BST)** is a binary tree where, for *every* node, every value in its left
+subtree is less than the node's value, and every value in its right subtree is greater. Crucially,
+this must hold against *every ancestor*, not just the immediate parent — a value two levels down
+still has to respect a constraint set by its grandparent.
+
+### The tempting (and wrong) approach
+
+It's natural to reach for `Bool` as the result type: `is_bst(t) = tree_fold(True, node_fn, t)`,
+where `node_fn(v, left_ok, right_ok)` checks `left_ok and right_ok and left.max < v < right.min`.
+The problem: once you're inside `node_fn`, you only have `True`/`False` from each subtree — the
+actual values that subtree contains are gone. You can't check "less than `v`" against a `Bool`.
+
+Here's the tree to test that on:
+
+```
+        10
+       /  \
+      5    15
+          /  \
+         6    20
+```
 
 ```python
-def tree_unfold(seed, is_leaf, node_value, left_seed, right_seed):
-    """
-    seed       — initial state
-    is_leaf    — when True, return Leaf() and stop recursing
-    node_value — extract the Node's value from the seed
-    left_seed  — compute the left child's seed
-    right_seed — compute the right child's seed
-    """
-    if is_leaf(seed):
-        return Leaf()
-    return Node(
-        node_value(seed),
-        tree_unfold(left_seed(seed), is_leaf, node_value, left_seed, right_seed),
-        tree_unfold(right_seed(seed), is_leaf, node_value, left_seed, right_seed)
-    )
+tree = Node(10,
+    Node(5, Leaf(), Leaf()),
+    Node(15,
+        Node(6, Leaf(), Leaf()),
+        Node(20, Leaf(), Leaf())))
 ```
-
-Compare to list `unfold`: instead of `step : S → S` (one new seed), tree unfold has `left_seed : S → S` and `right_seed : S → S` — branching.
 
 ---
 
-### Part 1 — Perfect binary tree of depth d
+### Part 1 — Check it locally, node by node
 
-Using `tree_unfold`, build a perfect binary tree of depth `d` where a node's *value* is the depth at which it sits — the root (one level above the last `Node`) has value `d − 1`, the row above `Leaf` has value `0`.
-
-```
-perfect(3):
-Node(2,
-  Node(1, Node(0, Leaf, Leaf), Node(0, Leaf, Leaf)),
-  Node(1, Node(0, Leaf, Leaf), Node(0, Leaf, Leaf)))
-```
-
-The seed is the remaining depth. Let `is_leaf` fire when no depth remains.
-
-What are `is_leaf`, `node_value`, `left_seed`, and `right_seed`?
+Walk the tree and, at each `Node`, check only the immediate parent/child relationship: is the left
+child's value less than this node's value, and the right child's value greater? Does every single
+node pass that local check?
 
 ---
 
-### Part 2 — Balanced BST from a contiguous range
+### Part 2 — Check it against full ancestry
 
-`bst_from_range(start, stop)` builds a balanced binary search tree containing integers `start, start+1, …, stop−1`. The seed is a `(start, stop)` pair; the root is the midpoint.
-
-```
-bst_from_range(1, 8):
-        4
-       / \
-      2   6
-     / \ / \
-    1  3 5  7
-```
-
-Rules:
-- `mid = (start + stop) // 2` is the current node's value.
-- The left subtree covers `[start, mid)`.
-- The right subtree covers `(mid, stop)` = `[mid + 1, stop)`.
-- `is_leaf` fires when the range is empty.
-
-Write the five arguments to `tree_unfold(seed, is_leaf, node_value, left_seed, right_seed)`.
-
-Trace through the seed `(1, 4)` by hand to verify your left and right seeds are correct.
+Now check the *real* invariant: for each node, does its value respect every constraint imposed by
+every ancestor above it (not just its direct parent)? Specifically: node `6` sits in the right
+subtree of `10` — what does that require of `6`, and does `6` satisfy it?
 
 ---
 
-### Part 3 — Node count
+### Part 3 — Design the fix: what must `R` be?
 
-For `perfect(d)`, how many total calls to `tree_unfold` are made (including the leaf calls where `is_leaf` fires)? Express as a formula in `d`.
+`Bool` failed because it threw away the information `node_fn` needed. Design a result type `R` that
+carries enough information to check the invariant correctly — as a tuple. Think about:
 
-Hint: count the internal nodes and the leaves separately.
-
----
-
-### Part 4 — Inherent parallelism
-
-The two recursive calls inside `tree_unfold`:
-
-```python
-tree_unfold(left_seed(seed), ...),
-tree_unfold(right_seed(seed), ...)
-```
-
-share the same `is_leaf`, `node_value`, `left_seed`, and `right_seed` functions, but operate on *different seeds*. Neither call depends on the other's result before it can run.
-
-In one sentence: why does this make tree_unfold inherently parallelisable?
+- What two facts about a subtree does a parent need, to check whether attaching this subtree at a
+  given value is legal?
+- What should `leaf_val` be for an **empty** subtree — and does it need to be *distinct* from
+  whatever value you'd use to mean "invalid"? (Hint: don't reach for `None` for both. `None` can't
+  be compared with `<`, and using it for two different meanings — "there's nothing here" vs. "this
+  subtree broke the rule" — makes those two cases indistinguishable to the code that combines them.)
 
 ---
 
-### Part 5 — An unfold that builds unequally
+### Part 4 — The graded question (above)
 
-The two seeds don't have to be "the same kind of split". Consider building a sorted list as a *tree* (a binary trie) where left subtrees hold values less than the median and right subtrees hold the rest.
-
-Without writing code: describe what `left_seed` and `right_seed` would return if the seed were a sorted Python list `xs`. What does `is_leaf` check?
+Using the *true* invariant from Part 2 (full ancestry, not just local parent/child), count how many
+node **values** in the tree above actually violate the BST property. Enter that count in the numeric
+box.

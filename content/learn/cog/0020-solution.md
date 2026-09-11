@@ -1,112 +1,66 @@
 ---
-title: "Solution: Ten Years of Experience, or One Year Repeated Ten Times?"
-description: "B practiced deliberately — targeted weaknesses, immediate feedback, effortful refinement — while A's equal volume of routine repetition plateaued years ago. And neither's skill transfers as far as intuition suggests."
+title: "Solution: The Probable Story That Can't Be More Probable"
+description: "P(both) = 0.0075, nineteen times smaller than P(engineer) alone — representativeness makes the specific story feel likelier, but a conjunction can never outrank the event it's a subset of."
 lesson_number: 20
 track: cog
-concept: "Deliberate practice and its limits; transfer (and its scarcity)"
-stage: 4
+concept: "Heuristics & biases: representativeness and the conjunction fallacy"
+stage: 5
 layout: solution
 role: solution
-builds_on: [18, 19]
+builds_on: []
 skin: chalkboard
 resources:
-  - title: "Ericsson, Krampe & Tesch-Römer (1993) — 'The Role of Deliberate Practice in the Acquisition of Expert Performance'"
-    url: https://www.apa.org/pubs/journals/releases/rev-1003363.pdf
-    note: "the foundational paper defining deliberate practice and distinguishing it from mere experience"
+  - title: "Kahneman (2002) — Nobel Prize lecture, 'Maps of Bounded Rationality'"
+    url: https://www.nobelprize.org/prizes/economic-sciences/2002/kahneman/lecture/
+    note: "Kahneman's own account of the heuristics-and-biases program, in his words"
 ---
 
-### MCQ answer: (1) — B has been engaging in deliberate practice, A has not
-
-Equal volume with divergent outcomes is the classic signature Ericsson's research was built to
-explain: raw years of experience and total repetition volume correlate only weakly with expertise
-once you look closely, and the reliable predictor is whether that time included deliberate
-practice's specific ingredients — a challenging goal, focused attention, immediate corrective
-feedback, and repeated refinement targeting weaknesses — versus routine, comfortable-difficulty
-repetition. Option (0)'s "natural talent" explanation is exactly the folk intuition this research
-pushes back against — while raw aptitude plays some role, large, well-documented performance gaps
-between equally-experienced practitioners are far better explained by *how* that experience was
-structured than by assumed innate differences. Option (2) (pure volume) is explicitly what the
-puzzle rules out by stipulating equal reading volume. Option (3) dodges the question the research
-was specifically designed to answer with a real, replicated mechanism.
+**Retrieval check answer.** T1: 0.8 × 0.9 ÷ 2 = **0.36** ← wins. T2: 0.9 × 0.2 ÷ 1 = 0.18. T3: 0.5 ×
+0.6 ÷ 1.5 ≈ 0.20. T1 wins comfortably — high credibility and high value together outweigh its higher
+cost, exactly the combination a resource-limited triage system should chase first, and unlike lesson
+14's trap, T1's value term here is real (0.9), not near-zero.
 
 ---
 
-### Part 2 — Why routine practice actually plateaus, not just slows
+### The computation
 
-Lesson 18's power law describes improvement *when every trial still provides some learning
-signal*. Routine, comfortable-difficulty repetition breaks that assumption: once a skill component
-is executed successfully and automatically (a familiar chunk, recognized and applied without
-conscious effort — Lesson 19's chunking, running smoothly), further repetitions of that same,
-already-mastered component provide essentially **no new corrective signal** to learn from — there's
-no error to notice, no feedback pointing at a gap, nothing for the underlying representation to
-update against. The trial still happens, but it's closer to *executing* a stored production rule
-(Lesson 3's condition→action firing) than to *building or refining* one.
+P(software engineer AND plays in a band) = P(software engineer) × P(plays in a band | software
+engineer) = 0.15 × 0.05 = **0.0075**.
 
-Genuine improvement requires trials where the current skill genuinely gets tested against something
-at or beyond its current edge, with feedback specific enough to reveal exactly what went wrong.
-Comfortable, routine repetition systematically avoids exactly that zone — which is why it produces
-an apparent hard plateau rather than Lesson 18's ever-slower-but-still-positive curve: it isn't
-that the *rate* of learning per trial is decaying toward zero along a smooth power-law curve, it's
-that most routine trials are contributing close to **zero** learning signal individually, because
-nothing about them is challenging the current skill level or supplying corrective information.
+Compare to P(software engineer) alone = 0.15. The conjunction is **0.0075**, about **20 times
+smaller** than the plain event it's nested inside — which has to be true by pure arithmetic: every
+person in the "engineer and musician" set is also, necessarily, in the "engineer" set, so the smaller
+set can never be more probable than the larger one it's contained in. There is no fact about résumés,
+hiring, or musicians that could ever make this go the other way; it's a structural guarantee
+(P(A∩B) ≤ P(A) for any A and B), not an empirical claim that happens to hold in this dataset.
 
----
+**Why representativeness fights the arithmetic anyway.** The description — quiet, precise, a
+musician's background — reads as a better *fit* for "engineer who still plays music" than for the
+bland, unqualified "software engineer." Representativeness substitutes "how well does this description
+match my mental picture of each category" for "how probable is each category, given the actual base
+rates" — and the more specific, narrative-fitting conjunction routinely wins that similarity contest
+even though it structurally cannot win the probability contest. The vividness of a detail (the
+musician background) makes the conjunction feel more *diagnostic*, when in fact adding any additional
+required condition can only ever hold probability steady or shrink it, never grow it.
 
-### Part 3 — A deliberate-practice regimen: code review skill
+**The bridge to the bayes track:** this is base-rate reasoning wearing a different hat. P(A∩B) = P(A) ×
+P(B|A) is the same conditional-probability chain rule that underlies Bayesian updating — the
+conjunction fallacy is what happens when a vivid conditional term (P(plays in a band | engineer) makes
+for a compelling story) gets evaluated on its own narrative merits instead of being multiplied through
+against the base rate it's actually attached to. If you've done the bayes track, this is the same
+arithmetic that makes rare-disease test results counterintuitive: a specific, vivid scenario
+(the positive test) can feel far more diagnostic than the base rate underneath it justifies once you
+actually multiply through.
 
-**Deliberate version**: pick a genuinely difficult category of bug you currently miss sometimes
-(e.g., subtle race conditions) — that's the challenging goal, just past current ability. Review
-real pull requests from that category with full, undistracted attention, writing down a specific
-prediction of every issue you spot *before* checking against a more senior reviewer's actual
-findings or the bug's eventual real-world outcome — that's the immediate, specific feedback. Where
-your prediction missed something the senior reviewer caught, deliberately study *why* you missed
-it (what pattern were you not recognizing?) before moving to the next PR — that's repetition with
-targeted refinement, focused specifically on the gap just identified, not just moving on to the next
-task.
+**For your harness:** an LLM asked to estimate "how likely is X" is exactly as susceptible to
+representativeness as a person — a longer, more specific, more narratively coherent hypothesis can
+score as more probable in a model's stated confidence than a plainer hypothesis it's logically a
+subset of, especially when nothing in the prompt forces an explicit base-rate computation. Forcing the
+conjunction rule as an explicit check (does this hypothesis strictly imply a plainer one, and if so, is
+it rated as more probable than that plainer one?) is a cheap, mechanical guard against exactly this
+failure mode, in a model or in yourself.
 
-**Routine contrast**: reviewing PRs as they come in, at a comfortable pace, approving or requesting
-changes based on familiar checks, with no systematic comparison against a stronger reviewer's
-judgment and no deliberate focus on a specific known weak spot — genuinely useful for keeping the
-codebase healthy, but structurally unlikely to push the reviewer's own skill past wherever it
-currently plateaus, for exactly the reason given in Part 2.
-
----
-
-### Part 4 — Deliberate-practice analogue, and the plateau failure mode, in agent training
-
-A close analogue: reinforcement learning or fine-tuning regimes that specifically target an agent's
-**known failure modes** with tasks calibrated just past its current success rate, paired with clear,
-specific reward/correction signal tied to exactly what went wrong — structurally close to
-deliberate practice's four ingredients (challenging difficulty, focused signal, immediate feedback,
-targeted refinement). Contrast that with simply running an agent on a large volume of tasks it
-already handles comfortably, with vague or absent feedback about *why* any given output was better
-or worse — closer to routine repetition.
-
-**Expected plateau failure mode**: an agent trained mostly on high-volume-but-routine experience
-(comfortable tasks, weak or generic feedback) would be expected to perform reliably on
-familiar-shaped tasks while showing little continued improvement on its genuine edge cases or known
-weak spots over time — exactly matching Radiologist A's flat 10-year accuracy curve despite
-continuing high case volume: lots of executions of already-mastered patterns, very little targeted
-correction of the specific gaps that would actually move performance forward.
-
----
-
-### The pattern
-
-| | Routine repetition | Deliberate practice |
-|---|---|---|
-| Difficulty | comfortable, already-mastered | just past current ability |
-| Attention | often automatic/autopilot | fully focused |
-| Feedback | absent or delayed/vague | immediate and specific |
-| Trajectory | early gains, then plateau | continued improvement |
-| Transfer to other domains | limited either way | limited either way |
-
-**Rule**: raw hours or repetitions predict expertise only weakly — what predicts it is whether
-practice included deliberate practice's specific structural ingredients. And even genuine expertise,
-however it was built, transfers far less to other domains than intuition suggests — consistent with
-Lesson 19's finding that expertise is chunking of *specific* meaningful patterns, not a general
-cognitive upgrade that should carry over anywhere.
-
-**Where this goes:** Stage 4 closes with one more piece — **spacing and interleaving**, the
-scheduling principles (not just *how* you practice, but *when* and in what order) that this whole
-puzzle path's own design is built on.
+**Where this goes:** representativeness and availability are examples of a fast, effortless,
+often-right kind of judgment overriding careful calculation. Next lesson names that split explicitly —
+"fast, automatic" versus "slow, deliberate" reasoning — and asks what precise machinery, already built
+in this track, that split is actually standing in for.

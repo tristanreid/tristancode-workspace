@@ -1,113 +1,100 @@
 ---
-title: "Solution: Tail Calls — The Recursion That Doesn't Grow the Stack"
-description: "(B) is the tail call. Tail recursion is a stepping stone to an explicit loop even when the runtime won't optimize it for you — which is exactly Python's situation."
+title: "Solution: Infinite Structures via Laziness — A Stream of Naturals"
+description: "nats_from builds an infinite stream in O(1) because the tail is a thunk, not a value; lazy_filter preserves that property; the first four multiples of 3 (0, 3, 6, 9) sum to 18."
 lesson_number: 31
 track: fp
 aliases: ["/learn/0031-solution/"]
-concept: "Tail calls & tail-call optimization"
+concept: "Infinite structures via laziness"
 stage: 5
 layout: solution
 role: solution
-builds_on: [6, 12, 30]
+builds_on: [30]
 skin: chalkboard
 ---
 
-### MCQ answer: (B) — only `g(n, acc)` is in tail position
+### Warm-up recall answer
 
-`g` returns the recursive call's value directly: `return g(n - 1, acc + n)`. Nothing happens to
-that value afterward — it's just handed straight back up.
-
-`f` returns `1 + f(n - 1)`. The recursive call `f(n - 1)` happens, but then `f`'s own frame still
-has work left: add `1` to whatever came back. That pending `+ 1` is what disqualifies it — the
-call isn't the *last* action, it's an action followed by another action.
+A product type multiplies its options together: `4 suits × 13 ranks = 52` distinct cards. **52.**
 
 ---
 
-### Part 2 — What information would be lost
+### Part 1 — Trace `take(3, nats_from(0))`
 
-If the runtime threw away `f(n)`'s frame before calling `f(n - 1)`, it would lose the fact that
-**`+ 1` is still pending** — there would be nowhere to resume once `f(n-1)` returns. The current
-frame's "return address and pending work" is exactly what a non-tail call still needs after the
-callee returns. That's the structural reason frame-reuse only works for tail calls: a tail call is
-precisely the case where the caller has *no* pending work, so its frame truly is disposable the
-instant the call is made.
+```
+stream = nats_from(0) = LazyCons(0, thunk→nats_from(1))
+iter 1: head=0, result=[0], stream = stream.tail_thunk() = nats_from(1) = LazyCons(1, thunk→nats_from(2))
+iter 2: head=1, result=[0,1], stream = nats_from(2) = LazyCons(2, thunk→nats_from(3))
+iter 3: head=2, result=[0,1,2], k reaches 0 → stop
+
+result: [0, 1, 2]
+```
+
+At no point does anything past `nats_from(2)` get built — `nats_from(3)` exists only as an unforced
+thunk sitting inside the last `LazyCons` produced, and `take` never calls it.
 
 ---
 
-### Part 3 — Tail-recursive `f`
+### Part 2 — `lazy_filter`
 
 ```python
-def f_tail(n, acc=0):
-    if n == 0:
-        return acc
-    return f_tail(n - 1, acc + 1)
+def lazy_filter(pred, stream):
+    while not pred(stream.head):
+        stream = stream.tail_thunk()          # skip non-matches, one forced step at a time
+    return LazyCons(stream.head, lambda: lazy_filter(pred, stream.tail_thunk()))
 ```
 
-Trace `f_tail(3)`:
-```
-f_tail(3, 0) → f_tail(2, 1) → f_tail(1, 2) → f_tail(0, 3) → 3
-```
-
-Every step, the *entire* remaining computation is captured in the arguments (`n`, `acc`) — there is
-nothing left pending in any caller's frame. `return f_tail(n - 1, acc + 1)` is the whole return
-expression: a pure tail call. Compare to Lesson 12, where `reverse`'s accumulator did the same job
-— turn "combine on the way back up" into "carry the answer-so-far on the way down."
+The `while` loop forces exactly as many steps of the underlying stream as it takes to find the next
+match — no more. Once found, the *rest* of the filtering (everything past this match) is wrapped in
+another thunk, so the next match isn't searched for until something calls `.tail_thunk()` again.
+This is the same discipline as `nats_from`: return a real value for "now," defer everything after it.
 
 ---
 
-### Part 4 — Answer: (b) — `RecursionError` anyway
-
-CPython **does not implement tail-call optimization**, deliberately — Guido van Rossum has stated
-this is intentional, partly because TCO makes stack traces harder to read (frames silently vanish,
-so a traceback no longer shows the full call history) and partly because Python's design favors
-explicit loops for iteration. So `f_tail(100_000)` pushes 100,000 real stack frames and hits
-`RecursionError` just as readily as the non-tail version — being in tail position buys you nothing
-at runtime in CPython. (Some other implementations and languages — Scheme, and JVM languages like
-Scala under specific conditions via `@tailrec`, or with a trampoline — *do* collapse tail calls into
-O(1) stack space.)
-
----
-
-### Part 5 — The benefit that survives even without runtime TCO
-
-A tail-recursive definition is a **loop in recursive clothing**: at every step, the entire state
-needed to continue is fully captured in the arguments, and there's no pending work stashed in any
-frame. That's *exactly* the shape a `while` loop has — a set of mutable loop variables, updated each
-iteration, nothing implicit hanging around. Which means a tail-recursive function can always be
-mechanically rewritten, by hand, into an explicit loop with zero semantic change:
+### Part 3 — The graded answer: 18
 
 ```python
-def f_loop(n):
-    acc = 0
-    while n != 0:
-        acc = acc + 1
-        n = n - 1
-    return acc
+multiples_of_3 = lazy_filter(lambda x: x % 3 == 0, nats_from(0))
+take(4, multiples_of_3)   # → [0, 3, 6, 9]
+sum([0, 3, 6, 9])         # → 18
 ```
 
-Every tail call `g(n - 1, acc + n)` becomes an assignment `n, acc = n - 1, acc + n` at the top of a
-loop. This is precisely what a **trampoline** or a language's TCO does *automatically* — mechanize
-that same n-argument-update pattern instead of pushing a frame. So the practical value of writing
-`f_tail` first, even in Python, is that it makes the loop-conversion **obvious and mechanical**
-rather than something you have to invent from scratch: once a recursive definition is tail-shaped,
-turning it into an explicit, stack-safe loop is a rote transformation, not a redesign.
+**18.** Note that `lazy_filter` had to force and discard `1` and `2` to find the second match (`3`),
+then `4` and `5` to find the third (`6`), and so on — real work happens, just only exactly as much as
+`take(4, ...)` demands. Ask for `take(1000, ...)` instead and it will happily keep going; the stream
+never "runs out" because nothing about it was ever fully built.
+
+---
+
+### Part 4 — Why ordinary `filter` can't be used here
+
+Lesson 10's `filter` is eager: it assumes it's been handed a *complete* list and scans all of it
+before returning anything. Calling `filter(pred, nats_from(0))` first has to materialize
+`nats_from(0)` as an actual finite list to scan — but `nats_from(0)` is infinite. The call would
+hang forever (or, more precisely, `nats_from(0)` isn't even a Python list at all — it's a
+`LazyCons`, so ordinary `filter` would error immediately trying to iterate something that was never
+built to support eager iteration). This is exactly Lesson 30's lesson in a new shape: an eager
+operation forces *all* of its input before producing *any* output, and "all of an infinite stream"
+is not a value that can ever finish being produced.
 
 ---
 
 ### The pattern
 
-| Form | Stack behavior in Python | Stack behavior with TCO (Scheme, etc.) |
-|---|---|---|
-| `1 + f(n-1)` (non-tail) | O(n) frames, unavoidable | still O(n) — TCO doesn't apply |
-| `g(n-1, acc+n)` (tail) | O(n) frames — CPython ignores tail position | **O(1)** — frame reused |
-| hand-converted `while` loop | O(1) — no recursion at all | O(1) |
+**Laziness is what makes "infinite" a data structure you can hold, instead of a computation that
+never finishes.** `nats_from(n)` is a value the moment it returns — a head plus a promise — never a
+completed sequence. Every operation that consumes a lazy stream (`take`, `lazy_filter`, and anything
+built on top of them) has to preserve that same discipline: produce what's asked for, defer
+everything else as another thunk. Break that discipline anywhere in the chain (by calling ordinary,
+eager `filter` on it, for instance) and the illusion of infinity collapses back into "a computation
+that never returns."
 
-**Rule**: a call is in tail position when it's the *entire* return expression — no pending
-arithmetic, no `+`, no wrapping. Being tail-recursive is necessary for TCO to apply, but Python
-gives you none of the benefit automatically; the accumulator discipline still pays off because it's
-the same discipline that makes the loop-rewrite trivial.
+**Why this matters for parallelism**: this is orthogonal to it, worth naming so you don't conflate
+them — laziness controls *when* work happens (deferred until demanded), while parallelism controls
+*where* work happens (multiple places at once). A lazy stream is still fundamentally sequential:
+element `n+1` isn't available until you've forced element `n`'s thunk, because each `tail_thunk`
+closes over the state needed to produce the next one. Stage 7's parallel combinators come from a
+different property entirely — independence, not deferral.
 
-**Where this goes:** next lesson turns to a different cost that recursive/lazy definitions can
-hide — not stack depth, but *duplicated work* when the same subcomputation gets recomputed instead
-of reused. Stage 6 after that picks tail calls back up from a different angle: continuation-passing
-style, where *every* call becomes a tail call by construction.
+**Next**: eager evaluation of a self-referential definition doesn't just waste work, sometimes it
+never terminates at all. Lesson 32 shows exactly where that happens, and why the fix is the same
+laziness you just used here.

@@ -1,86 +1,77 @@
 ---
-title: "Why This Puzzle System Quizzes You Instead of Just Explaining"
-description: "Encoding gets information in; retrieval gets it back out — and the act of retrieving turns out to change the memory itself. That's not a teaching gimmick, it's the mechanism."
+title: "The Winner With Nothing Left to Win"
+description: "A credibility/cost scheduler keeps picking the same near-perfect island to polish. The bug isn't repetition — it's a missing value term. Add it and rescore."
 lesson_number: 14
 track: cog
-concept: "Encoding vs retrieval; recognition vs recall; retrieval practice"
-stage: 3
+concept: "Blackboard control: agenda scoring needs a value term"
+stage: 1
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: [2, 10]
+answer_type: numeric
+builds_on: [4, 5, 6]
 skin: chalkboard
-mcq:
-  question: "Two students study the same chapter for the same amount of time. Student A re-reads it four times. Student B reads it once, then closes the book and tries to write down everything they remember (getting some wrong), then checks and corrects. One week later, who scores higher on a surprise test, and why?"
-  options:
-    - "Student A — re-reading builds stronger familiarity, which is what memory tests measure"
-    - "Student B — the act of retrieval itself (even with errors) strengthens the memory trace more than passive re-exposure does; this is the 'testing effect'"
-    - "They score the same — total study time is what determines retention, not study method"
-    - "Student A, but only because re-reading also happens to be a form of retrieval practice"
-  correct: 1
+numeric:
+  question: "Once a value term is added to the score, what priority does the new winning KSAR receive?"
+  answer: 0.18
+  tolerance: 0.005
+  unit: "priority score"
 ---
 
-Every puzzle in this track — including this one — asks you to produce or select an answer *before*
-revealing the solution, rather than just handing you an explanation to read. This lesson explains
-why that's a deliberate design choice grounded in how memory actually works, not a stylistic habit.
-
-**Terms (standalone):**
-
-- **Encoding**: the process of getting information *into* memory in the first place — transforming
-  a perceived experience or studied fact into a stored memory trace. In ACT-R's terms (Lesson 10),
-  encoding is what creates a new declarative chunk.
-- **Retrieval**: the process of getting information *back out* of memory — reconstructing a stored
-  trace when it's needed. In ACT-R's terms, retrieval is a chunk's activation crossing threshold
-  and being pulled into working memory (recall Lesson 2's "chunk," Lesson 10's activation).
-- **Recognition**: identifying a previously-encountered item when it's presented to you again — "is
-  this familiar?" Multiple-choice tests lean heavily on recognition: the correct answer is *right
-  there*, and you're judging familiarity among options.
-- **Recall**: reproducing a previously-encountered item with no cue present — "what was it?"
-  Fill-in-the-blank and free-response tests lean on recall. Recall is reliably *harder* than
-  recognition — you've likely had the experience of failing to recall a name, then instantly
-  recognizing it the moment someone says it aloud.
-- **Retrieval practice / the testing effect**: the well-replicated finding that the act of
-  *retrieving* a memory — actively trying to produce it, even with effort and even with some
-  errors — strengthens that memory more than an equivalent amount of time spent passively
-  re-reading or re-studying the same material. Testing isn't just a way to *measure* what you
-  know; the act of testing itself is a more effective *way to learn* than the more comfortable
-  alternative of rereading.
-
-### The puzzle (MCQ above)
-
-This is a classic, heavily replicated result in memory research (Roediger & Karpicke's foundational
-studies, among many others). Think about *why* effortful retrieval would beat passive re-exposure —
-what is retrieval doing to the memory trace that mere re-reading doesn't do?
+**Retrieval check (from lesson 3, new setting).** A thermostat runs a tiny production system —
+condition→action rules over a working memory of facts, picking one matched rule per cycle (recall
+lesson 3: this is the **recognize–act cycle**). Working memory: `{room: cold, heater: off, fan: off}`.
+Rules: `R1: IF room=cold AND heater=off THEN heater=on`. `R2: IF heater=on AND fan=off THEN fan=on`.
+`R3: IF room=cold THEN log-reading` (matches but changes nothing visible; conflict resolution favors
+the *most specific* — most-conditions — match). In what order do rules fire, and how many cycles run
+before nothing new matches? Work it out before reading on — the solution confirms it.
 
 ---
 
-### Part 2 — Why does retrieval strengthen the trace?
+### Back to the blackboard
 
-Re-reading is a form of *encoding* the same material again — but retrieval is a different act
-entirely: it requires the memory system to reconstruct the trace from a cue, under some effort,
-without the answer sitting in front of you. Propose a mechanism (you can reason informally, or
-connect it to ACT-R's activation formula from Lesson 10) for why the *act* of successfully
-reconstructing a trace would leave that trace easier to reconstruct next time, beyond what mere
-re-exposure to the same content would do.
+Lesson 6 built a **blackboard** — a shared workspace holding hypotheses at multiple levels, each with
+a confidence — worked on by independent **knowledge sources (KSs)**, specialist modules that fire
+when their trigger condition matches something currently on the board. Whenever a KS *could* fire, a
+**KSAR** (knowledge-source activation record) is queued on the **agenda**: "KS X could fire on
+hypothesis Y." Control's job, every cycle, is to score the pending KSARs and run the best one —
+**focus of attention**.
 
----
+Lesson 6 used the heuristic **priority = credibility ÷ cost**: favor actions that are both likely to
+be right and cheap to try. That heuristic has a real failure mode, and it's not the one it looks like.
 
-### Part 3 — Recognition vs recall, and why this track avoids one of them
+**The pathology.** A speech-understanding system has an island hypothesis — a stretch it's already
+99% confident is the word "seven" — sitting at confidence 0.99. Three KSARs are pending:
 
-This track's puzzles are almost entirely `mcq` (recognition-flavored: pick the right option from a
-set) or `reveal` (recall-flavored: produce an answer, then check). Given that recall is the harder,
-more effortful retrieval mode — and that difficulty of retrieval is part of what makes retrieval
-practice effective — what's a design argument for leaning toward `reveal` (recall) over pure `mcq`
-(recognition) when the goal is durable learning rather than quick assessment?
+| KSAR | What it would do | Credibility | Cost |
+|---|---|---|---|
+| K1 | Re-verify the "seven" island (already at 0.99) against the acoustic model one more time | 0.95 | 1 |
+| K2 | Extend into the *first two seconds* of signal, which currently has no hypothesis at all | 0.60 | 2 |
+| K3 | Re-rate a mid-confidence island currently sitting at 0.70 | 0.50 | 1.5 |
 
----
+Score credibility ÷ cost: K1 = 0.95, K2 = 0.30, K3 = 0.33. **K1 wins, every cycle, forever** — it's
+cheap and the KS that runs it is reliable. So the scheduler spends cycle after cycle re-verifying a
+hypothesis that was already essentially certain, while two seconds of the utterance never gets looked
+at. (This is the same pattern as a linter that keeps re-running on a file that already passes every
+rule, because "cheap and reliable" scores well regardless of whether there's anything left to find.)
 
-### Part 4 — Connect to a modern AI system
+**The tempting wrong fix:** "the problem is repetition — raise K1's cost every time it runs, so it
+stops winning." That patches *this* KSAR, *this* cycle. It does nothing about K3 doing the same thing
+next week on a different island, or about a KS whose action is genuinely free to run (cost ≈ 0) but
+still contributes nothing. Cost was never the broken variable.
 
-**In a modern LLM agent harness**, an analogous distinction shows up: a system that has information
-sitting directly in its context window (immediately available, like recognition — "is this
-familiar/present?") behaves very differently from one that must retrieve information from a
-separate memory store or from model weights via generation (more like recall — reconstructing
-without the cue right there). Give one concrete way this distinction would change how you'd design
-an agent's memory system, if you knew recall-style retrieval strengthens what's retrieved but
-recognition-style lookup doesn't.
+**What credibility ÷ cost is missing:** a **value** term — the expected *change* this action would
+make to the global interpretation. Re-verifying a 0.99 island can, at best, nudge it to maybe 0.995 —
+tiny expected value, regardless of cost. Covering two seconds of currently-unexplained signal, by
+contrast, has high value: it's the difference between "no hypothesis" and "some hypothesis," the
+largest kind of improvement the board can register.
+
+Revised scoring: **priority = credibility × value ÷ cost**, where value is the expected gain in
+solution quality if the action succeeds:
+
+| KSAR | Credibility | Value (expected gain) | Cost |
+|---|---|---|---|
+| K1 | 0.95 | 0.005 (0.99 → ~0.995) | 1 |
+| K2 | 0.60 | 0.60 (closes an uncovered gap) | 2 |
+| K3 | 0.50 | 0.20 (0.70 → plausible 0.90) | 1.5 |
+
+Compute priority = credibility × value ÷ cost for all three, and report the winning score.

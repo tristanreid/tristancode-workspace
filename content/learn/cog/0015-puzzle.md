@@ -1,85 +1,58 @@
 ---
-title: "Why 'Doctor' Makes You Faster to Recognize 'Nurse'"
-description: "Activation doesn't just sit in the chunk you retrieved — it spreads to associated chunks, priming them for faster retrieval. Compute it with ACT-R's own formula."
+title: "Three Stale Uses Beat One Fresh One"
+description: "d is an exponent applied per use, not a per-use decay counter — sum the power-law term across every past retrieval and the naive answer flips."
 lesson_number: 15
 track: cog
-concept: "Spreading activation & priming"
-stage: 3
+concept: "ACT-R base-level activation: summing decay across every past use"
+stage: 2
 layout: puzzle
 role: puzzle
 answer_type: numeric
-builds_on: [10, 14]
+builds_on: [9, 10]
 skin: chalkboard
 numeric:
-  question: "Working memory holds 2 source chunks (W = 0.5 each). Associative strengths to the target chunk 'nurse': S(doctor→nurse) = 2.0, S(medicine→nurse) = 1.5. Base-level activation B('nurse') = 0. What is nurse's total activation A?"
-  answer: 1.75
-  tolerance: 0.01
+  question: "What is chunk B's base-level activation, summing the power-law term across all three of its past uses (d = 0.5)?"
+  answer: 0.445
+  tolerance: 0.02
 ---
 
-Lesson 14 established that retrieval strengthens the trace being retrieved. This lesson covers a
-related but distinct effect: retrieving (or even just perceiving) one item makes *related* items
-easier to retrieve too — before you've consciously tried to recall them at all.
-
-**Terms (standalone):**
-
-- **Priming**: exposure to one stimulus (the *prime*) speeds up or biases processing of a related
-  stimulus that follows (the *target*) — even when the prime is irrelevant to the task and the
-  effect is unconscious. The classic demonstration (Meyer & Schvaneveldt, 1971): people judge
-  "nurse" as a real word faster after seeing "doctor" than after seeing an unrelated word like
-  "bread," in a simple word/non-word judgment task.
-- **Spreading activation**: the proposed mechanism behind priming. Memory is modeled as a network of
-  chunks connected by associative links. When a chunk becomes active (because it's currently in
-  working memory — you just perceived it or retrieved it), some of its activation "spreads" along
-  its links to associated chunks, raising *their* activation too — making them faster/easier to
-  retrieve next, even before any deliberate retrieval attempt targets them.
-- **ACT-R's activation equation** (extending Lesson 10): a chunk `i`'s total activation is
-  `A_i = B_i + Σⱼ (Wⱼ × Sⱼᵢ)` — its own base-level activation `B_i` (from Lesson 10: how recently
-  and frequently it's been used), **plus** a spreading-activation term: a sum, over every source
-  chunk `j` currently in working memory, of that source's attentional weight `Wⱼ` (how much
-  attention it's getting — with `n` sources typically splitting attention as `Wⱼ = 1/n` each)
-  times the associative strength `Sⱼᵢ` between source `j` and target `i`. Chunks strongly
-  associated with something currently "in mind" get a activation boost — measurably, mechanically,
-  before you've retrieved them at all.
-
-### Part 1 — Numeric (above): compute the activation
-
-Working memory currently holds 2 chunks — say you just read the words "doctor" and "medicine."
-Each gets an attentional weight `Wⱼ = 1/2 = 0.5` (attention split evenly across the 2 sources).
-Associative strengths to the target chunk **nurse**: `S(doctor→nurse) = 2.0`,
-`S(medicine→nurse) = 1.5`. Nurse's own base-level activation `B = 0` (imagine it hasn't been
-retrieved directly in a while).
-
-Compute nurse's total activation: `A = B + Σ(Wⱼ × Sⱼᵢ)`.
+**Retrieval check (from lesson 2, new setting).** Working memory holds about seven items,
+plus-or-minus two — but a **chunk** (lesson 2's term: a group of raw items recoded as one familiar
+unit, with the pattern itself stored in long-term memory) lets you fit far more content into that same
+small number of slots. An engineer glances at the IPv4 address `192.168.1.100` and holds it easily.
+Read as twelve individual digits, that's over budget for working memory. Chunked the way every network
+engineer actually reads it — by octet, the dot-separated groups — how many chunks is it? Work it out;
+the solution confirms it.
 
 ---
 
-### Part 2 — Compare to an unprimed word
+### Back to activation
 
-Now compute the activation of an unrelated chunk, **bread**, under the same working-memory contents
-(doctor and medicine both active, `W = 0.5` each), with `S(doctor→bread) = 0.1`,
-`S(medicine→bread) = 0.1`, and the same `B = 0`.
+Lesson 9 introduced **activation** — a number capturing how easily a declarative chunk (a fact, in
+ACT-R's terms) can be retrieved right now. Lesson 10 gave the single-use formula:
 
-Given Lesson 10's rule (higher activation → faster, more likely retrieval, roughly proportional to
-activation level, with retrieval time decreasing as activation increases), which word — nurse or
-bread — would you expect to be recognized faster right now, and by roughly how much does the
-activation gap suggest?
+> B = −d · ln(t)
 
----
+where **t** is time since the chunk was last used, and **d** is a **decay rate**, ACT-R's default
+**d = 0.5**. That formula is exact for a chunk used exactly *once*. It is not the general formula, and
+reading `d` as something that "happens once per use" — a counter that ticks up with each retrieval —
+is a natural but wrong generalization. **d is an exponent applied to elapsed time for a single use; it
+does not accumulate or count uses at all.**
 
-### Part 3 — Reveal: why does priming decay, and why does it matter for design?
+The real formula sums a power-law term across **every past use** of the chunk:
 
-Priming effects are temporary — the "doctor" boost to "nurse" fades within seconds to minutes as
-attention moves on and doctor/medicine leave working memory (their `W` effectively drops toward 0
-as they're no longer active sources). Propose a reason spreading activation is built to *decay*
-quickly rather than permanently strengthening every associate of everything you've ever thought
-about. What would go wrong with memory retrieval if primed activation never faded?
+> B = ln( Σᵢ tᵢ^(−d) )
 
----
+where the sum runs over every time the chunk was retrieved, tᵢ is how long ago *that particular* use
+happened, and each use contributes its own term **tᵢ^(−d)** to the sum inside the log. One use is just
+this formula with a single term — which is exactly why lesson 10's simplified version worked for that
+case and no other.
 
-### Part 4 — Connect to a modern AI system
+**Two chunks, two retrieval histories:**
 
-**In a modern LLM agent harness**, is there a structural analogue to spreading activation — some
-mechanism by which processing one piece of information measurably biases or speeds up the
-processing of related information, without an explicit separate retrieval step? Name one candidate
-mechanism (in the model's architecture, or in the harness's own design) and explain what's similar
-and what's importantly different from the priming/decay story above.
+- **Chunk A** — the name of a colleague you spoke with exactly **once, 1 day ago**.
+- **Chunk B** — the name of a colleague you've spoken with on three separate occasions: **2, 4, and 8
+  days ago**.
+
+Using d = 0.5, compute chunk B's base-level activation, summing its power-law term across all three
+uses. (Compute chunk A's too, informally, before you check the solution — comparing them is the point.)

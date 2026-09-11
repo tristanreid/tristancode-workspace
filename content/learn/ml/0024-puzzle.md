@@ -1,48 +1,50 @@
 ---
-title: "Attention Never Fully Commits — Is That a Bug?"
-description: "A hash-map lookup either matches a key or it doesn't. Attention scores every key against a query and blends every value anyway. Is a near-perfect match not enough to just pick one?"
+title: "The Ticket: Something's Wrong With Production"
+description: "Precision cratered. Retention marketing is claiming credit. A colleague mentions the split casually, like it's nothing. Diagnose how much of this is expected, and how much is a real bug."
 lesson_number: 24
 track: ml
-concept: "Attention as soft dictionary lookup"
-stage: 6
+concept: "Capstone: diagnosing a broken pipeline from evidence, using every failure mode this run covered"
+stage: 7
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: [22, 23]
+answer_type: numeric
+builds_on: [17, 18, 23]
 skin: chalkboard
-mcq:
-  question: "A query vector is compared against three key vectors, producing similarity scores 8, 1, and 1. Softmax turns those into weights that sum to 1 — here, roughly 0.998, 0.001, and 0.001. The attention output is the weighted sum of the three matching value vectors using those weights. Compared to a plain dictionary lookup (which would return exactly the value for the single best-matching key), what has actually happened?"
-  options:
-    - "Nothing different in practice — 0.998 is close enough to 1 that this is functionally identical to a hard dictionary lookup, and the distinction doesn't matter"
-    - "The output is overwhelmingly the best-matching key's value (weight ≈0.998), but it is a true weighted blend that also includes a tiny, nonzero contribution from the other two values — attention never fully commits to one key the way a hash map does; it always outputs *some* mixture, even if one term dominates"
-    - "Softmax always distributes weight equally across all keys, so the output is close to a 1/3, 1/3, 1/3 average of all three values"
-    - "A similarity score of 8 means the key matched exactly, so softmax discards the other two keys entirely and the output is exactly the best value, with weight exactly 1"
-  correct: 1
+numeric:
+  question: "How many percentage points of the total precision drop are NOT explained by the prevalence shift alone?"
+  answer: 5.1
+  tolerance: 0.4
+  unit: "pp"
 ---
 
-Lesson 23 closed on a forward hook: nearest-neighbor lookup and attention are related ideas. Here's
-the precise relationship, and where they diverge.
+**Quick retrieval, before the main puzzle** (lesson 6's idea, new numbers): minimizing
+`L(w) = (w − 4)²` with learning rate `η = 0.6`, starting at `w0 = 0`. Compute `w1` and `w2`, and say
+whether this is converging or diverging. Hold your answer; the solution confirms it.
 
-**A dictionary/hash map is a hard lookup.** You give it a key; it either finds an exact match and
-returns that one value, or it doesn't. There's no notion of "60% of a match" — the lookup is a single
-discrete jump, and only one value ever comes back.
+Now the capstone. You're handed a support ticket about a churn model that's been in production for
+months, retrained weekly. Here's everything you know:
 
-**Attention is what happens when you make that lookup differentiable.** Instead of an exact-match
-key, attention has a **query** vector representing "what am I looking for right now." Instead of a
-single hash bucket, it has a set of **key** vectors, one per candidate, each representing "what this
-candidate is." Instead of hashing, it computes a **similarity score** between the query and every key
-(commonly a dot product) — a continuous number, not a yes/no match. Those scores get passed through
-**softmax**, which turns any list of numbers into positive weights that sum to 1, with larger scores
-getting exponentially more weight. The output isn't "the value for the winning key" — it's a **weighted
-sum of every value**, using those softmax weights. Crucially, softmax weights are never *exactly* zero
-(softmax of any real numbers is always strictly positive everywhere), so every value contributes at
-least a sliver, no matter how poor its key's match was.
+- **The model's validation report** has shown roughly **37% precision** every week since launch —
+  stable, nothing alarming there. Its true positive rate and false positive rate, measured on that
+  validation set, are **TPR = 60%** and **FPR = 9%**, and a colleague insists these haven't changed:
+  "the model behaves exactly the same as it did on day one."
+- **Production monitoring**, which compares live predictions against live outcomes (not the frozen
+  validation set), shows this week's *actual* precision is **12%** — far below the reported 37%.
+- **Marketing context:** a retention campaign launched two months ago and has been highly effective
+  — churn prevalence has genuinely fallen from **8%** company-wide to **3%** this quarter. Everyone
+  is treating this as unambiguously good news.
+- **An offhand comment**, when you ask about the pipeline: "we started retraining weekly a couple of
+  months ago — same as before, just a random 80/20 split on the customer-month table each time."
 
-**The scenario:** a query scores 8 against one key and 1 against each of the other two. Softmax turns
-those scores into weights of roughly 0.998, 0.001, and 0.001 (you can sanity-check the shape of this:
-$e^8$ is enormously larger than $e^1$, so almost all the weight piles onto the first term, but never
-literally all of it). The attention output is $0.998 \times \text{value}_1 + 0.001 \times
-\text{value}_2 + 0.001 \times \text{value}_3$.
+**Your task, in two parts.**
 
-**Your task:** pick the option that correctly describes what that output actually is, compared to a
-plain hard dictionary lookup on the same three candidates.
+**Part 1 (write it out, not graded).** Using TPR and FPR as fixed and the odds-form relationship
+(`precision-odds = prior-odds × TPR/FPR`), what precision would you *expect* at 8% prevalence, and
+what would you expect at 3% prevalence, if nothing else about the pipeline had changed? Also: does
+the offhand comment about "same as before, just a random split" raise any flags on its own, given
+what a customer-month panel looks like — regardless of the prevalence math?
+
+**Part 2 (graded).** Compute the precision the 3%-prevalence shift alone would predict, then compare
+it to the observed 12%. Report the gap, in percentage points, between what the prevalence shift alone
+predicts and what's actually being observed — the portion of the drop that prevalence does **not**
+account for, and therefore needs a different explanation.

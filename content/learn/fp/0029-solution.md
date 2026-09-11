@@ -1,121 +1,106 @@
 ---
-title: "Solution: Infinite Streams via Laziness"
-description: "Stream = Cons(head, tail_thunk). ones and naturals are self-referential via thunks. stream_map wraps the mapped tail in a thunk. The sieve stacks filters lazily. The thunk stops infinite construction because lambda defers the call."
+title: "Solution: Fold ∘ Unfold — Never Build the Tree At All"
+description: "depth_of_range(lo, hi) fuses tree_unfold and the depth fold into one function with no intermediate Tree; depth_of_range(1, 20) = 4, consistent with depth_of_range(1, 10) = 3 from Lesson 28."
 lesson_number: 29
 track: fp
 aliases: ["/learn/0029-solution/"]
-concept: "Infinite streams"
-stage: 5
+concept: "Fold ∘ Unfold (fusion)"
+stage: 4
 layout: solution
 role: solution
-builds_on: [28]
+builds_on: [23, 25, 28]
 skin: chalkboard
 ---
 
-### Part 1 — `ones`
+### Warm-up recall answer
+
+Map "add 5" over `[10, 20, 30]` → `[15, 25, 35]`. Sum: `15 + 25 + 35 = 75`. **75.**
+
+---
+
+### Part 1 — The fused function
+
+Substituting Lesson 28's `pred`/`value`/`left_seed`/`right_seed` and Lesson 23's `leaf_val=-1`,
+`node_fn(v,l,r) = 1 + max(l,r)` into the fusion template:
 
 ```python
-def ones():
-    return Cons(1, lambda: ones())
+def depth_of_range(lo, hi):
+    if lo > hi:
+        return -1                                   # was: tree_fold's leaf_val
+    mid = (lo + hi) // 2                             # was: value(seed)
+    return 1 + max(depth_of_range(lo, mid - 1),      # was: node_fn(v, fold(left), ...)
+                   depth_of_range(mid + 1, hi))
 ```
 
-`ones()` returns immediately — it constructs a `Cons` with head `1` and a thunk `lambda: ones()`. The lambda is an object in memory; it does *not* call `ones()` again at this point. Call-stack depth: 1.
-
-When `take` asks for the next element, it calls `stream.tail_thunk()`, which calls `ones()` — which again returns immediately with another `Cons`. Stack depth stays at 1 per step.
-
-The "recursion stops" when `take(n, ...)` reaches `n == 0` — the caller controls termination, not the stream.
+Every piece has a direct counterpart: the `lo > hi` check *is* `pred`; `mid` *is* `value`; the two
+recursive calls *are* `tree_fold` applied to `tree_unfold`'s two child seeds, except the tree in
+between never gets built — `depth_of_range` calls itself directly on `(lo, mid-1)` and `(mid+1, hi)`
+instead of constructing `Node` objects first.
 
 ---
 
-### Part 2 — `naturals`
+### Part 2 — Sanity check: `depth_of_range(1, 10) = 3`
 
-```python
-def naturals(start):
-    return Cons(start, lambda: naturals(start + 1))
+```
+depth_of_range(1,10):  mid=5 → depth_of_range(1,4), depth_of_range(6,10)
+  depth_of_range(1,4):   mid=2 → depth_of_range(1,1)=0, depth_of_range(3,4)=1 → 1+max(0,1)=2
+  depth_of_range(6,10):  mid=8 → depth_of_range(6,7)=1, depth_of_range(9,10)=1 → 1+max(1,1)=2
+  depth_of_range(1,10) = 1 + max(2,2) = 3
 ```
 
-`start + 1` lives in the *closure* of the lambda — it is captured when the lambda is created, but the call `naturals(start + 1)` only happens when the thunk is forced.
-
-Trace `take(3, naturals(0))`:
-```
-take(3, Cons(0, λ)) → [0] + take(2, naturals(1))
-                           → [1] + take(1, naturals(2))
-                                      → [2] + take(0, ...)
-                                                  → []
-result: [0, 1, 2]  ✓
-```
+Matches Lesson 28's build-then-fold answer exactly, as it must — fusion changes *how* the value is
+computed, never *what* value comes out.
 
 ---
 
-### Part 3 — `stream_map`
+### Part 3 — The graded answer: `depth_of_range(1, 20) = 4`
 
-```python
-def stream_map(f, stream):
-    if isinstance(stream, Nil):
-        return Nil()
-    return Cons(
-        f(stream.head),
-        lambda: stream_map(f, stream.tail_thunk())
-    )
+```
+depth_of_range(1,20):   mid=10 → depth_of_range(1,9), depth_of_range(11,20)
+
+depth_of_range(1,9):    mid=5  → depth_of_range(1,4)=2, depth_of_range(6,9)=2  → 1+max(2,2)=3
+depth_of_range(11,20):  mid=15 → depth_of_range(11,14)=2, depth_of_range(16,20)=2 → 1+max(2,2)=3
+
+depth_of_range(1,20) = 1 + max(3,3) = 4
 ```
 
-The tail of the result is `lambda: stream_map(f, stream.tail_thunk())`. It captures both `f` and `stream` from the enclosing scope. Neither `stream.tail_thunk()` nor the recursive `stream_map` call runs at construction time.
-
-**Common mistake**: writing `Cons(f(stream.head), stream_map(f, stream.tail_thunk()))` — this forces the tail immediately (calling `tail_thunk()` and recursing), which for an infinite stream never terminates.
-
----
-
-### Part 4 — Sieve trace
-
-**Step 1:** `sieve(naturals(2))` — the stream starts `2, 3, 4, 5, …`
-- `p = 2`
-- Return `Cons(2, λ)` — head is **2**; tail is `sieve(filter(x%2≠0, [3,4,5,...]))`
-
-`take(3, ...)` forces the tail.
-
-**Step 2:** Force the tail thunk: `sieve(filter(x%2≠0, [3,4,5,...]))`
-- Filters: `stream_filter(x%2≠0, [3,4,5,…])` — skips 4,6,8,…; first element passing is 3.
-- The filtered stream starts `3, 5, 7, 9, 11, …`
-- `p = 3`
-- Return `Cons(3, λ)` — head is **3**; tail is `sieve(filter(x%3≠0, filter(x%2≠0, [5,7,9,...])))`
-
-`take(3, ...)` forces the tail again.
-
-**Step 3:** Force: `sieve(filter(x%3≠0, filter(x%2≠0, [5,7,9,...])))`
-- After both filters: 5 passes (5%2≠0, 5%3≠0); 7 would pass too.
-- First element: 5.
-- `p = 5`
-- Return `Cons(5, λ)` — head is **5**
-
-`take(3, ...)` now has `[2, 3, 5]` and `n` reaches 0. Done.
-
-Stacked filters at step 3: `filter(x%3≠0, filter(x%2≠0, naturals_tail))` — two filters, applied in order. Each new prime adds one more filter layer to the tail.
+**4.** Sanity check: 20 elements, `log2(20) ≈ 4.32` — a depth of 4 is exactly the balanced-tree
+ballpark, one more than the 10-element tree's depth of 3, which is what you'd expect from roughly
+doubling the element count.
 
 ---
 
-### Part 5 — Why the thunk stops construction
+### Part 4 — What's preserved, what's lost
 
-`Cons(1, lambda: ones())` builds a Python object with:
-- `head = 1`
-- `tail_thunk = <a closure>`
+**Preserved**: the exact same result, and the same asymptotic work — both versions do `O(n)` total
+value/node computations for a range of `n` integers, since fusion doesn't change *how much* work
+happens, only whether an intermediate data structure exists to hold it.
 
-Creating a closure (`lambda: ones()`) does *not* execute the function body. Python sees `lambda: ones()` and records "when called, evaluate `ones()`" — it does not evaluate `ones()` now. Construction finishes in O(1).
-
-The recursive call `ones()` inside the lambda only runs if and when someone calls `tail_thunk()`. That only happens when `take` demands the next element.
-
-Without the lambda — writing `Cons(1, ones())` — Python (being eager) would evaluate `ones()` *immediately* as part of constructing the argument list for `Cons.__init__`. That call to `ones()` would again try to evaluate `ones()` immediately, causing infinite recursion before the first `Cons` is even constructed. Lesson 30 examines this failure mode in detail.
+**Lost**: reusability, exactly as in Lesson 25's `sum_range` fusion. The two-stage version builds a
+real `Tree` you can fold *again* with a different `node_fn` — compute its size, mirror it, check
+`is_bst`, print it — all from the same built structure. `depth_of_range` computes only depth, for
+good: there's no tree sitting around afterward to feed a second fold. This is the same
+efficiency-vs-reusability tradeoff you saw with lists: fusing eliminates allocation at the cost of
+locking the computation to one specific purpose.
 
 ---
 
-### What you can build with streams
+### The pattern
 
-| Stream | Definition | `take(5, ...)` |
-|--------|------------|----------------|
-| `ones()` | `Cons(1, λ: ones())` | `[1,1,1,1,1]` |
-| `naturals(0)` | `Cons(n, λ: naturals(n+1))` | `[0,1,2,3,4]` |
-| `stream_map(f, s)` | wrap each element | `[f(0),f(1),f(2),…]` |
-| `sieve(naturals(2))` | filter + recurse | `[2,3,5,7,11]` |
+**"Build then consume" is a mental model, not a mandate.** It's the clearest way to *design* a
+computation — get the shape of the data right first, then decide what to extract from it — but
+once the design is right, an unfold immediately followed by a fold can always be collapsed into one
+recursive function, because the fold never needed the *data structure*, only the *values* the
+unfold would have put into it. The tree (or list) was scaffolding for your understanding, not a
+requirement of the computation.
 
-Every one of these would be a one-liner in Haskell (where the thunks are implicit). In Python, the explicit `lambda:` is the price of working in an eager language. The concept — defer evaluation until demanded — is the same either way.
+**Why this matters for parallelism**: fusion doesn't change independence. `depth_of_range(lo, mid-1)`
+and `depth_of_range(mid+1, hi)` still depend on nothing but their own arguments — the same
+independence that let the unbuilt tree's two branches run in parallel in Lesson 28 is still present
+here, just without an intermediate object to point at. Parallelism comes from the *shape* of the
+recursion, not from whether you happened to materialize a data structure along the way.
 
-**Next**: Lesson 30 examines what goes wrong when you *forget* the lambda — the runaway recursion failure mode, and why it reveals something deep about the relationship between eager evaluation and self-referential definitions.
+**Stage 4 complete.** You now have the full build/consume vocabulary: unfold for lists (Lesson 25),
+unfold for trees (Lesson 28), and fusing either with its dual fold (Lesson 25's `sum_range`, today's
+`depth_of_range`). **Next**: Stage 5 asks a question that's been quietly assumed this whole time —
+*when* does an argument actually get computed? Lesson 30 starts with eager vs. lazy evaluation.

@@ -1,53 +1,58 @@
 ---
-title: "A Second Closed Form: Normal Meets Normal"
-description: "Beta-binomial isn't the only conjugate pair. Estimate a precision-weighted posterior mean before computing it exactly."
+title: "Same Data, Either Order"
+description: "Update on two batches of evidence in one order, then the other. The posterior lands in the same place either way — and it's worth knowing exactly why, and when it wouldn't."
 lesson_number: 19
 track: bayes
-concept: "Conjugacy as a closed-form update; normal-normal"
+concept: "Yesterday's posterior is today's prior (order of evidence)"
 stage: 3
 layout: puzzle
 role: puzzle
-answer_type: estimate
-builds_on: [15, 18]
+answer_type: numeric
+builds_on: [10, 15]
 skin: chalkboard
-estimate:
-  prompt: "What's the posterior mean session length, in minutes, after combining the prior belief with the observed data below?"
-  answer: 6.038
-  unit: "min"
+numeric:
+  question: "Final posterior mean of p, as a decimal, regardless of which order the two batches are processed in?"
+  answer: 0.474
+  tolerance: 0.005
 ---
 
-Every update so far has used the same machinery: beta prior, binomial-flavored data, add counts. That
-pairing — a prior family that, combined with a specific likelihood, produces a posterior in the
-*same* family — is called **conjugacy**. Beta-binomial is one conjugate pair. It's not the only one.
+**First, a quick retrieval check — different concept, new setting.**
 
-**A second conjugate pair: normal-normal.** When your prior belief about an unknown mean is itself a
-normal distribution, and your data is normally distributed with a *known* variance, the posterior is
-*also* normal — with a closed-form mean and variance. No integration required, just like
-beta-binomial.
+Two servers, in different data centers, each independently have a 3% chance of failing on any given
+day (Lesson 4's independence: learning about one tells you nothing about the other). What's the
+probability **at least one** of the two fails today? (Hint: it's easier to find P(neither fails)
+first.)
 
-The closed form, expressed in **precision** (precision = 1 / variance — a bigger number means a
-tighter, more confident distribution):
+*(Worked out in the solution.)*
 
-```
-posterior precision = prior precision + data precision
-posterior mean = (prior_mean × prior_precision + sample_mean × data_precision) / posterior precision
-```
+---
 
-where `data precision = n / σ²` (`n` observations, each with known per-observation variance `σ²`).
-Notice the shape: it's a weighted average of the prior mean and the sample mean, weighted by how
-*confident* each one is — exactly the same spirit as "more data pulls you further," just phrased in
-variance instead of beta's counts.
+Lesson 15 gave you the beta-binomial update rule: start with `Beta(α, β)`, observe `k` successes out
+of `n` trials, and the posterior is `Beta(α+k, β+(n−k))` — addition of counts. Every worked example so
+far updated on one clean batch of data at a time. Real evidence rarely arrives that tidily — it
+trickles in across days, sources, and reports.
 
-**Your scenario.** You're estimating the true average session length on a website.
+**Setup.** You start with prior `Beta(2, 3)` (a mild pull toward lower rates — 2 virtual successes, 3
+virtual failures). Two batches of real evidence exist, and you don't get to choose which one shows up
+first:
 
-- **Prior belief:** mean = **5.0 minutes**, variance = **1.0** (so prior precision = 1/1.0 = 1).
-- **New data:** `n = 9` sessions observed, sample mean = **6.5 minutes**. Individual sessions are
-  known (from long historical experience) to have variance `σ² = 4` — so the *sample mean's* variance
-  is `σ²/n = 4/9 ≈ 0.444`, giving data precision `n/σ² = 9/4 = 2.25`.
+- **Batch A**: 5 successes, 3 failures (8 trials)
+- **Batch B**: 2 successes, 4 failures (6 trials)
 
-Before computing anything, use the precision-weighted-average intuition: the data's precision (2.25)
-outweighs the prior's precision (1), so the posterior mean should land closer to the sample mean
-(6.5) than to the prior mean (5.0) — roughly how much closer is exactly what you're estimating.
+**Part 1 — Process A, then B.** Starting from `Beta(2,3)`, update on Batch A to get an intermediate
+posterior. Treat *that* as your new prior, and update on Batch B. Write down the final `Beta(α, β)`
+and its mean.
 
-**Give your best guess for the posterior mean (in minutes), plus a 90% interval you're confident
-contains the true value**, before you compute it exactly.
+**Part 2 — Process B, then A.** Start over from `Beta(2,3)` again, but update on Batch B first, then
+treat that result as your prior and update on Batch A. Write down this final `Beta(α, β)` and its
+mean.
+
+**Part 3 — Compare (the numeric answer above).** Are the two final posteriors identical? Give the
+shared posterior mean as a decimal. In one sentence, say *why* — what property of "just add counts"
+guarantees the order genuinely can't matter here?
+
+**Part 4 — Break it.** Order-independence quietly assumes something: that both batches are evidence
+about the *same*, fixed underlying rate `p`. Describe a realistic scenario where Batch A and Batch B
+come from a system whose true rate actually **changed** between the two batches — and explain why
+"just add up all the counts, order doesn't matter" would then be the wrong thing to do, even though
+the arithmetic would run exactly the same way and produce a number that looks equally confident.

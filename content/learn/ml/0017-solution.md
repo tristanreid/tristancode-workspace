@@ -1,52 +1,69 @@
 ---
-title: "Solution: The Model Didn't Change. The World Did."
-description: "≈61% live accuracy — a 21-point drop the original validation report never shows, because that report is frozen in 2019 forever."
+title: "Solution: Same Detector, Rarer Fraud: Precision Collapses"
+description: "13.9%, not 64%. Recall is prevalence-invariant; precision is not — and the odds-form of Bayes' theorem explains exactly why."
 lesson_number: 17
 track: ml
-concept: "Distribution shift: the model meets a world that moved"
+concept: "Class imbalance: precision depends on prevalence, recall doesn't"
 stage: 3
 layout: solution
 role: solution
-builds_on: [13, 14]
+builds_on: [4, 15]
 skin: chalkboard
 resources:
-  - title: "Google's ML Crash Course — Production ML systems / data drift"
-    url: https://developers.google.com/machine-learning/crash-course
-    note: "practical framing of monitoring for drift after deployment"
+  - title: "Seeing Theory — Bayesian Inference"
+    url: https://seeingtheory.brown.edu/bayesian-inference/index.html
+    note: "visualizes how a prior gets multiplicatively updated by evidence — the same move as the odds form below"
 ---
 
-**A plausible true value: ≈ 61% live accuracy** — a substantial, silent drop from the 82% the model
-"officially" scores, and it can plausibly get considerably worse than that if the shift is severe
-enough. (There's no single universal number here — the point of an estimate puzzle is calibrating
-your intuition for the *size* of the gap, not memorizing a constant. A drop of 15–25 accuracy points
-after years of unmonitored drift through a genuine behavioral shift is a realistic, commonly-observed
-range.)
+**Retrieval check.** 12% of 800 patients readmit, so 96 do and 704 don't. "Always predict no
+readmission" gets every one of the 704 right and misses all 96: 704 / 800 = **88%** accuracy —
+a strong-looking number for a model that has learned nothing, exactly lesson 4's point, replayed
+in a new domain.
 
-**Why the gap opens, mechanically.** A model learns a mapping from features to outcomes *as those
-features and outcomes related to each other in the training data*. "Days since last login" was
-predictive in 2019 because it correlated with real disengagement back then. Once a new mobile app
-changes what triggers a "login" event, that same feature value now means something different — the
-statistical relationship the model memorized no longer holds, even though the model's weights are
-byte-for-byte identical to what they were in 2019. This is **covariate shift** (the input
-distribution moved) compounding with **concept shift** (the relationship between inputs and the
-target moved) — either alone degrades a static model; together, it's worse.
+**Main answer: 13.9%.** At 1% prevalence, 200 of the 20,000 transactions are genuine fraud and
+19,800 are legitimate.
 
-**Why the original 82% number is actively misleading, not just stale.** It's not that "82%" becomes
-false — it's still an accurate description of a 2019 evaluation. The danger is treating it as if it
-describes *today*. A model card, dashboard, or slide deck that only ever cites the original
-validation metric is implicitly claiming the world hasn't moved since — a claim nobody actually
-checked. This is why "we validated it once" is a categorically different, weaker claim than "we
-monitor it continuously": validation is a snapshot; drift is ongoing.
+- True positives = 80% of 200 = **160**. False negatives = 40.
+- False positives = 5% of 19,800 = **990**. True negatives = 18,810.
+- Recall = 160 / 200 = **80%** — unchanged. It was never going to change: recall only ever divides
+  by the count of *actual positives*, and TPR (80%) is defined as exactly that ratio. If TPR is
+  fixed, recall is fixed, full stop, regardless of how many negatives surround those positives.
+- Precision = 160 / (160 + 990) = 160 / 1,150 ≈ **13.9%** — collapsed from 64%, using the *identical*
+  detector, the identical 80%/5% behavior per class.
 
-**What actually catches this.** Comparing *live* predictions against *live* outcomes on a rolling
-basis — not re-running the old test set (that's also frozen in 2019), but tracking the model's
-accuracy, calibration, and score distribution on new production data as it arrives, and alerting when
-they diverge from what training-time validation promised. Feature-distribution monitoring (is "days
-since last login" showing the same statistical shape it did in training?) catches shift even before
-enough new labels have arrived to measure accuracy directly.
+**Why precision moves and recall doesn't — the actual mechanism.** Precision's denominator is
+`TP + FP`, and `FP` scales with the *number of negatives*, not with how much fraud exists.
+Shrink the fraud rate while holding the population size roughly fixed, and negatives balloon —
+19,800 of them instead of 18,000 — so the 5% false-positive rate now manufactures 990 false alarms
+against only 160 real catches. The same 5%-of-negatives leak swamps a much smaller pool of true
+positives. "Precision and recall are both rates independent of prevalence" is true for exactly one
+of the two — recall is a rate *of the positive class only*; precision is a rate that mixes both
+classes together, which is precisely what makes it sensitive to how the classes are mixed.
 
-**Where this goes:** distribution shift closes out the evaluation-discipline arc (leakage,
-imbalance, calibration, now shift) — the common thread across all four is "don't trust a number a
-model reports about itself without checking it against what's actually happening." Stage 4 turns to
-neural networks, where the failure modes shift from *evaluation* honesty to *what the model can
-represent at all*.
+**The odds-form reading — the fast way to see this coming.** Precision is really asking a Bayes
+question: *given a flag, what's the probability this is really fraud?* Read as odds instead of
+probability, that question has a one-line answer, structurally identical to the bayes track's odds
+form of Bayes' theorem (`posterior odds = prior odds × likelihood ratio`):
+
+> **precision-odds = prior-odds(fraud) × (TPR / FPR)**
+
+`TPR / FPR` is exactly a **likelihood ratio**: how much more likely a "flagged" outcome is under
+"really fraud" than under "really legitimate" — and it's fixed here at 0.80 / 0.05 = **16**, because
+TPR and FPR are the fixed per-class behaviors. At 1% prevalence, prior odds = 200/19,800 ≈ 0.0101;
+posterior odds = 0.0101 × 16 ≈ 0.1616; converting back to a probability, `0.1616 / 1.1616 ≈ 13.9%` —
+matching the confusion-matrix arithmetic exactly. The likelihood ratio never moved. The *prior
+odds* moved, because prevalence moved, and precision — being a posterior probability of the
+positive class given a flag — inherits every bit of that shift. Recall never enters this equation
+at all, which is the algebraic reason it's untouched.
+
+**The practical habit this buys you.** Any time a model's deployment context changes how common
+the positive class is — a new market, a new fraud campaign, a marketing push that changes who
+churns — precision needs to be *re-derived*, not assumed to travel. A vendor's demo precision,
+measured on a curated 10%-positive sample, tells you close to nothing about what precision will
+look like once that same detector meets your actual 0.3%-positive production traffic; TPR and FPR
+are the numbers worth asking a vendor for, because — unlike precision — they're the ones a
+prevalence shift doesn't quietly rewrite.
+
+**Where this goes:** the next lesson turns the same "don't trust a number without checking what
+produced it" habit on a pipeline itself — diagnosing which of several plausible-looking features
+and splits are secretly leaking the future into training.

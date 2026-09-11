@@ -1,91 +1,70 @@
 ---
-title: "What Gets Through the Filter — and What Doesn't"
-description: "In a classic dichotic listening experiment, one thing about the unattended channel reliably breaks through the filter. Predict which."
+title: "Why This Puzzle System Quizzes You Instead of Just Explaining"
+description: "Retrieval isn't a neutral readout of memory — it's another use event, and last lesson's math says every use event compounds. Design a memory system that exploits that."
 lesson_number: 16
 track: cog
-concept: "Attention as selection: dichotic listening, inattentional blindness, the binding problem"
+concept: "Encoding vs retrieval; recognition vs recall; retrieval practice"
 stage: 3
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: [2, 15]
+answer_type: reveal
+builds_on: [2, 10, 15]
 skin: chalkboard
-mcq:
-  question: "In a classic dichotic listening / 'shadowing' experiment, a person wears headphones playing a different spoken message in each ear and is told to repeat aloud (shadow) only the LEFT-ear message, ignoring the right ear entirely. Afterward, they generally CANNOT report the semantic content (what was said) of the right-ear message. Which fact about the right-ear message DO they reliably notice, even while ignoring it?"
-  options:
-    - "Whether the voice switched from a man's to a woman's, or a pure tone started playing — low-level physical/acoustic properties get through even when meaning doesn't"
-    - "Whether the right-ear message was in their native language or a foreign language — linguistic content always breaks through"
-    - "Nothing at all — full attentional filtering blocks every property of the unattended channel completely"
-    - "The complete meaning of the message, but only if it was more interesting than the shadowed one"
-  correct: 0
 ---
 
-Lesson 15 covered spreading activation — but activation spreads *among what's currently in working
-memory*. This lesson asks the prior question: with limited attentional capacity, what determines
-what gets into working memory in the first place, and what gets filtered out before it's even
-processed for meaning?
-
-**Terms (standalone):**
-
-- **Selective attention**: the mechanism by which the cognitive system chooses which small subset
-  of all available sensory input gets full processing (meaning extraction, entry into working
-  memory), while the rest is processed only shallowly or not at all.
-- **Dichotic listening / shadowing task**: a classic experimental paradigm (Cherry, 1953; Broadbent,
-  1958) — different audio streams played to each ear, subject told to attend to (shadow, i.e. repeat
-  aloud) only one. Used to probe exactly *how much* of the unattended stream still gets processed.
-- **Early vs. late selection**: two competing theories of *where* filtering happens. Early-selection
-  theories (Broadbent) say the filter operates on raw physical/acoustic properties before meaning is
-  extracted — the unattended stream never gets semantically processed at all. Late-selection
-  theories say meaning is extracted from everything, and filtering happens only afterward, at the
-  point of conscious report or response. The evidence turns out to be mixed — mostly early
-  selection, with real exceptions (see Part 2).
-- **Inattentional blindness**: failing to consciously perceive a fully visible, unhidden stimulus
-  because attention was engaged elsewhere — most famously demonstrated by the "invisible gorilla"
-  study (Simons & Chabris, 1999): subjects counting basketball passes in a video routinely fail to
-  notice a person in a gorilla suit walking through the middle of the scene, in plain sight, for
-  several seconds.
-- **The binding problem**: the brain processes different features of a single object (its color,
-  shape, motion, location) in largely separate neural pathways, yet you experience one unified
-  object, not a scattered bundle of disconnected features. How and where these separately-processed
-  features get bound back together into one coherent percept — and why that binding sometimes fails
-  (producing "illusory conjunctions," like briefly misreporting a red X and blue O as a blue X) —
-  remains a genuinely open question, not a fully solved mechanism.
-
-### The puzzle (MCQ above)
-
-Think about what an early-selection filter, operating on raw acoustic properties before meaning is
-extracted, would and wouldn't be able to detect about a stream it's otherwise blocking.
+**Retrieval check (from lesson 5, new setting).** You're debugging a flaky integration test. Three log
+lines around the failure are ambiguous — could be a timing issue, could be unrelated noise — but one
+stack frame clearly names a null pointer in a specific module. Lesson 5's **islands of certainty**
+strategy said: don't process left-to-right through uncertain data; find wherever *some* signal is
+confident, and grow the investigation outward from it in both directions, because a strong hypothesis
+anywhere constrains its noisy neighbors. Applying that here — what do you look at next, and why, rather
+than starting from the first ambiguous log line? Answer before reading on; the solution confirms it.
 
 ---
 
-### Part 2 — The exception that complicates early selection
+### Encoding, retrieval, and the two ways to test yourself
 
-One famous, reliable exception to "unattended meaning never gets through": people shadowing one
-ear routinely **do** notice if their own name is spoken in the unattended ear — the so-called
-"cocktail party effect." Given the early-selection story (filtering happens on raw physical
-properties, before meaning is extracted), why is this finding awkward? Propose how a modified
-theory could accommodate it without abandoning early selection entirely. (Hint: think about whether
-*all* unattended content might get some minimal, shallow semantic processing, with only some of it
-strong enough to cross into conscious awareness.)
+**Encoding**: getting information *into* memory — turning something you perceive or study into a
+stored trace. In lesson 10's terms, encoding is what creates a new declarative chunk in the first
+place.
 
----
+**Retrieval**: getting information *back out* — reconstructing a stored trace when you need it. In
+lesson 10's terms, retrieval is a chunk's activation crossing a threshold and surfacing into working
+memory.
 
-### Part 3 — Reveal: design an inattentional-blindness-resistant task
+**Recognition** ("is this familiar?") and **recall** ("what was it, with no cue?") are the two modes
+retrieval can take. Recognition is reliably easier — the answer, or something close to it, is present
+to be judged; recall requires reconstructing it from nothing.
 
-You're designing a task where a human operator must monitor a busy visual display (e.g., an air
-traffic control screen) for a rare, critical, visually unhidden event, while devoting most active
-attention to a different primary task on the same screen. Given what inattentional blindness
-demonstrates (attention, not visibility, gates conscious perception — even large plain-sight objects
-get missed), propose one concrete design change to the display or the task that would reduce the
-risk of the operator missing the critical event, and explain why it works in terms of attentional
-selection rather than just "make it more visible."
+**The testing effect** (Roediger & Karpicke and a large replicated literature): the act of *retrieving*
+a memory — effortfully, even with some errors — strengthens that memory more than an equal amount of
+time spent passively re-reading the same material. Being tested isn't just a way to *measure*
+learning; it's a more effective way to *produce* it than the more comfortable alternative.
 
----
+**Last lesson's math explains why, mechanically.** Base-level activation sums a decay term over every
+past *use* of a chunk — B = ln(Σᵢ tᵢ^(−d)). A genuine retrieval attempt, one where you reconstruct the
+chunk under some effort rather than having it handed to you, is a use event: it adds a term to that
+sum, exactly like an additional time the chunk was accessed. Passive re-reading is closer to being
+handed the chunk pre-assembled — you're re-*encoding* the content, but you haven't necessarily routed
+through the same effortful retrieval pathway that a real recall attempt does, so it's a weaker
+candidate for counting as one of those summed "uses" at all.
 
-### Part 4 — Connect to modern agents
+### The puzzle
 
-**In a modern LLM agent harness**, is there a structural analogue to the binding problem — separate
-processing streams (e.g., different tool outputs, different retrieved documents, different steps of
-a multi-agent pipeline) that need to get "bound" back into one coherent understanding of the current
-situation? Name one concrete failure mode you'd expect if that binding goes wrong, in the same
-spirit as an illusory conjunction (right features, wrongly combined).
+Two designs for an LLM agent's long-running memory, across a multi-day task:
+
+- **Design R (recognition-heavy)**: every fact the agent has learned is appended to a persistent
+  context window that's never trimmed. Whenever the agent needs a fact, it's already sitting there —
+  a cheap lookup, no reconstruction required.
+- **Design C (recall-heavy)**: the agent's context is periodically compacted — old material is
+  stripped out and replaced with a short summary. To use a fact from earlier, the agent must actively
+  reconstruct it (re-derive it, re-query a store, or regenerate it from the summary plus its own
+  reasoning) rather than finding it verbatim in front of it.
+
+Suppose both agents are tested the same way: after a long delay (or a full context reset), each is
+asked to reproduce a specific fact from early in the task, from scratch, with nothing relevant in its
+current context. Using this lesson's mechanism (retrieval as a use-event that compounds, from lesson
+15) and the recognition/recall distinction above, predict which design's underlying "memory" — not
+its context window, but whatever persists past a reset — would more reliably reproduce the fact, and
+explain specifically *why* in terms of which design actually generated genuine recall-style use events
+along the way, versus which one only ever generated cheap recognition-style lookups.

@@ -1,130 +1,96 @@
 ---
-title: "Solution: Fold ∘ Unfold — Build Then Consume"
-description: "Hylomorphism = fold ∘ unfold. Factorial, max-of-range, and merge sort as hidden hylomorphisms; mechanical fusion via hylo; why keeping stages separate enables reuse; associativity unlocks the parallel tree reduction."
+title: "Solution: A Seed With Two Jobs — Digits Most-Significant-First"
+description: "largest_power_leq(2024,16) = 256, so the seed (2024, 256) unfolds to hex digits [7, 14, 8] — leading digit 7 — with no reversal, because the place value in the seed is exactly the control state the naive least-significant-first unfold was missing."
 lesson_number: 27
 track: fp
 aliases: ["/learn/0027-solution/"]
-concept: "Fold ∘ Unfold"
+concept: "Unfold with a control-carrying seed"
 stage: 4
 layout: solution
 role: solution
-builds_on: [15, 25]
+builds_on: [25]
 skin: chalkboard
 ---
 
-### Part 1 — Hidden stages
+### Warm-up recall answer
 
-**(a) `factorial(n)`:**
-
-- Unfold: seed = 1, pred = `s > n`, element = `s`, step = `s + 1` → produces `[1, 2, …, n]`.
-- Fold: `foldl(1, lambda acc, x: acc * x, [1..n])` → product = n!
-
-The intermediate list `[1..n]` is never needed as a value; it is immediately folded.
-
-**(b) `max_of_range(a, b)`:**
-
-- Unfold: seed = a, pred = `s >= b`, element = `s`, step = `s + 1` → `[a, a+1, …, b−1]`.
-- Fold: `foldl(a, lambda acc, x: max(acc, x), [a..b−1])` → maximum element.
-
-Note: `init = a` (not −∞) works as long as `a < b`; for the empty range you'd need −∞ or an error.
-
-**(c) Merge in merge sort:**
-
-The merge step is *only* a fold. The two sorted lists are the intermediate structure produced by the recursive merge sort calls above it (which are the unfold stage). The fold step walks `left` and `right` simultaneously, always picking the smaller head, accumulating into a new sorted list.
-
-The hylomorphism of merge sort as a whole:
-- Unfold: split the input list into a binary tree of singletons (tree_unfold, recursively halving).
-- Fold: tree_fold that merges two sorted lists at each node.
-
-This is the standard divide-and-conquer structure: unfold (split) → tree → fold (merge). The tree is never stored explicitly — it is implicit in the call stack.
+`[[1, 2], [3, [4, 5]], 6]` flattens to `[1, 2, 3, 4, 5, 6]` — **6 elements**. (`[4, 5]` is nested two
+levels deep inside the second element; flattening recurses into it just like the top-level list.)
 
 ---
 
-### Part 2 — `factorial` via `hylo`
+### Part 1 — `largest_power_leq(2024, 16)`
 
 ```python
-factorial = lambda n: hylo(
-    1,                                # seed: start at 1
-    lambda s: s > n,                  # pred: stop after n
-    lambda s: s,                      # element: current integer
-    lambda s: s + 1,                  # step: next integer
-    1,                                # init: identity for multiplication
-    lambda elem, rest: elem * rest    # combine: multiply current element into rest
-)
+def largest_power_leq(n, b):
+    p = 1
+    while p * b <= n:
+        p *= b
+    return p
 ```
 
-Trace `factorial(4)`:
-```
-hylo(1, ...) = 1 * hylo(2, ...)
-             = 1 * (2 * hylo(3, ...))
-             = 1 * (2 * (3 * hylo(4, ...)))
-             = 1 * (2 * (3 * (4 * hylo(5, ...))))
-             = 1 * (2 * (3 * (4 * 1)))   ← pred fires at s=5
-             = 24  ✓
-```
-
-The `combine` is right-associative here: `1 * (2 * (3 * (4 * 1)))`. That gives the same answer as left-to-right for multiplication, but for non-commutative operations the order matters.
+`16^0 = 1`, `16^1 = 16`, `16^2 = 256`, `16^3 = 4096`. Since `256 ≤ 2024 < 4096`,
+**`largest_power_leq(2024, 16) = 256`**. This is the number the naive least-significant-first
+unfold never has to compute — and exactly the number the seed needs before it can emit anything.
 
 ---
 
-### Part 3 — When to keep stages separate
-
-**Prefer two-stage when:**
-- The intermediate structure is *reused*. If you need both the sum and the maximum of a range, unfold once to get the list, then apply two different folds. Fusing forces you to either loop twice or write a more complex combined accumulator.
-- The intermediate structure is independently testable or observable (logging, debugging, streaming to another consumer).
-
-**Prefer fused when:**
-- Memory is the bottleneck and the intermediate structure would be large (don't allocate a list of 10 million integers just to sum them).
-- The intermediate structure is strictly linear (a chain), used exactly once, and the fold is cheap — the overhead of allocation is wasted.
-
-The rule of thumb: fuse when you have a single consumer and memory matters; keep stages separate when you have multiple consumers or need observability.
-
----
-
-### Part 4 — MCQ answer: (b)
-
-`mystery` is a **tree fold followed by a list fold** — a hylomorphism.
-
-Stage 1 (tree fold / "unfold" of the intermediate): `tree_fold` consumes the tree and produces a `List[Int]` — an in-order traversal. The intermediate is a list.
-
-Stage 2 (list fold / "consume"): `foldl` sums the list.
-
-Combined: `mystery(tree)` = sum of all node values in the tree. The same result could be computed directly with `tree_fold(0, lambda v, l, r: v + l + r, tree)`, which is the fused version — no intermediate list.
-
-Option (a) is backward. Option (c) is wrong because there is an explicit intermediate `nodes`. Option (d) would require a `tree_unfold` call, which is absent.
-
----
-
-### Part 5 — Associativity
-
-The key property is **associativity**: `(a + b) + c = a + (b + c)`.
-
-When addition is associative, the *order of grouping* doesn't matter — only the order of the elements (left-to-right) must be preserved. This means you can split `[1, 2, 3, 4]` into `[1, 2]` and `[3, 4]`, compute both partial sums independently, then add the results:
+### Part 2 — Trace `unfold_digits(2024, 16)`
 
 ```
-(1 + 2) + (3 + 4)  = 3 + 7 = 10  ✓
-1 + (2 + (3 + 4))  = 1 + 9 = 10  ✓
-((1 + 2) + 3) + 4  = 6 + 4 = 10  ✓
+seed=(2024,256) → element=2024//256=7,   next=(2024%256,256//16)=(232,16)
+seed=(232,16)   → element=232//16=14,    next=(232%16,16//16)=(8,1)
+seed=(8,1)      → element=8//1=8,        next=(8%1,1//16)=(0,0)
+seed=(0,0)      → pred fires (place==0) → stop
+
+result: [7, 14, 8]
 ```
 
-All equivalent — because `+` is associative.
-
-If the operation were *not* associative — say, string concatenation in a language where left-to-right order and grouping both affect the result — you could not re-parenthesize. Sequential foldl would be the only correct implementation.
-
-**The practical upshot**: any `foldl` over an associative operation can be replaced by a tree fold, which can be computed in parallel with depth O(log n) instead of O(n). This is the theorem behind `reduce` in Spark, the parallel prefix sum in GPU programming, and the "split into shards, reduce each shard, merge" pattern in every MapReduce system. Stage 7 will make this explicit.
+Check: `7*256 + 14*16 + 8*1 = 1792 + 224 + 8 = 2024`. ✓ Three digits total — hex `0x7E8` (14 is the
+hex digit `E`).
 
 ---
 
-### Stage 4 complete
+### Part 3 — The graded answer: 7
 
-You now have the full build/consume toolkit:
+The first element the unfold emits is `2024 // 256 = 7` — the leading hex digit. **7.**
 
-| Pattern | Direction | Core operation |
-|---------|-----------|----------------|
-| `foldl` | consume list → value | accumulate left-to-right |
-| `tree_fold` | consume tree → value | combine node + two subtree results |
-| `unfold` | seed → produce list | extract element, step seed, repeat |
-| `tree_unfold` | seed → produce tree | extract value, produce two child seeds |
-| `hylo` | seed → value | unfold fused with fold; no intermediate |
+This is the exact repair for the gap the diagnostic surfaced: knowing *that* the seed should carry
+extra state ("perhaps the seed could carry the power of `b`") isn't the same as being able to wire
+up `pred`, `element`, and `step` so that state actually drives the computation. Here, `place_value`
+is what `element` divides by to read a digit, and `s[1] // b` is what shrinks it — one place per
+step, in lock-step with the digit already consumed.
 
-Stage 5 asks: what if we don't evaluate arguments until they are needed? That question opens up infinite structures — and closes the circle on why thunks matter for the parallel patterns you just learned.
+---
+
+### Part 4 — Other seeds that carry control state
+
+- **Pagination cursor**: unfolding "all pages of a paged API" from a seed like
+  `(next_page_token, has_more)` — the token is control state that has nothing to do with the page's
+  *contents*, only with where to fetch next and whether to stop.
+- **Run-length decoding**: unfolding `[(3, 'a'), (2, 'b')]` into `"aaabb"` needs a seed like
+  `(remaining_runs, current_run_countdown)` — the countdown is pure control state tracking how many
+  copies of the *current* character are left, separate from which character is being emitted.
+
+Both share the shape of today's fix: the seed is a pair (or more) where one part *is* (or determines)
+the next output, and the other part exists purely to steer the process — when to advance to the
+next unit of input, when to stop.
+
+---
+
+### The pattern
+
+`iterate`'s seed `(value, count)` and today's `(remaining, place)` are the same idea in different
+clothes: **whenever what-to-emit-next and how-much-of-the-process-is-left are two different
+questions, the seed has to answer both, as two separate components you evolve independently in
+`step`.** A seed that only tracks the output value works exactly when those two questions happen to
+have the same answer (as in plain `range`) — which is the easy case, not the general one.
+
+**Why this matters for parallelism**: an unfold's `step` function only depends on the *current*
+seed — never on how many steps have already happened or what's still to come — so each step is a
+pure function of local state. That's what makes a family of unfolds (say, decoding many independent
+numbers into digit lists) embarrassingly parallel: no unfold needs to know anything about another.
+
+**Next**: back to trees. Lesson 25 ended with a forward hook to a *tree* unfold — a seed that
+branches into two child seeds instead of stepping to one. Lesson 28 builds it for real, and checks
+the result with a fold you already have (Lesson 23's `depth`).

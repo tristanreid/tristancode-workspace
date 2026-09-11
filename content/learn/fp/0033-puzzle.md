@@ -1,100 +1,92 @@
 ---
-title: "What Happens Next: Continuation-Passing Style"
-description: "Make 'what to do with this result' an explicit argument instead of an implicit return, and every call becomes a tail call."
+title: "Tail Calls: What an Accumulator Actually Buys You"
+description: "A tail call is a recursive call with nothing left to do after it returns. Compare stack depth directly between a non-tail sum and its accumulator-passing rewrite, on a list long enough to matter."
 lesson_number: 33
 track: fp
 aliases: ["/learn/0033-puzzle/"]
-concept: "Continuation-passing style (CPS)"
-stage: 6
+concept: "Tail calls & accumulators"
+stage: 5
 layout: puzzle
 role: puzzle
-answer_type: reveal
-builds_on: [17, 31]
+answer_type: numeric
+builds_on: [6, 12, 32]
 skin: chalkboard
+numeric:
+  question: "For a 40-element list, how many fewer stack frames does the accumulator (tail-recursive) version of sum use, compared to the plain non-tail version — assuming a language that actually applies tail-call optimization?"
+  answer: 39
+  tolerance: 0
+  unit: "stack frames saved"
 ---
 
-Stage 5 ended on tail calls: a call is in tail position when it's the *entire* return expression,
-nothing pending afterward. Stage 6 opens with a technique that makes **every** call a tail call, by
-restructuring how functions communicate their results at all.
+**Warm-up recall (Lesson 20).** **Pattern matching** is structured case analysis over a sum type's
+variants — each case gets its own branch, checked exhaustively. Given
+`Shape = Circle(r: Int) | Rectangle(w: Int, h: Int)`, and `area` defined by pattern match
+(`Circle(r) → r*r*3` as a rough area, `Rectangle(w,h) → w*h`), what is `area(Rectangle(4, 5))`? Keep
+the number; the solution confirms it.
+
+---
 
 **Terms (standalone):**
 
-- **Direct style**: the ordinary way you write functions — a function `return`s its result, and the
-  *caller* decides what to do with it. `1 + f(x)` is direct style: `f` returns a value, then the
-  caller (whoever wrote `1 + f(x)`) adds `1` to it.
-- **Continuation**: "the rest of the computation" — everything that would happen with a value once
-  it's produced, reified as an explicit function. If the original code was `1 + f(x)`, the
-  continuation of `f(x)` is "take whatever `f(x)` returns, and add 1 to it" — as a function:
-  `lambda result: 1 + result`.
-- **Continuation-passing style (CPS)**: a way of writing functions where, instead of `return`ing a
-  value to an implicit caller, a function takes an *extra argument* — the continuation, usually
-  called `k` — and **calls `k` with its result** instead of returning. Nothing is ever "returned" in
-  the ordinary sense; the continuation decides what happens next, and the original function's job
-  ends the moment it calls `k`.
+- **Tail position**: the very last thing a function does before returning — nothing happens to the
+  result afterward. `return f(x)` has `f(x)` in tail position. `return 1 + f(x)` does **not** — the
+  `+ 1` is work still pending after `f(x)` returns.
+- **Tail call**: a function call that occurs in tail position.
+- **Tail-call optimization (TCO)**: a technique some language runtimes use to reuse the *current*
+  stack frame for a tail call instead of pushing a new one — since there's nothing left to do in the
+  current frame after the call returns, keeping it around serves no purpose. Python does **not** do
+  this; Scheme, and some JavaScript engines, do.
+- **Accumulator pattern** (Lesson 12): thread a running result as an extra argument, updated on the
+  way down, so the final call can just return it directly — no pending work after the recursive call.
 
-### From direct style to CPS
-
-Direct style:
+### The two versions
 
 ```python
-def add1(x):
-    return x + 1
+def sum_plain(lst):
+    if not lst:
+        return 0
+    return lst[0] + sum_plain(lst[1:])       # NOT tail position: "+ lst[0]" happens after the call returns
 
-result = add1(5)
-print(result)          # "what happens next" is implicit — whatever comes after this line
+def sum_acc(lst, acc):
+    if not lst:
+        return acc
+    return sum_acc(lst[1:], acc + lst[0])    # tail position: nothing happens after this call returns
 ```
 
-CPS version — `add1` takes a continuation `k` and calls it instead of returning:
-
-```python
-def add1_cps(x, k):
-    k(x + 1)            # instead of "return x + 1", CALL k with the result
-
-add1_cps(5, lambda result: print(result))   # the "what happens next" is now an explicit argument
-```
-
-Notice: `add1_cps` never uses `return` for its real result — it *calls* `k`. And critically, `k(x +
-1)` is itself a **tail call**: it's the last thing `add1_cps` does, nothing pending afterward. Every
-CPS function's body ends in exactly one call — to `k`, or to another CPS function passing along a
-continuation — so every call in CPS code is a tail call. This is exactly what closes the loop from
-Lesson 31: CPS is a systematic way to make tail-call-friendly code, not by hoping you remembered an
-accumulator, but by construction.
+`sum_plain`'s recursive call is wrapped in `lst[0] + ...` — that addition can't happen until the
+recursive call finishes, so the current frame must stay on the stack, waiting, for the entire depth
+of the recursion. `sum_acc`'s recursive call *is* the return value, with no wrapping expression left
+to evaluate afterward — there is nothing the current frame needs to stick around for.
 
 ---
 
-### Part 1 — Convert `square` and chain it
+### Part 1 — Stack depth for `sum_plain` on a 40-element list
 
-Direct style:
-
-```python
-def square(x):
-    return x * x
-
-result = square(4) + 1
-print(result)   # 17
-```
-
-Rewrite `square` in CPS as `square_cps(x, k)`. Then write the call that reproduces `square(4) + 1`
-followed by `print(...)`, entirely via continuations — no `return` of a real value anywhere, no
-implicit "whatever comes after this line."
-
-(Hint: `square_cps(4, k)` should call `k` with `16`. What continuation, when called with `16`,
-performs the `+ 1` and then the `print`?)
+Each call to `sum_plain` that hasn't hit the base case yet needs its own frame, because it's still
+waiting on `+`. Counting the very first call as depth 1, how many stack frames does `sum_plain` need
+simultaneously at the deepest point, for a 40-element list?
 
 ---
 
-### Part 2 — Chain two CPS calls: `add1_cps` then `square_cps`
+### Part 2 — Stack depth for `sum_acc`, *if* TCO applied
 
-Direct style: `square(add1(3))` → `16`.
-
-Using `add1_cps` and `square_cps` from above, write the CPS call chain that computes
-`square(add1(3))` and prints it. Pay attention to *whose* continuation gets passed to whom.
+If a runtime actually reuses the current frame on every tail call (real Scheme runtimes guarantee
+this; Python does not), how many stack frames does `sum_acc` need at once, regardless of list length
+— 40 elements, 4 million elements, doesn't matter?
 
 ---
 
-### Part 3 — Reveal: what does CPS make explicit that direct style hides?
+### Part 3 — The graded question (above)
 
-In direct style, "what happens after this function returns" lives in the call stack — implicitly,
-as the sequence of pending frames waiting for a value. In CPS, where does that same information
-live instead? What's the practical consequence of moving it from an implicit stack to an explicit,
-ordinary function value that gets passed around like any other argument?
+Using your answers to Parts 1 and 2, compute how many fewer stack frames the TCO'd `sum_acc` uses
+compared to `sum_plain`, specifically for the 40-element case. Enter it in the numeric box.
+
+---
+
+### Part 4 — Why Python still blows the stack on `sum_acc`
+
+Python has no TCO — every call, tail or not, pushes a real frame, and Python's default recursion
+limit is around 1000. Given that, does rewriting `sum_plain` into the accumulator form `sum_acc`
+actually save you from a `RecursionError` on a 10,000-element list *in Python specifically*? What
+would you have to do instead, in a language without TCO, to sum a 10,000-element list without
+recursion-depth trouble?

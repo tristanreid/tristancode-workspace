@@ -1,88 +1,101 @@
 ---
-title: "Solution: How Much Does One More Observation Move You?"
-description: "0.667 either way, by coincidence — but the weak prior moved 7x further to get there. Weight before the data point determines how much a single observation can move you."
+title: "Solution: The Ordering Doesn't Vanish, It Cancels"
+description: "2.848 — C(8,6) cancels in the ratio because it's the same constant on both sides, not because sequences are equally probable. Those are two different facts."
 lesson_number: 16
 track: bayes
-concept: "Watching the posterior sharpen; how much one observation moves you"
+concept: "Binomial likelihood as a ratio between hypotheses"
 stage: 2
 layout: solution
 role: solution
-builds_on: [11, 15]
+builds_on: [9, 13]
 skin: chalkboard
 resources:
-  - title: "Seeing Theory — Bayesian Inference"
-    url: https://seeingtheory.brown.edu/bayesian-inference/index.html
-    note: "interactive: add observations one at a time and watch the posterior curve sharpen"
+  - title: "Setosa — Binomial Distribution Explorer"
+    url: https://setosa.io/ev/binomial-distribution/
+    note: "interactive: drag p and watch how the whole distribution over head-counts reshapes"
 ---
 
-### Part 1 — Exact answer: 0.667
-
-Beta(9, 5) plus one success (k=1, n−k=0) → **Beta(10, 5)**. Mean = 10 / 15 = **0.6667**.
-
-If your estimate landed close to 0.643 (barely moved from Lesson 15's answer) with a tight
-interval, your intuition for "diminishing sensitivity" is already well-calibrated — a posterior
-carrying 14 units of weight barely notices one more data point. If your interval was wide or your
-guess far off, that's exactly the intuition this lesson is building.
+**Retrieval check answer.** P(flagged) = 0.95×0.02 + 0.10×0.98 = 0.019 + 0.098 = 0.117.
+P(caused it | flagged) = 0.019 / 0.117 ≈ **0.162** — about 16%. A bot with 95%/10% hit/false-alarm
+rates, applied to a rare (2%) event, still flags mostly-innocent deploys most of the time. Same
+mechanism as Lesson 7's disease test — different noun.
 
 ---
 
-### Part 2 — Same success on Beta(1, 1)
+**Main answer: LR ≈ 2.848.**
 
-Beta(1, 1) plus one success → **Beta(2, 1)**. Mean = 2 / 3 = **0.6667**.
+```
+P(data | p = 0.75) = 0.75^6 × 0.25^2 = 0.177979 × 0.0625 ≈ 0.011124
+P(data | p = 0.5)  = 0.5^6  × 0.5^2  = 0.5^8            ≈ 0.003906
 
-(Yes — coincidentally the *same* numeric value as Part 1's answer. That coincidence is a trap if
-you stop here; Part 3 shows why comparing the endpoints alone is the wrong comparison.)
+LR = 0.011124 / 0.003906 ≈ 2.848   (exactly 729/256)
+```
 
----
+With `C(8,6) = 28` folded into both sides instead:
 
-### Part 3 — The movements, compared
+```
+P(6 heads in 8 | p=0.75) = 28 × 0.011124 ≈ 0.311462
+P(6 heads in 8 | p=0.5)  = 28 × 0.003906 ≈ 0.109375
 
-- **Beta(9,5) → Beta(10,5)**: 9/14 (≈0.6429) → 10/15 (≈0.6667). **Movement ≈ 0.024.**
-- **Beta(1,1) → Beta(2,1)**: 1/2 (0.5) → 2/3 (≈0.6667). **Movement ≈ 0.167.**
+LR = 0.311462 / 0.109375 ≈ 2.848   — identical.
+```
 
-Same single new data point (one success), landing on two different posteriors — and the weak
-posterior moved **about 7× further** than the strong one, even though (by coincidence of the
-specific numbers chosen) both happened to arrive at the same final mean.
-
-Why: before the new observation, Beta(9,5) already carried α+β = 14 units of weight (prior +
-data so far); Beta(1,1) carried only α+β = 2. Adding one success is adding 1 unit of weight to a
-pool of 14 (a ~7% change in composition) versus adding 1 unit to a pool of 2 (a 50% change in
-composition). The *fraction* of total evidence that the new point represents is what determines how
-far the mean can move — not anything about the new observation itself, which was identical in both
-cases.
-
----
-
-### Part 4 — The general rule
-
-**A single new observation can move a beta posterior's mean by roughly `1 / (α + β + 1)`** — i.e.,
-inversely proportional to how much total weight (real + virtual trials) the posterior already
-carries. Check it against Part 3: Beta(9,5) had α+β=14, so max movement ≈ 1/15 ≈ 0.067 (our actual
-movement of 0.024 falls within that ballpark, depending on direction); Beta(1,1) had α+β=2, so max
-movement ≈ 1/3 ≈ 0.33 (our actual movement of 0.167 is again in that ballpark). The exact bound
-depends on which direction the observation pushes, but the *scaling* — inversely with existing
-weight — is the reliable takeaway.
-
-This is exactly the mechanism behind **sharpening**: as α+β grows, the posterior doesn't just center
-somewhere, it becomes more resistant to being knocked around by any one new data point, i.e. its
-variance shrinks. A posterior's "confidence" isn't a separate quantity you compute alongside the
-mean — it's a direct, mechanical consequence of how much weight has accumulated in α+β.
+Same ratio either way. `C(8,6)` multiplies *both* the numerator and the denominator by the same
+factor, 28, so it divides straight out. That's the whole mechanism: **in a ratio between two
+hypotheses on the same data, any factor that doesn't depend on the hypothesis (`p`) cancels.**
+`C(n,k)` never depends on `p` — it's a fact about counting orderings, not about the coin — so it's
+always safe to drop from a likelihood *ratio*, even though it's essential to the *absolute*
+probability of "k heads in some order."
 
 ---
 
-### The pattern
+**Now the colleague's claim — where it's right, and where it overreaches.**
 
-| Posterior before | α+β (weight) | +1 success | New mean | Movement |
-|---|---|---|---|---|
-| Beta(1,1) | 2 | Beta(2,1) | 0.667 | 0.167 |
-| Beta(9,5) | 14 | Beta(10,5) | 0.667 | 0.024 |
-| Beta(99,50) | 149 | Beta(100,50) | 0.667 | ≈0.002 |
+**Check A (same composition, different order): TRUE, they're equal.** `H H T H H H T H` and
+`H T H H H H T H` both have 6 heads and 2 tails. Under `p = 0.75`, *any* specific sequence with that
+exact composition has probability `0.75^6 × 0.25^2 ≈ 0.011124` — order genuinely doesn't matter once
+the composition (how many heads) is fixed. This part of the intuition is correct, and it's *why*
+`C(n,k)` exists in the first place: it's literally counting how many equally-probable orderings share
+one composition, so you can add them up into "probability of exactly k heads, any order."
 
-**Rule**: the same single observation moves a young, low-weight posterior a lot and a mature,
-high-weight posterior barely at all — one more data point matters in proportion to how small a
-fraction of total accumulated evidence it represents, roughly `1/(α+β+1)`.
+**Check B (different composition): FALSE, they're wildly unequal.** A specific 6-heads sequence and a
+specific 2-heads sequence, both under `p = 0.75`:
 
-**Where this goes:** Stage 2 closes with one more idea — the **posterior predictive**: given
-everything the posterior now believes about p, what do you actually expect to see on the *next*
-single trial? Stage 3 then formalizes "yesterday's posterior is today's prior" — the sequential
-updating you've been doing by hand all through Stage 2, made explicit and general.
+```
+P(specific 6H,2T sequence | p=0.75) = 0.75^6 × 0.25^2 ≈ 0.011124
+P(specific 2H,6T sequence | p=0.75) = 0.75^2 × 0.25^6 ≈ 0.000137
+
+ratio ≈ 81×   (exactly (0.75/0.25)^4 = 3^4 = 81)
+```
+
+Under a biased coin, a sequence with *more* heads is dramatically more probable than a same-length
+sequence with *fewer* heads — composition matters enormously, only order-within-a-composition doesn't.
+**The colleague's mistake is exactly the gap between Check A and Check B**: "order doesn't matter
+among sequences with the same head-count" (true) got overgeneralized to "every sequence is equally
+probable" (false, unless `p = 0.5`, where every sequence — any composition — genuinely is equally
+likely, since `0.5^k × 0.5^(n-k) = 0.5^n` regardless of `k`). At `p = 0.5` the colleague's blanket
+claim would be correct. At `p = 0.75`, it silently smuggles in the fair-coin case as if it were
+general.
+
+**Why this matters for the likelihood ratio specifically.** The colleague was reaching for a true
+fact (`C(n,k)` cancels in the ratio) via a false justification ("sequences are equally probable"). The
+right justification is narrower and more useful: `C(n,k)` cancels **because it's a `p`-independent
+constant**, full stop — not because the data itself carries no information about which composition is
+more or less likely. The composition (6 heads vs. 2 heads) carries plenty of information about `p`;
+it's only the *ordering-count* that's inert in a ratio.
+
+**The general shape.** For any two hypotheses `p₁, p₂` and observed `k` successes in `n` trials, the
+likelihood ratio is:
+
+```
+LR = [C(n,k) p₁^k (1−p₁)^(n−k)] / [C(n,k) p₂^k (1−p₂)^(n−k)] = (p₁/p₂)^k × [(1−p₁)/(1−p₂)]^(n−k)
+```
+
+`C(n,k)` is gone from the right-hand side entirely — it was never carrying hypothesis-relevant
+information, only orderings-per-composition information, and a ratio between hypotheses doesn't need
+that.
+
+**Where this goes:** the likelihood ratio you just computed (≈2.848) is exactly the ingredient
+Lesson 9's odds form eats directly — `posterior odds = prior odds × LR`. Next lesson turns back to
+the beta-binomial posterior itself and asks a sharper question about how much evidence it actually
+takes to narrow one down.

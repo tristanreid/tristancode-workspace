@@ -1,56 +1,63 @@
 ---
-title: "Solution: Backpropagation, By Hand, on the Smallest Possible Network"
-description: "≈0.115 — four local derivatives, multiplied along the path from loss back to w1. That chain, computed once and reused, is the entire algorithm."
+title: "Solution: Building the Calibration Curve From Scratch"
+description: "37.5 percentage points of overconfidence in the top bin — and the bin-then-average recipe you just did by hand is exactly the reduce that scales to billions of pairs."
 lesson_number: 19
 track: ml
-concept: "Backpropagation: the chain rule, organized well"
-stage: 4
+concept: "Calibration: building the curve by hand from raw (score, label) pairs"
+stage: 3
 layout: solution
 role: solution
-builds_on: [6, 18]
+builds_on: [10, 16]
 skin: chalkboard
 resources:
-  - title: "3Blue1Brown — Backpropagation calculus"
-    url: https://www.3blue1brown.com/lessons/backpropagation-calculus
-    note: "the same chain-rule walkthrough, animated, on a slightly bigger network"
+  - title: "scikit-learn — Probability calibration"
+    url: https://scikit-learn.org/stable/modules/calibration.html
+    note: "the same binning idea, plus Platt scaling and isotonic regression as fixes"
 ---
 
-**Exact answer: ≈ 0.115.**
+**Retrieval check.** `Var(average of 9) = 81 / 9 = 9`. Averaging independent estimators shrinks
+variance by a factor of `n` — same fact, smaller number, new setting.
 
-```
-d(loss)/d(y_hat) = y_hat − y = 1.245 − 1 = 0.245
-d(y_hat)/d(h)    = w2 = 2
-d(h)/d(z1)       = h·(1−h) = 0.6225 × 0.3775 ≈ 0.2350
-d(z1)/d(w1)      = x = 1
+**Main answer: 37.5 percentage points, overconfident.** Sorting the 12 pairs:
 
-d(loss)/d(w1) = 0.245 × 2 × 0.2350 × 1 ≈ 0.115
-```
+- **Bin 1** `[0, 0.4)`: scores 0.10, 0.20, 0.20, 0.30 → mean score 0.20. Labels 0, 0, 1, 0 → mean
+  0.25. Gap = 0.20 − 0.25 = **−5pp** (mildly *under*confident).
+- **Bin 2** `[0.4, 0.7)`: scores 0.40, 0.50, 0.50, 0.60 → mean score 0.50. Labels 1, 0, 1, 0 → mean
+  0.50. Gap = **0pp** — this bin is honest: when it says "about 0.5," customers churn about half
+  the time.
+- **Bin 3** `[0.7, 1.0]`: scores 0.80, 0.85, 0.90, 0.95 → mean score = 3.50 / 4 = **0.875**. Labels
+  1, 0, 1, 0 → mean = 2/4 = **0.50**. Gap = 0.875 − 0.50 = **0.375 → 37.5pp overconfident.**
 
-**What just happened, and why it's called "back"-propagation.** You started at the loss (how wrong
-the prediction was) and worked *backward* through the network — output layer first, hidden layer
-second — multiplying local derivatives as you went. Each factor answers one small, local question
-("if this one quantity nudges up slightly, how much does the *next* one nudge?"), and the chain rule
-says multiplying them together tells you how a nudge at the very start (`w1`) ultimately affects the
-very end (the loss), even though `w1` influences the loss only indirectly, through `z1`, then `h`,
-then `y_hat`.
+**Reading it.** In bin 3, the model is effectively saying "I'm about 87–88% sure" on every one of
+these four customers, and it was right half the time. That's not a rounding error — it's a
+systematic miscalibration specifically at the high-confidence end, exactly where a business is most
+likely to act on the number without double-checking it (auto-approving the highest-risk-flagged
+accounts for a retention call, say). Bin 2, by contrast, is well-calibrated even though its
+predictions are less confident — calibration and confidence are independent axes, and a model can
+be badly wrong in exactly the range where it sounds most sure of itself.
 
-**The "organized well" part — why this isn't just calculus homework.** Notice `d(loss)/d(y_hat)` and
-`d(y_hat)/d(h)` are needed for *every* weight in the network, not just `w1` — they don't change if
-you're instead computing `d(loss)/d(w2)` or the gradient with respect to `b1`. Backpropagation's real
-contribution isn't "apply the chain rule" (that's just calculus) — it's *computing each shared
-intermediate derivative exactly once, in one backward sweep, and reusing it* for every weight that
-needs it, instead of redoing the whole chain from scratch per weight. For a network with millions of
-weights across dozens of layers, that reuse is the difference between "trains in hours" and
-"computationally impossible" — the same chain-rule algebra, just organized so no work is repeated.
+**Why this is the same recipe as lesson 16, run one level down.** Lesson 16 gave you a bucket's
+final tallies (300 customers, 210 churned) — someone had already done steps 1 and 2 below. Here you
+did all three:
 
-**The pattern generalizes.** Add a second hidden layer, and you'd insert one more `d(h2)/d(h1)` link
-in the chain before it reaches `w1` — same idea, longer chain, still just multiplication of local
-derivatives, still computed once per layer and reused. This is exactly why depth (Lesson 18) is
-trainable at all: however many layers you compose, backpropagation walks the chain once, backward,
-and every weight gets its gradient.
+1. **Bin** every row by its score (a `groupBy` on a bucketed score column, in Spark terms).
+2. **Accumulate**, per bin, a running `(sum of scores, sum of labels, count)` — for bin 3:
+   `(3.50, 2, 4)`.
+3. **Finalize**: divide each sum by the count to get the bin's mean predicted score and mean actual
+   rate, then subtract.
 
-**Where this goes:** you now have the mechanism (backprop computes gradients) and the reason it's
-needed (depth, from Lesson 18). Next lesson asks the question that puzzled the field for years: given
-that a heavily overparameterized network — one with far more weights than training examples — should,
-by classical intuition, overfit catastrophically, why does training it with plain SGD so often work
-fine anyway?
+**Why this scales to billions of pairs without changing the recipe.** Step 2's accumulator —
+`(sum of scores, sum of labels, count)` — combines with another partial accumulator by simple
+elementwise addition: `(s1,l1,c1) + (s2,l2,c2) = (s1+s2, l1+l2, c1+c2)`. That combine step is
+**associative** (grouping doesn't matter) and **commutative** (order doesn't matter), which is
+exactly what lets a distributed engine split 10 billion `(score, label)` pairs across thousands of
+partitions, accumulate each partition's per-bin totals independently, and combine the partial
+results in any order — or as a tree, combining pairs of partial results in parallel — and still get
+the identical final answer as doing it in one pass. The by-hand version you just did on 12 rows and
+the Spark `reduceByKey` version on 10 billion are the *same computation*, differing only in how many
+partial accumulators get combined and in what order.
+
+**Where this goes:** evaluation discipline — leakage, imbalance, calibration — is the full toolkit
+for trusting a model's own self-report. The lessons ahead turn from checking a model honestly to a
+different question: how the training and inference of these models actually gets *computed*, and why
+some of that computation parallelizes beautifully while some of it fundamentally can't.

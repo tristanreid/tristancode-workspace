@@ -1,107 +1,107 @@
 ---
-title: "Eager vs Lazy Evaluation"
-description: "Most languages evaluate arguments before a function runs (eager). Lazy evaluation defers computation until the value is needed. Understand thunks, short-circuit operators, and when laziness saves you from an error — or an infinite loop."
+title: "Tree Unfold: Building a Balanced BST From a Range"
+description: "Unfold's seed steps to one new seed; tree_unfold's seed branches into two. Build a balanced binary search tree from nothing but a (lo, hi) range, then check it with the depth fold you already have."
 lesson_number: 28
 track: fp
 aliases: ["/learn/0028-puzzle/"]
-concept: "Eager vs lazy evaluation"
-stage: 5
+concept: "Tree unfold"
+stage: 4
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: []
+answer_type: numeric
+builds_on: [21, 23, 25]
 skin: chalkboard
-mcq:
-  question: "In Python, which print fires first?\n\n```python\ndef trace(label, x):\n    print(label)\n    return x\n\nresult = trace('A', 1) + trace('B', 2)\n```"
-  options:
-    - "A — Python evaluates subexpressions left-to-right"
-    - "B — the right operand of + is evaluated first"
-    - "Undefined — Python's language spec does not guarantee evaluation order for operands of +"
-    - "Neither — the prints are deferred until result is used"
-  correct: 0
+numeric:
+  question: "Build the balanced BST containing every integer 1 through 10 via tree_unfold, then compute its depth with Lesson 23's depth fold (leaf_val = -1). What is the depth?"
+  answer: 3
+  tolerance: 0
+  unit: "edges (depth)"
 ---
 
-Most languages you use day-to-day — Python, TypeScript, Scala, Java — **evaluate arguments before passing them** to a function. This is *eager evaluation* (also: strict evaluation). A few languages — Haskell, Clojure's `lazy-seq`, Racket's `delay` — defer evaluation until the value is *demanded*: *lazy evaluation*.
-
-The difference matters as soon as you care about: (a) avoiding unnecessary work, (b) short-circuit logic, (c) infinite structures (coming in Lesson 29).
-
-**Terms:**
-
-- **Eager / strict evaluation**: an argument expression is evaluated *before* the function call. By the time the function body runs, all argument values are computed.
-- **Lazy / non-strict evaluation**: an argument expression is evaluated *when and only when its value is demanded* — possibly never.
-- **Thunk**: an explicit encoding of a lazy value in an eager language — a zero-argument lambda: `lambda: <expr>`. Creating the thunk is cheap; the expression runs only when you call `thunk()`.
+**Warm-up recall (Lesson 16).** A **closure** is a function that captures variables from the
+environment where it was defined, so it can still use them later even after that environment is
+gone. Suppose `make_multiplier(k)` returns a closure that multiplies its argument by `k`. If
+`m3 = make_multiplier(3)`, what is `m3(7)`? Keep the number; the solution confirms it.
 
 ---
 
-### Part 1 — Predict: what does `always_first` do?
+**Terms (standalone):**
 
-```python
-def always_first(x, y):
-    return x
+- **Binary tree** (Lesson 21): `Tree = Leaf | Node(value: Int, left: Tree, right: Tree)`.
+- **List unfold** (Lesson 25): `unfold(seed, pred, element, step)` — from a seed, emit one element,
+  step to *one* new seed, repeat. Linear: one seed in, one seed out.
+- **Depth fold** (Lesson 23): `depth = tree_fold(-1, lambda v, l, r: 1 + max(l, r), t)`. `Leaf` gets
+  `-1` (not 0) so that a single-node tree — one `Node` wrapping two `Leaf`s — correctly comes out to
+  `1 + max(-1, -1) = 0`.
 
-always_first(42, 1 / 0)   # ?
+### Tree unfold
+
+A **tree unfold** is `unfold`'s branching cousin. Instead of one `step` producing one next seed, it
+needs **two** — a seed for the left child and a seed for the right child — plus a way to tell when a
+seed should become a `Leaf` instead of branching further:
+
+```
+tree_unfold : (S, S → Bool, S → A, S → S, S → S) → Tree[A]
 ```
 
-In Python (eager): what happens, and *when* does it happen? (Before the function body runs, or inside it?)
+```python
+def tree_unfold(seed, pred, value, left_seed, right_seed):
+    if pred(seed):
+        return Leaf()
+    v = value(seed)
+    return Node(v,
+                tree_unfold(left_seed(seed), pred, value, left_seed, right_seed),
+                tree_unfold(right_seed(seed), pred, value, left_seed, right_seed))
+```
 
-If Python were lazy: what would happen instead?
+Same shape as `unfold` — a stopping predicate, a way to extract the current output, functions to
+produce the next seed(s) — just with two "next seed" functions instead of one, because a tree has
+two branches instead of one tail.
+
+### Worked example: seed = a range `(lo, hi)`
+
+To build a balanced BST containing every integer from `lo` to `hi`: the seed *is* the range. Stop
+when the range is empty (`lo > hi`). Otherwise, the node's value is the midpoint, and the two child
+seeds are the two halves of the range on either side of it:
+
+```python
+pred        = lambda s: s[0] > s[1]                  # lo > hi: empty range
+value       = lambda s: (s[0] + s[1]) // 2            # midpoint
+left_seed   = lambda s: (s[0], (s[0] + s[1]) // 2 - 1)
+right_seed  = lambda s: ((s[0] + s[1]) // 2 + 1, s[1])
+```
+
+On seed `(1, 3)`: `pred((1,3))` is false, `value = 2`. `left_seed((1,3)) = (1, 1)`,
+`right_seed((1,3)) = (3, 3)`. Both of those are single-element ranges, so each produces
+`Node(x, Leaf, Leaf)`. Result: `Node(2, Node(1, Leaf, Leaf), Node(3, Leaf, Leaf))` — a balanced tree
+containing `1, 2, 3`, built entirely from the range `(1, 3)` with no list ever constructed.
 
 ---
 
-### Part 2 — Manual thunking
+### Part 1 — Build the tree for `(1, 4)`
 
-Python gives you an escape hatch: wrap the risky argument in a lambda.
-
-```python
-def always_first_lazy(x, y_thunk):
-    return x   # never calls y_thunk()
-
-always_first_lazy(42, lambda: 1 / 0)   # ?
-```
-
-Why does wrapping in `lambda:` prevent the error?
+Trace `tree_unfold((1, 4), pred, value, left_seed, right_seed)` by hand: what is the root value, and
+what are the two child seeds? Keep going until every branch bottoms out at a `Leaf`. Draw the tree.
 
 ---
 
-### Part 3 — Short-circuit as hidden laziness
+### Part 2 — Build the tree for `(1, 10)`
 
-Python's `and` and `or` are not regular functions:
-
-```python
-False and (1 / 0)   # → False, no error
-True  or  (1 / 0)   # → True,  no error
-```
-
-But a custom `my_and` function isn't lazy:
-
-```python
-def my_and(a, b):
-    if a: return b
-    return False
-
-my_and(False, 1 / 0)   # ?
-```
-
-What happens, and why does `and` (the built-in operator) succeed where `my_and` fails? Fix `my_and` using a thunk so it short-circuits correctly.
+Same process, larger range. This tree has 10 nodes. Draw it (or trace it carefully enough to know
+its shape) before moving to Part 3.
 
 ---
 
-### Part 4 — Lazy vs eager on a non-terminating argument
+### Part 3 — The graded question (above)
 
-```python
-def f(x):
-    return 1
-
-f(loop_forever())   # loop_forever() never returns
-```
-
-In an eager language: what happens when you call `f(loop_forever())`?
-In a lazy language: what happens?
+Using the tree from Part 2 and the **depth fold** from Lesson 23 (`leaf_val = -1`,
+`node_fn(v, l, r) = 1 + max(l, r)`), compute the depth of the `(1, 10)` tree. Enter it in the numeric
+box.
 
 ---
 
-### The question above
+### Part 4 — Why the midpoint, and what breaks without it
 
-The MCQ at the top of this puzzle asks about *evaluation order* — a specific, testable consequence of Python's eager semantics. Think it through before reading the solution.
-
-After answering, confirm your mental model against Parts 1–4.
+If `value` always picked `s[0]` (the low end) instead of the midpoint, what shape would the
+resulting tree have, and what would happen to its depth as the range grows? (You don't need exact
+numbers — describe the shape and say whether depth would still grow like `log(n)`.)

@@ -1,89 +1,63 @@
 ---
-title: "Ten Years of Experience, or One Year Repeated Ten Times?"
-description: "Two people can log the same hours at a skill and end up nowhere near equally good. Deliberate practice research explains exactly what separates them."
+title: "The Probable Story That Can't Be More Probable"
+description: "A detailed, specific story feels more likely than the plain fact it's a subset of. Compute the actual joint probability and watch representativeness lose to arithmetic."
 lesson_number: 20
 track: cog
-concept: "Deliberate practice and its limits; transfer (and its scarcity)"
-stage: 4
+concept: "Heuristics & biases: representativeness and the conjunction fallacy"
+stage: 5
 layout: puzzle
 role: puzzle
-answer_type: mcq
-builds_on: [18, 19]
+answer_type: numeric
+builds_on: []
 skin: chalkboard
-mcq:
-  question: "Two radiologists both have 15 years on the job, reading roughly the same volume of scans per year. Radiologist A's diagnostic accuracy has been essentially flat for the last 10 years. Radiologist B's accuracy has kept improving every year, and is now noticeably higher than A's. According to Ericsson's deliberate practice research, what is the SINGLE most likely explanation for this gap, given that raw repetition volume is roughly equal?"
-  options:
-    - "B has a naturally superior visual memory and pattern-recognition ability that A lacks"
-    - "B has been engaging in deliberate practice — targeting specific weaknesses, seeking immediate corrective feedback (e.g. comparing calls against confirmed outcomes), working at the edge of current ability — while A has been doing routine repetition without those elements, which plateaus"
-    - "B simply reads more scans per year than A, so the gap is purely about total volume"
-    - "The gap is most likely random measurement noise and not a real, explainable difference"
-  correct: 1
+numeric:
+  question: "What is P(software engineer AND plays in a band), given the base rates below?"
+  answer: 0.0075
+  tolerance: 0.0005
 ---
 
-Lesson 19 showed expertise is built from chunking, acquired through practice. This lesson asks the
-harder question the power-law-of-practice framing (Lesson 18) glosses over: practice reliably
-improves performance *early on* — so why do so many experienced people plateau, sometimes for
-decades, well short of true expertise?
-
-**Terms (standalone):**
-
-- **Naive/routine practice**: simply performing a task repeatedly, at a comfortable, familiar level
-  of difficulty, without deliberately targeting weaknesses or seeking corrective feedback. Reliably
-  produces improvement early on (Lesson 18's power law), then **plateaus** — performance stabilizes
-  at "good enough to get by" and stops improving further, often for years, even with continued high
-  volume of repetition.
-- **Deliberate practice** (Ericsson's term, from research often oversimplified in pop-science as
-  "the 10,000-hour rule"): practice with specific structural requirements that routine repetition
-  usually lacks: (1) a well-defined, challenging goal just beyond current ability, (2) full,
-  focused attention on the task rather than autopilot, (3) immediate, specific feedback on
-  performance, and (4) repetition with refinement — repeatedly attacking the same weakness until it
-  improves. Deliberate practice is effortful and often *not* enjoyable in the moment (contrast with
-  Lesson 14's "desirable difficulty" — same underlying principle, applied to skill-building rather
-  than memorization) — which is exactly why routine, comfortable repetition is so much more common
-  than genuine deliberate practice, even among people who practice a great deal.
-- **Transfer**: whether skill or improvement gained in one task/domain carries over to a different
-  task/domain. A robust and somewhat humbling finding across this research: transfer is **much more
-  limited than intuition suggests**. Extensive chess expertise doesn't reliably make someone better
-  at general memory tasks or general strategic reasoning outside chess (consistent with Lesson 19:
-  the advantage is chunking specific to *meaningful chess patterns*, not a general cognitive
-  upgrade). Training "working memory" with generic memory-span exercises tends to improve
-  performance on tasks very similar to the training task, but shows little to no reliable transfer
-  to genuinely different cognitive tasks, despite popular "brain training" claims to the contrary.
-
-### The puzzle (MCQ above)
-
-Think about what's structurally different between "read 2,000 scans this year" (volume) and "read
-2,000 scans this year, each time predicting the diagnosis, then checking the confirmed outcome and
-specifically studying the misses" (volume + deliberate practice's key ingredients).
+**Retrieval check (from lesson 6, new setting).** A support-ticket triage system scores pending tickets
+by priority = credibility × value ÷ cost — credibility that the ticket is genuinely urgent, value of
+resolving it (customers affected, revenue at risk), cost (engineer-hours to investigate). Three
+tickets: **T1** (credibility 0.8, value 0.9, cost 2), **T2** (credibility 0.9, value 0.2, cost 1),
+**T3** (credibility 0.5, value 0.6, cost 1.5). Which ticket gets worked first? (This is the *correct*
+use of the formula — all three terms genuinely present, unlike lesson 14's zero-value trap.) Work it
+out; the solution confirms it.
 
 ---
 
-### Part 2 — Why does routine practice plateau specifically, rather than continuing to slowly improve forever?
+### Two heuristics, one machinery consequence
 
-Lesson 18's power law technically predicts *some* continued improvement at every additional trial,
-just a shrinking amount — never a hard plateau. Real-world routine practice, though, often produces
-genuine flat performance for years. Propose a reason routine, comfortable-difficulty repetition
-would produce an actual plateau rather than just an ever-slower-but-still-positive improvement curve.
-(Hint: think about what's required for a trial to count as "practice that changes the underlying
-representation" versus a trial that's just successfully executing an already-mastered chunk.)
+A **heuristic** is a mental shortcut — a fast, usually-good-enough rule for judgment under uncertainty,
+substituting an easy question for a hard one. Two of the best-studied, from Tversky and Kahneman's
+research program:
 
----
+- **Availability**: judging how probable or frequent something is by how *easily examples come to
+  mind* — not by actual frequency. Plane crashes feel more common than they are because they're
+  vivid and heavily covered; routine car trips don't make the news, so their much higher actual risk
+  feels less available to recall.
+- **Representativeness**: judging how probable something is by how well it *matches a mental
+  stereotype or pattern* — not by the actual base rates involved. A description that "sounds like" a
+  category member gets rated as more probably a member of that category than the numbers justify.
 
-### Part 3 — Reveal: design a deliberate-practice regimen
+Representativeness has a specific, checkable failure mode: the **conjunction fallacy**. For any two
+events A and B, the probability that *both* happen (A **and** B) can never exceed the probability that
+*just one of them* (A alone) happens — if you're a member of set A∩B, you're necessarily also a member
+of set A. This is pure arithmetic (P(A∩B) ≤ P(A), always), not a matter of judgment. But when a
+conjunction "sounds like" a better-fitting story than the plain event alone, representativeness
+reliably makes people rate the conjunction as *more* probable — a description that fits a specific
+narrative can feel more believable than the bare category it's a strict subset of.
 
-Pick a skill you (or a hypothetical learner) might want to improve at — could be a professional
-skill (code review, technical writing, public speaking) or a hobby. Sketch a deliberate-practice
-regimen for it that concretely satisfies all four requirements listed above (challenging goal at the
-edge of ability, focused attention, immediate feedback, repetition with refinement) — and explain
-specifically what routine, non-deliberate practice at the same skill would look like by contrast.
+### The puzzle
 
----
+A hiring pool's résumés include this profile: quiet, detail-oriented, uses precise technical language,
+was a musician for several years before switching careers. From this team's actual hiring data:
 
-### Part 4 — Connect to modern agents
+- **P(software engineer)** = 0.15 (15% of this résumé pool are software engineers, full stop)
+- **P(plays in a band | software engineer)** = 0.05 (among software engineers in this pool, 5% also
+  currently play in a band)
 
-**In a modern LLM agent harness**, is there a meaningful analogue to "deliberate practice vs. routine
-repetition" — some way an agent (or the system training/fine-tuning it) could accumulate experience
-that's structured like deliberate practice (targeting specific known weaknesses, with clear
-corrective feedback) versus experience that's more like routine repetition (just running lots of
-tasks without targeted feedback)? What would you expect the "plateau" failure mode to look like for
-an agent stuck in the routine-repetition regime?
+The description above "sounds like" the second, more specific story — engineer *and* still-a-musician —
+more than it sounds like "software engineer" alone, which is exactly the setup representativeness
+exploits. Compute the actual joint probability, **P(software engineer AND plays in a band)**, from the
+base rates given, and compare it to P(software engineer) = 0.15 alone.

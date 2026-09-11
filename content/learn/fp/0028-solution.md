@@ -1,100 +1,117 @@
 ---
-title: "Solution: Eager vs Lazy Evaluation"
-description: "Eager evaluation computes arguments before the call; lazy defers until demanded. Thunks simulate laziness in eager languages. Short-circuit operators are built-in lazy forms. Infinite structures require laziness (Lesson 29)."
+title: "Solution: Tree Unfold — Building a Balanced BST From a Range"
+description: "tree_unfold((1,10), ...) builds a 10-node balanced BST whose depth-fold result is 3 — the branching cousin of Lesson 25's unfold, checked with Lesson 23's own depth fold."
 lesson_number: 28
 track: fp
 aliases: ["/learn/0028-solution/"]
-concept: "Eager vs lazy evaluation"
-stage: 5
+concept: "Tree unfold"
+stage: 4
 layout: solution
 role: solution
-builds_on: []
+builds_on: [21, 23, 25]
 skin: chalkboard
 ---
 
-### MCQ — evaluation order
+### Warm-up recall answer
 
-**Answer: (a) — A prints first.**
-
-Python evaluates subexpressions **left-to-right**. In `trace('A', 1) + trace('B', 2)`, the left operand `trace('A', 1)` is fully evaluated (printing "A", returning 1) before the right operand `trace('B', 2)` is evaluated (printing "B", returning 2). The `+` runs last.
-
-Python's language reference specifies left-to-right evaluation for almost all operators. This is a *consequence* of eager evaluation — all arguments are evaluated before the operator/function runs, in the order they appear.
+`make_multiplier(3)` closes over `k = 3`; calling `m3(7)` returns `3 * 7 = 21`. **21.**
 
 ---
 
-### Part 1 — `always_first(42, 1/0)`
+### Part 1 — `tree_unfold((1, 4), ...)`
 
-In Python (eager): raises `ZeroDivisionError` **before** the function body runs. Python evaluates both `42` and `1/0` when building the argument list. The division by zero happens during argument evaluation; `always_first` is never entered.
+`(1,4)`: not empty. `value = (1+4)//2 = 2`. `left_seed = (1, 1)`, `right_seed = (3, 4)`.
 
-If Python were lazy: `1/0` would not be evaluated when preparing the call. The function body runs, returning `x = 42`. The second argument is never demanded, so the error never occurs. Result: `42`.
+- `(1,1)`: `value=1`, `left_seed=(1,0)` → `pred` fires (`1>0`) → `Leaf`. `right_seed=(2,1)` → `pred`
+  fires (`2>1`) → `Leaf`. So `(1,1) → Node(1, Leaf, Leaf)`.
+- `(3,4)`: `value=(3+4)//2=3`, `left_seed=(3,2)` → `pred` fires → `Leaf`. `right_seed=(4,4)` →
+  `value=4`, both children empty → `Node(4, Leaf, Leaf)`. So `(3,4) → Node(3, Leaf, Node(4, Leaf, Leaf))`.
 
-The function body makes no difference under eager evaluation — the error is triggered by the call site, not by any use of `y` inside the function.
-
----
-
-### Part 2 — Thunk prevents the error
-
-```python
-always_first_lazy(42, lambda: 1 / 0)
+```
+Node(2,
+  Node(1, Leaf, Leaf),
+  Node(3, Leaf, Node(4, Leaf, Leaf)))
 ```
 
-`lambda: 1/0` is a **thunk** — creating it is O(1) and incurs no computation. It is just a closure (an object wrapping the expression `1/0`). Python evaluates `lambda: 1/0` eagerly, but evaluating a lambda expression just captures the code and the enclosing scope; it does *not* run the body.
-
-Since `always_first_lazy` never calls `y_thunk()`, the expression `1/0` is never executed. Result: `42`, no error.
-
-The thunk is a manual lazy value: you hand the function a *recipe* rather than a *result*.
-
----
-
-### Part 3 — Short-circuit as hidden laziness
-
-`my_and(False, 1/0)` raises `ZeroDivisionError`. Python evaluates `1/0` as an argument *before* `my_and` is called. By the time `my_and` checks `if a`, the error has already happened.
-
-Python's built-in `and` operator is not a function — it is a **special form** with lazy semantics baked into the language. `False and expr` evaluates `expr` only if the left side is truthy. The runtime short-circuits.
-
-Fix with thunks:
-
-```python
-def my_and_lazy(a, b_thunk):
-    if a:
-        return b_thunk()   # force only when needed
-    return False
-
-my_and_lazy(False, lambda: 1 / 0)   # → False, no error
-my_and_lazy(True,  lambda: 42)      # → 42
+```
+      2
+     / \
+    1   3
+         \
+          4
 ```
 
-`b_thunk()` is called only if `a` is truthy. When `a` is `False`, the thunk is never forced. This is exactly the semantics of `and`.
+---
 
-**The key insight**: Python's `and`, `or`, and `if` expressions are the *only* built-in lazy forms in Python. Every other operation is eager. If you want laziness elsewhere, you must simulate it with thunks.
+### Part 2 — `tree_unfold((1, 10), ...)`
+
+`(1,10)`: `value=(1+10)//2=5`. `left_seed=(1,4)`, `right_seed=(6,10)`.
+
+`(1,4)` is exactly Part 1's tree, rooted at `2`.
+
+`(6,10)`: `value=(6+10)//2=8`. `left_seed=(6,7)`, `right_seed=(9,10)`.
+- `(6,7)`: `value=6`, `left_seed=(6,5)`→`Leaf`, `right_seed=(7,7)`→`Node(7,Leaf,Leaf)`. Gives
+  `Node(6, Leaf, Node(7, Leaf, Leaf))`.
+- `(9,10)`: `value=9`, `left_seed=(9,8)`→`Leaf`, `right_seed=(10,10)`→`Node(10,Leaf,Leaf)`. Gives
+  `Node(9, Leaf, Node(10, Leaf, Leaf))`.
+
+```
+              5
+          /       \
+         2          8
+        / \        / \
+       1   3      6    9
+            \      \    \
+             4      7    10
+```
 
 ---
 
-### Part 4 — Non-terminating argument
+### Part 3 — The graded answer: depth 3
 
-**Eager**: `f(loop_forever())` evaluates `loop_forever()` before calling `f`. Since `loop_forever()` never returns, the call site spins forever (or exhausts stack space). `f` is never entered.
+Fold bottom-up with `leaf_val = -1`, `node_fn(v, l, r) = 1 + max(l, r)`:
 
-**Lazy**: `loop_forever()` is passed as an unevaluated thunk. `f` returns `1` without ever touching `x`. The non-terminating computation is never triggered. The program terminates in O(1).
+```
+Node(1,Leaf,Leaf)  = 0        Node(4,Leaf,Leaf)  = 0        Node(7,Leaf,Leaf) = 0
+Node(3,Leaf,4-node)= 1+max(-1,0)=1                          Node(6,Leaf,7-node)=1+max(-1,0)=1
+Node(2, 1-node, 3-node) = 1+max(0,1) = 2                    Node(10,Leaf,Leaf)=0
+                                                             Node(9,Leaf,10-node)=1+max(-1,0)=1
+                                                             Node(8, 6-node, 9-node)=1+max(1,1)=2
 
-This is the theoretically important distinction. In a lazy language, a function can be *total* (always terminates) even when passed a non-terminating argument, as long as it never forces that argument. This is what makes infinite structures possible — you build them lazily, consume only what you need.
+Node(5, 2-node(2), 8-node(2)) = 1 + max(2,2) = 3
+```
+
+**Depth = 3.** Sanity check: a balanced tree over 10 elements has height on the order of
+`log2(10) ≈ 3.3`, so a depth of 3 is exactly what "balanced" should produce — nowhere near the worst
+case of 9 you'd get from an unbalanced chain.
 
 ---
 
-### The thunk pattern — summary
+### Part 4 — Why the midpoint (not the low end)
 
-| Eager (default Python) | Lazy (via thunk) |
-|------------------------|------------------|
-| `f(expensive_expr)` | `f(lambda: expensive_expr)` |
-| Evaluated at call site | Evaluated when `thunk()` is called |
-| Error if `expensive_expr` throws | Error only if `thunk()` is called |
-| Always computed, even if unused | Computed only if demanded |
+If `value` always picked `s[0]`, every node would take the *entire remaining range minus one
+element* as its right child and an empty range as its left child. That builds a pure right-leaning
+chain — the same shape as inserting `1, 2, 3, …, n` one at a time into a naive (non-balancing) BST.
+Depth would grow **linearly** with `n` (`n - 1` edges for `n` nodes), not logarithmically. The
+midpoint is what makes the two child seeds roughly equal in size at every level, which is exactly
+what keeps depth at `O(log n)`.
 
-**When to use thunks in practice:**
-- Conditional logic where some branches are expensive or unsafe.
-- Arguments that might not be needed (a default-value factory in a dict lookup).
-- Building lazy streams (Lesson 29 — this is the core mechanism).
+---
 
-**What you cannot do with thunks (without more machinery):**
-- Make a *self-referential* lazy structure without extra care — calling `lambda: f(lambda: f(...))` still recurses at construction time if you're not careful (Lesson 30).
+### The pattern
 
-**Next**: Lesson 29 uses thunks as the building block for infinite streams.
+`tree_unfold` is structurally identical to `unfold` — a predicate, a value extractor, functions to
+produce the next seed(s) — with the only change being *how many* "next seed" functions the shape of
+the target structure requires. A list has one tail, so one `step`. A binary tree has two children,
+so two seed functions. An n-ary tree would need a function producing a *list* of child seeds. The
+recursion scheme generalizes to whatever branching factor the data type has; a fold correspondingly
+needs one "combine" argument per constructor field of that type — the numeric proof you just ran
+(the depth-fold from Lesson 23) is a fold consuming exactly the structure this unfold just built.
+
+**Why this matters for parallelism**: `left_seed(seed)` and `right_seed(seed)` depend only on the
+current seed, never on each other — so the two recursive `tree_unfold` calls that build the left and
+right subtrees are fully independent and can run in parallel, exactly like the fold in Lesson 23
+that later consumes them.
+
+**Next**: you just built a tree, then separately folded it to get a depth. Lesson 29 fuses those two
+passes into one function that never builds the intermediate tree at all.

@@ -1,115 +1,66 @@
 ---
-title: "Solution: Why 'Doctor' Makes You Faster to Recognize 'Nurse'"
-description: "A(nurse) = 1.75 vs A(bread) = 0.1 — a 1.65 activation gap from the same working-memory contents, which is priming made mechanical and computable."
+title: "Solution: Three Stale Uses Beat One Fresh One"
+description: "B ≈ 0.445, A = 0 — three moderately-stale retrievals sum to beat one very fresh one, because d exponentiates each use's elapsed time; it never counts uses."
 lesson_number: 15
 track: cog
-concept: "Spreading activation & priming"
-stage: 3
+concept: "ACT-R base-level activation: summing decay across every past use"
+stage: 2
 layout: solution
 role: solution
-builds_on: [10, 14]
+builds_on: [9, 10]
 skin: chalkboard
 resources:
-  - title: "Meyer & Schvaneveldt (1971) — the original semantic priming study"
-    url: https://psycnet.apa.org/record/1971-08268-001
-    note: "the doctor/nurse lexical decision experiment this lesson is built around"
+  - title: "ACT-R homepage (Carnegie Mellon)"
+    url: http://act-r.psy.cmu.edu/
+    note: "reference models and the full activation equation, spreading-activation term included"
+  - title: "Anderson & Schooler (1991) — Reflections of the Environment in Memory (Psychological Science)"
+    url: https://www.cmu.edu/dietrich/psychology/people/core-training-faculty/documents/anderson.reflections-of-environment.1991.pdf
+    note: "the rational-analysis argument behind why this decay shape exists at all"
 ---
 
-### Numeric answer: A(nurse) = 1.75
-
-```
-A(nurse) = B(nurse) + Σⱼ(Wⱼ × Sⱼ,nurse)
-         = 0 + [0.5 × 2.0] + [0.5 × 1.5]
-         = 0 + 1.0 + 0.75
-         = 1.75
-```
-
-Nurse has never been directly retrieved recently (B = 0), yet it carries substantial activation
-purely from spreading — because two chunks strongly associated with it ("doctor," "medicine")
-happen to be occupying working memory right now.
+**Retrieval check answer.** Four chunks — one per octet (`192`, `168`, `1`, `100`) — the same move as
+lesson 2's `FBI · CIA · NSA · IRS`: recode twelve-ish raw symbols into a handful of familiar units, and
+working memory's fixed slot count stops being the bottleneck.
 
 ---
 
-### Part 2 — Bread's activation: 0.1, and the comparison
+### The computation
 
-```
-A(bread) = 0 + [0.5 × 0.1] + [0.5 × 0.1] = 0 + 0.05 + 0.05 = 0.1
-```
+**Chunk A** (one use, 1 day ago): B = ln(1^−0.5) = ln(1) = **0**.
 
-**Nurse (1.75) vs. bread (0.1): a gap of 1.65** in activation, purely a function of which chunks
-happen to be semantically associated with what's currently active in working memory — nothing about
-either word's own recency or frequency of use differs in this scenario (both have B = 0). Since
-Lesson 10 established that higher activation predicts faster, more reliable retrieval, this gap
-directly predicts nurse being recognized substantially faster than bread right now — which is
-exactly the empirical priming result Meyer & Schvaneveldt found: "doctor" primes "nurse" via
-spreading activation along a real associative link; "doctor" does not meaningfully prime "bread"
-because no comparable link exists (or it's weak, as modeled by S = 0.1 here).
+**Chunk B** (three uses, 2/4/8 days ago) — sum the power-law term for each use, *then* take the log:
 
----
+- 2 days: 2^−0.5 = 1/√2 ≈ 0.7071
+- 4 days: 4^−0.5 = 1/√4 = 0.5000
+- 8 days: 8^−0.5 = 1/√8 ≈ 0.3536
 
-### Part 3 — Why priming decays
+Sum ≈ 1.5607. B = ln(1.5607) ≈ **0.445**.
 
-If spreading activation permanently strengthened every associate of everything you'd ever attended
-to, activation would only ever accumulate — every chunk in memory would slowly ratchet toward
-maximal activation as it picked up residual boosts from an ever-growing history of things once
-associated with it, however distantly or briefly. Two things would break:
+**Chunk B is more active than chunk A — despite every single one of its uses being older than A's only
+use.** That's the answer that isn't naive, and it's worth sitting with why: the misconception this
+lesson targets is treating d as something that ticks up with each retrieval ("used once, so it's
+decayed once"). It doesn't. **d is a fixed exponent (0.5) applied independently to the elapsed time of
+each individual use; what changes with more uses is that you get more terms to sum, not a different
+value of d.** A single fresh use produces one term close to its maximum (t^−d shrinks as t grows, so
+small t → a term near 1); three older uses each produce a smaller term, but three smaller terms summed
+can still exceed one larger term — which is exactly what happened here: chunk A's single term is
+1^−0.5 = 1, while chunk B's three terms sum to 0.7071 + 0.5 + 0.3536 = 1.5607. B's sum is larger
+*before* the log is even applied, so ln(1.5607) ≈ 0.445 comfortably beats ln(1) = 0.
 
-1. **Loss of discrimination.** Activation is only informative if it distinguishes "relevant right
-   now" from "not relevant right now." If old associations never faded, current context would be
-   swamped by irrelevant residue from every prior context, and retrieval would stop being fast or
-   selective — everything would eventually look equally activated.
-2. **No signal about *current* relevance.** The whole point of the `Wⱼ` term is that it reflects
-   what's occupying attention *now* — as soon as doctor/medicine leave working memory (attention
-   moves elsewhere), their `Wⱼ` should drop toward zero, because they're no longer evidence about
-   what's currently relevant. A system where past attention never releases its grip on activation
-   couldn't track a changing world or a changing task.
+**The general lesson:** frequency compounds; recency alone doesn't dominate it. A chunk retrieved
+several times, even if none of those retrievals is recent, can out-rank a chunk retrieved once
+yesterday, because activation is driven by the *sum* of use-events, each independently decaying, not
+by whichever single use happens to be most recent. This is also why ACT-R's model of learning through
+repetition works at all: every additional retrieval — including a *deliberate* one, which is exactly
+what next lesson's retrieval practice amounts to — adds one more term to this sum, and the sum is what
+determines how retrievable something ultimately is.
 
-Priming's fast decay (seconds to low minutes, in the human data) is exactly tuned to track "what's
-relevant to the current context," not "what have I ever thought about" — that second, durable kind
-of strengthening is what base-level activation (`B`, from Lesson 10's repeated-use decay curve) is
-for instead. The two terms of the activation equation divide the labor: `B` handles slow, durable
-learning from repeated use; the spreading term handles fast, transient relevance to the current
-moment.
+**For your harness:** a memory or cache-ranking policy that scores entries by "was this used recently"
+(a single boolean or single timestamp) is implicitly assuming the single-use formula. A policy that
+sums frequency-weighted, independently-decaying terms per access event — closer to this full
+formula — correctly keeps a frequently-hit-but-not-recently-hit key warm, the way chunk B stayed more
+retrievable than a single very recent lookup.
 
----
-
-### Part 4 — A candidate analogue in LLM agent harnesses
-
-The closest structural analogue is the **attention mechanism** inside a transformer itself (the
-"attention" the fp and ml tracks describe as a parallel soft lookup): when processing a token, the
-model computes attention weights over all other tokens in context, and tokens strongly related to
-the current one (by learned associative patterns, not an explicit symbolic link table) get weighted
-more heavily in producing the next representation — a direct computational parallel to `Wⱼ × Sⱼᵢ`
-summed over active sources. The similarity: both are automatic, "for free" mechanisms that boost
-related information without an explicit, separate retrieval step being invoked.
-
-The important difference: transformer attention operates *within a single forward pass over the
-current context window* — it doesn't persist or decay across turns/interactions the way human
-priming does across seconds to minutes; each new prompt essentially recomputes attention from
-scratch over whatever's in the context window at that moment, with no residual "priming" carried
-over unless the harness explicitly re-includes prior content. A harness that wanted a genuine
-priming-like effect *across* separate calls would need to build that persistence deliberately — e.g.
-a scratchpad or memory store that re-surfaces recently-relevant items into future contexts — since
-the base transformer mechanism, unlike human spreading activation, doesn't carry activation forward
-on its own.
-
----
-
-### The pattern
-
-| | Base-level activation (B) | Spreading activation (ΣWS) |
-|---|---|---|
-| Reflects | how often/recently *this* chunk was used | what's currently active *elsewhere* in working memory |
-| Timescale | slow, durable (Lesson 10's decay curve) | fast, transient (fades as attention moves on) |
-| Human example | "nurse" retrieved often stays easy to retrieve | "doctor" in mind briefly boosts "nurse" |
-| Purpose | track long-run relevance | track current-context relevance |
-
-**Rule**: activation isn't a single number describing "how strong is this memory" in isolation — it
-has a durable component (repeated use) and a transient component (what's currently active and
-associated). Priming is the transient component made visible: chunks connected to what's in mind
-right now get temporarily easier to retrieve, and that boost is *supposed* to fade once context
-moves on.
-
-**Where this goes:** next lesson turns from associative memory to a different cognitive
-bottleneck — **attention as selection**: given that only so much can be "in working memory" (and
-therefore able to spread activation) at once, how does the mind decide what gets in?
+**Where this goes:** every additional use in this sum is, mechanically, a retrieval. Next lesson asks
+what kind of retrieval counts — and finds that not all "uses" are equal, which is exactly the design
+principle behind why this whole puzzle path makes you produce an answer before showing you one.

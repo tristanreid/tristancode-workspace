@@ -1,137 +1,84 @@
 ---
-title: "Solution: Runaway Recursion — When Eager Definitions Explode"
-description: "bad_ones() crashes because the recursive call must complete before the list can be built. good_ones() returns immediately because the constructor is guarded by a thunk. Haskell's : is lazy. The four cases: A crashes, B terminates, C terminates (thunk), D crashes."
+title: "Solution: Eager vs Lazy — Counting the Wasted Work"
+description: "Six total calls to expensive() under eager evaluation, one wasted per line — three wasted evaluations total, which is exactly what a thunk-based lazy version would avoid."
 lesson_number: 30
 track: fp
 aliases: ["/learn/0030-solution/"]
-concept: "Runaway recursion"
+concept: "Eager vs lazy evaluation"
 stage: 5
 layout: solution
 role: solution
-builds_on: [3, 28, 29]
+builds_on: []
 skin: chalkboard
 ---
 
-### MCQ answer: (b) — RecursionError immediately
+### Warm-up recall answer
 
-`bad_ones()` raises `RecursionError` immediately. See Part 2 for why.
-
----
-
-### Part 2 — Trace of `bad_ones()`
-
-```
-bad_ones()
-  = [1] + bad_ones()         ← must evaluate bad_ones() first
-         = [1] + bad_ones()  ← must evaluate bad_ones() first again
-                = [1] + bad_ones()  ← ...
-```
-
-Python evaluates `bad_ones()` (the right operand of `+`) *before* performing the concatenation. That recursive call must also evaluate `bad_ones()` before it can concatenate, and so on. The `+` never runs because the right operand never returns. Every call adds a frame to the stack; after ~1000 frames Python raises `RecursionError`.
-
-The crucial observation: `bad_ones()` needs its own result *before* it can produce its own result. This is a circular dependency with no way out — there is no base case and no guarded constructor to break the cycle.
+`[3, 9, 16, 20]`: index 0 is `3` (not `>15`), index 1 is `9` (not `>15`), index 2 is `16` (`>15` ✓).
+**Index 2.**
 
 ---
 
-### Part 3 — `good_ones()` trace
+### Part 1 — Total calls: 6
+
+Each of the three lines calls `expensive` twice (once per argument), and Python evaluates both
+arguments before `pick_eager`'s body runs at all — the value of `cond` has no bearing on whether
+either argument expression executes. `3 lines × 2 calls = 6` total calls to `expensive`.
+
+---
+
+### Part 2 — The wasted call on each line
+
+- `pick_eager(True, expensive(3), expensive(4))` → returns `a` (`cond` is `True`) → `expensive(4)`
+  was computed and discarded.
+- `pick_eager(False, expensive(5), expensive(6))` → returns `b` → `expensive(5)` was wasted.
+- `pick_eager(True, expensive(7), expensive(8))` → returns `a` → `expensive(8)` was wasted.
+
+Exactly one of the two calls is wasted on every line, because `pick_eager` only ever uses one branch
+— the `if/else` picks a single value — but eager evaluation had already paid for both before the
+`if/else` ran.
+
+---
+
+### Part 3 — The graded answer: 3
+
+Three lines, one wasted `expensive` call each: **3 wasted evaluations**, out of 6 total.
+
+---
+
+### Part 4 — The lazy version
 
 ```python
-good_ones()
-  → Cons(1, lambda: good_ones())   ← returns immediately
+def pick_lazy(cond, a_thunk, b_thunk):
+    return a_thunk() if cond else b_thunk()
 ```
 
-`good_ones()` calls `Cons(...)` with two arguments: `1` (already computed) and `lambda: good_ones()` (a closure — created in O(1), does *not* call `good_ones()` again). Python returns the `Cons` object immediately. Stack depth: 1.
-
-When `take` calls `stream.tail_thunk()`, *then* `good_ones()` is called again — but that call also returns immediately with another `Cons`. Stack depth during a `take(n, ...)` call is O(n) (the depth of `take`'s own recursion), not infinite.
-
-**Why the stack stays shallow**: the recursive reference `good_ones()` is inside a `lambda` — it is *guarded* by the closure. The lambda is a value, not a call. Python sees: "store this function for later" rather than "call this function now."
-
----
-
-### Part 4 — Haskell's `ones`: answer (b)
-
-In Haskell, `:` is a **data constructor** (the list cons), and Haskell's constructors are non-strict (lazy) by default — they do not evaluate their arguments when applied. So:
-
-```haskell
-ones = 1 : ones
+```python
+pick_lazy(True,  lambda: expensive(3), lambda: expensive(4))
+pick_lazy(False, lambda: expensive(5), lambda: expensive(6))
+pick_lazy(True,  lambda: expensive(7), lambda: expensive(8))
 ```
 
-evaluates to: a `Cons` node with head `1` and an *unevaluated thunk* for the tail. The thunk happens to be `ones` itself. Haskell may represent this as a literal cycle in memory: one `Cons` node whose tail pointer points back to itself — a circular linked list.
+`lambda: expensive(3)` builds a **thunk** — a zero-argument function that, when called, runs
+`expensive(3)`. Building the thunk does *not* run `expensive`; only calling it (`a_thunk()`) does.
+Inside `pick_lazy`, the `if/else` calls exactly one of `a_thunk`/`b_thunk` — never both — so exactly
+**one `expensive` call happens per line, 3 total**, instead of 6.
 
-When you demand the second element (`tail ones`), Haskell evaluates the thunk, which returns the same `Cons(1, <thunk>)` — either by sharing the existing node (if the runtime exploits the cycle) or by re-evaluating. Either way, only one element is in scope at a time.
-
-Option (a) is wrong — Haskell does not short-circuit or detect cycles; laziness makes them unnecessary. Option (c) is wrong — there is no compile-time limit. Option (d) is wrong — Haskell does not automatically convert to generators; the deferred-constructor mechanism is more fundamental.
-
----
-
-### Part 5 — The four definitions
-
-**A — `f(5)`: RecursionError**
-
-```
-f(5) = f(4) + 1  ← needs f(4)
-f(4) = f(3) + 1  ← needs f(3)
-...
-f(0) = f(-1) + 1 ← needs f(-1)
-f(-1) = f(-2) + 1 ← ... (no base case)
-```
-
-No base case. The recursion goes negative forever (or until the stack limit). `RecursionError`.
-
-**B — `g(5)`: terminates, returns 5**
-
-```
-g(5) = g(4) + 1
-g(4) = g(3) + 1
-...
-g(0) = 0        ← base case
-→ 0 + 1 + 1 + 1 + 1 + 1 = 5
-```
-
-Has a base case at `n == 0`. Stack depth = n + 1 = 6. Returns `5`. (For large n it would overflow, but for small n it is fine.)
-
-**C — `h()`: terminates, returns a thunk**
-
-```
-h() → lambda: h()
-```
-
-`h()` does not call `h()` — it returns a closure that *would* call `h()` if invoked. Stack depth: 1. Returns a zero-argument lambda.
-
-This is the same structure as `good_ones()`. The self-reference is inside a `lambda`, so it is guarded.
-
-**D — `k()`: RecursionError**
-
-```
-k() = k()  ← must evaluate k() before returning
-```
-
-`return k()` in Python evaluates `k()` before returning. `k()` evaluates `k()` before returning. No base case, no guard. `RecursionError`. Python does *not* perform tail-call optimization (TCO), so this is not a trampoline — it is a plain unbounded recursion.
-
-(Note: in a language with TCO, `k()` calling `k()` in tail position would reuse the same stack frame and loop forever rather than crash. Python lacks TCO by design.)
+`6 (eager) − 3 (lazy) = 3` — precisely the wasted-evaluations count from Part 3. That's not a
+coincidence: "wasted work under eager evaluation" and "work saved by laziness" are the same
+quantity, counted from two directions. Laziness doesn't do anything clever computationally — it
+just refuses to pay for an argument until something actually asks for its value, which means it
+never pays at all for a value that was never asked for.
 
 ---
 
 ### The pattern
 
-| Definition | Structure | Result |
-|------------|-----------|--------|
-| `f(n-1) + 1` (no base case) | naked recursive call | RecursionError |
-| `if n==0: return 0; else g(n-1)+1` | guarded by base case | terminates |
-| `return lambda: h()` | recursive reference inside lambda | terminates (returns thunk) |
-| `return k()` | naked self-call in tail | RecursionError |
+**Eager evaluation computes an argument because it's *there*; lazy evaluation computes it because
+it's *needed*.** For pure functions (Lesson 1) this is purely a performance question — the answer
+is identical either way, since a pure computation gives the same result whenever you run it. The
+only thing eager vs. lazy changes is how much work you do to get that answer, and (as you'll see
+next) what kinds of values you're even able to construct in the first place.
 
-**Rule**: a self-referential definition is safe in an eager language if and only if every path to the recursive reference is *guarded* — either by a base case that returns without recursing, or by a constructor/lambda that defers the call.
-
----
-
-### Stage 5 so far
-
-You now have the vocabulary for evaluation strategy:
-
-- **Eager evaluation** (Lesson 28): arguments computed before the call; short-circuit operators are the only built-in lazy forms.
-- **Thunks** (Lesson 28): manual laziness via `lambda: expr`.
-- **Infinite streams** (Lesson 29): `Cons(head, lambda: tail)` — the standard recipe for lazy sequences in eager languages.
-- **Runaway recursion** (Lesson 30): what happens when you forget the guard.
-
-Next in Stage 5: tail calls and why some languages need accumulators to avoid the stack blowups you just analyzed — and how that connects to the accumulator pattern from Lesson 12.
+**Next**: laziness isn't just about skipping wasted branches — it's what makes it possible to build
+structures that are, in principle, infinite. Lesson 31 builds one.

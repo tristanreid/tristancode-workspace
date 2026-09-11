@@ -1,54 +1,64 @@
 ---
-title: "Solution: Locality vs. Lookup: What Each Architecture Bets On"
-description: "Convolution bets that relevant information is nearby and position-agnostic; attention makes no distance assumption and learns relevance from content instead."
+title: "Solution: More Data, More Params, More Compute: Which Buys What?"
+description: "C = 400 — a 4x compute spend to halve the loss, not 2x. Square-root-shaped returns are the real shape; linear intuition underestimates the cost badly."
 lesson_number: 21
 track: ml
-concept: "What convolutions and attention each assume about structure"
-stage: 4
+concept: "Scaling intuitions: what more data, parameters, and compute each buy — and where each runs out"
+stage: 6
 layout: solution
 role: solution
-builds_on: [18]
+builds_on: [1, 3]
 skin: chalkboard
 resources:
-  - title: "distill.pub"
-    url: https://distill.pub/
-    note: "visual essays on convolution, receptive fields, and attention mechanics"
+  - title: "Google's ML Crash Course"
+    url: https://developers.google.com/machine-learning/crash-course
+    note: "practical grounding for the data/parameters/compute tradeoffs discussed here"
 ---
 
-**Option 2.** Convolution isn't slow because of parallelism (option 1 is backwards — convolutions
-parallelize beautifully, that's a large part of why CNNs were practical early on) and it isn't limited
-to images by definition (option 3 — 1D convolutions run over sequences too, they just carry the same
-locality bet). And no architecture wins everything unconditionally (option 4) — that's exactly the
-kind of claim this lesson is arguing against.
+**Retrieval check.** Quicksort's behavior is *specified by a programmer*, directly, as exact logic
+— there's no function family being scored by a loss and searched over examples; the same algorithm
+sorts correctly with zero training data. Learning-as-function-fitting specifically requires that the
+function's behavior was *induced from data*, which quicksort's never is, no matter how it's
+implemented.
 
-**Why the pronoun task breaks convolution's bet.** A stack of convolutional layers *can* eventually
-connect distant positions — each layer widens the effective "receptive field" a little, so stacking
-enough of them lets information from far away eventually reach a given position. But that reach is
-built entirely out of *local* steps chained together, and it costs depth: connecting positions 40
-apart takes roughly 40-worth of local hops (fewer with clever dilation tricks, but the shape of the
-problem doesn't change). Worse, the pattern convolution detects at each hop is the *same* pattern
-applied everywhere (that's translation invariance), which fights against a task where what matters is
-specific *content* — "does this word grammatically match the gender and number of that word" — not a
-generic local shape. Nothing about "nearby" or "same everywhere" helps here; the antecedent could be
-adjacent or forty words back, and which one is right depends on the two words themselves, not their
-distance.
+**Main answer: C = 400.** Solve `10 / sqrt(C) = 0.5` → `sqrt(C) = 20` → `C = 400`. Going from
+loss 1.0 to loss 0.5 — cutting the loss exactly in half — took **4x** the compute, not 2x.
 
-**Why attention doesn't have this problem.** Attention computes a relevance score between every pair
-of positions directly — position 40 is exactly as reachable from position 1 as position 2 is, in a
-single step, with no chain of local hops needed. And the score is learned from the *content* at each
-position (what the words actually are), not from a fixed template applied identically everywhere. That
-matches the task: "which earlier word does this pronoun refer to" is precisely a question about
-content-dependent, distance-independent relevance.
+**Why the intuition trap is so common.** Under a `1/sqrt(C)` curve, halving the loss always requires
+*quadrupling* compute, and the pattern gets steadily worse from there: the *next* halving, from 0.5
+to 0.25, needs another 4x on top of that (`C = 1,600`), and the one after that needs another 4x
+(`C = 6,400`) — the absolute compute cost of each successive halving keeps growing, even though the
+loss keeps falling by the same relative amount. "Twice the compute, half the loss" is a *linear*
+intuition; the real curve is a **power law**, and power laws with an exponent less than 1 (here,
+`loss ∝ C^-0.5`) always produce this diminishing-returns shape — every fixed percentage improvement
+gets more expensive than the last, forever, never free, never flat.
 
-**The honest tradeoff.** This isn't "attention is strictly better." Attention's all-pairs comparison
-costs more compute (it scales with the *square* of sequence length, since every position compares
-against every other), and it throws away a genuinely useful prior — locality — when the data actually
-*does* have local structure, like images. That's why convolutions remain excellent, efficient choices
-for image-shaped data, and why modern architectures often mix both: local convolutional features feeding
-into global attention, or vice versa. The lesson isn't "pick a winner" — it's "match the architecture's
-built-in assumption to the shape of the problem."
+**Why this is worth estimating rather than memorizing.** Real training curves aren't exactly
+`10/sqrt(C)` — the exponent and constants depend on the model family, the data, the task — but the
+*qualitative* shape (steep early gains, brutally diminishing later ones, no point where the curve
+goes flat and "you're done") shows up again and again in practice. Calibrating your gut sense of
+"how much more compute would a meaningfully better model cost" against a curve like this, rather
+than against a "twice the spend, twice the improvement" mental model, is the actual skill — which is
+why this was an estimate question, not a lookup.
 
-**Where this goes:** Stage 4 closes here — perceptrons, depth, backprop, why training works, and now
-the two dominant ways of deciding what to combine. Stage 5 turns to what gets *represented*: how things
-become vectors in the first place, and what it means for two of those vectors to be close together —
-the foundation attention's "relevance score" is actually built on.
+**Data, parameters, and compute, tied back together.** Compute is the budget; data and parameters
+are the two things you spend it on, and the right split between them shifts with how much compute
+you have. A small compute budget spent on a huge model with too little data mostly buys
+overfitting — lesson 3's U-curve, arriving from the parameters-without-data direction. The same
+budget spent on a tiny model fed enormous data plateaus early — the model's function family runs out
+of room to represent anything more, no matter how much more data it sees. Getting the most out of a
+fixed compute budget means balancing model size against data size, not maximizing either one alone —
+which is the actual content behind "scaling laws" as a research topic, beyond the single curve this
+lesson used to build intuition.
+
+**Two cross-track echoes.** If you've done the bayes track: a posterior's standard deviation
+shrinks roughly as `1 / sqrt(n)` with more data — the identical square-root-shaped, ever-diminishing
+return this lesson's compute curve has, just applied to certainty about a parameter instead of loss
+about a prediction. And from last lesson: compute is worth more spent on additional parallel *work*
+than on lengthening an already-short *span* — a transformer's short span means more compute mostly
+buys wider parallelism or a bigger model, not a faster critical path, since the critical path was
+already short.
+
+**Where this goes:** Stage 6 closes here. Stage 7 turns from "how big should this be" to "how do you
+know when the whole approach is wrong" — starting with when a simple linear model quietly beats a
+much larger one.
